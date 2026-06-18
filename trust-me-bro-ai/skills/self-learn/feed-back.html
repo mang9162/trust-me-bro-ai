@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Self-Learn Feedback</title>
+<script src="small-learn.js"></script>
+<script src="medium-learn.js"></script>
+<script src="heavy-learn.js"></script>
+<script src="log.js"></script>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --small-color: #16a34a;
+    --small-bg: #dcfce7;
+    --small-border: #86efac;
+    --medium-color: #d97706;
+    --medium-bg: #fef3c7;
+    --medium-border: #fcd34d;
+    --heavy-color: #dc2626;
+    --heavy-bg: #fee2e2;
+    --heavy-border: #fca5a5;
+    --log-color: #64748b;
+    --log-bg: #f1f5f9;
+    --log-border: #cbd5e1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 100%;
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  .subtitle { color: var(--muted); font-size: 0.85rem; margin: 0 0 20px; }
+
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    padding: 8px 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: -2px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s;
+  }
+  .tab-btn:hover { background: #f1f5f9; color: var(--text); }
+  .tab-btn.active[data-tier="small"]  { border-bottom-color: var(--small-color);  color: var(--small-color); }
+  .tab-btn.active[data-tier="medium"] { border-bottom-color: var(--medium-color); color: var(--medium-color); }
+  .tab-btn.active[data-tier="heavy"]  { border-bottom-color: var(--heavy-color);  color: var(--heavy-color); }
+  .tab-btn.active[data-tier="log"]    { border-bottom-color: var(--log-color);    color: var(--log-color); }
+
+  .count-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 999px;
+    min-width: 18px;
+    text-align: center;
+  }
+  .tab-btn[data-tier="small"]  .count-badge { background: var(--small-bg);  color: var(--small-color);  border: 1px solid var(--small-border); }
+  .tab-btn[data-tier="medium"] .count-badge { background: var(--medium-bg); color: var(--medium-color); border: 1px solid var(--medium-border); }
+  .tab-btn[data-tier="heavy"]  .count-badge { background: var(--heavy-bg);  color: var(--heavy-color);  border: 1px solid var(--heavy-border); }
+  .tab-btn[data-tier="log"]    .count-badge { background: var(--log-bg);    color: var(--log-color);    border: 1px solid var(--log-border); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .empty { color: var(--muted); font-size: 0.85rem; font-style: italic; padding: 8px 0; }
+  .entry {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .entry-title { font-weight: 700; font-size: 0.95rem; }
+  .entry-meta { font-size: 0.72rem; color: var(--muted); }
+  .entry-problem { font-size: 0.85rem; margin: 6px 0; }
+  .occurrences { font-size: 0.78rem; color: var(--muted); margin: 6px 0 10px; }
+  .occurrences ul { margin: 4px 0 0; padding-left: 18px; }
+  table.fix-options {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    margin-top: 6px;
+  }
+  table.fix-options th, table.fix-options td {
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table.fix-options th { background: #f1f5f9; font-weight: 600; }
+  table.fix-options ol { margin: 0; padding-left: 18px; }
+  .copy-btn {
+    font-size: 0.72rem;
+    border: 1px solid #0ea5e9;
+    color: #0ea5e9;
+    background: #fff;
+    border-radius: 4px;
+    padding: 3px 8px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: #f0f9ff; }
+  .copy-btn.copied { border-color: var(--small-color); color: var(--small-color); }
+  .custom-fix { margin-top: 10px; display: flex; gap: 6px; align-items: flex-start; }
+  .custom-fix input {
+    flex: 1;
+    font-size: 0.78rem;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    outline: none;
+  }
+  .custom-fix input:focus { border-color: #0ea5e9; }
+  .log-fields { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+  code { background: #f1f5f9; border-radius: 3px; padding: 1px 4px; font-size: 0.85em; }
+</style>
+</head>
+<body>
+  <h1>Self-Learn Feedback</h1>
+  <p class="subtitle">
+    View of <code>small-learn.js</code> / <code>medium-learn.js</code> / <code>heavy-learn.js</code> / <code>log.js</code>.
+    Reload after <code>self-report</code> or <code>self-improve</code> updates a file.
+  </p>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tier="small"  onclick="switchTab('small')">Small  <span class="count-badge" id="count-small">0</span></button>
+    <button class="tab-btn"        data-tier="medium" onclick="switchTab('medium')">Medium <span class="count-badge" id="count-medium">0</span></button>
+    <button class="tab-btn"        data-tier="heavy"  onclick="switchTab('heavy')">Heavy  <span class="count-badge" id="count-heavy">0</span></button>
+    <button class="tab-btn"        data-tier="log"    onclick="switchTab('log')">Log    <span class="count-badge" id="count-log">0</span></button>
+  </div>
+
+  <div id="panel-small"  class="tab-panel active"></div>
+  <div id="panel-medium" class="tab-panel"></div>
+  <div id="panel-heavy"  class="tab-panel"></div>
+  <div id="panel-log"    class="tab-panel"></div>
+
+  <script>
+    function switchTab(tier) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tier === tier));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tier));
+    }
+
+    function el(tag, attrs, children) {
+      attrs = attrs || {};
+      children = children || [];
+      var node = document.createElement(tag);
+      Object.keys(attrs).forEach(function(k) {
+        if (k === 'text') node.textContent = attrs[k];
+        else node.setAttribute(k, attrs[k]);
+      });
+      children.forEach(function(child) { node.appendChild(child); });
+      return node;
+    }
+
+    function copyPrompt(btn, text) {
+      navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 1200);
+      });
+    }
+
+    function renderFixOptions(entry, file) {
+      var table = el('table', { 'class': 'fix-options' });
+      table.appendChild(el('tr', {}, [
+        el('th', { text: 'Option' }),
+        el('th', { text: 'Addresses' }),
+        el('th', { text: 'Files' }),
+        el('th', { text: 'Steps' }),
+        el('th', { text: '' }),
+      ]));
+      (entry.fixOptions || []).forEach(function(opt) {
+        var steps = el('ol');
+        (opt.steps || []).forEach(function(s) { steps.appendChild(el('li', { text: s })); });
+        var btn = el('button', { 'class': 'copy-btn', text: 'Copy prompt' });
+        btn.addEventListener('click', function() {
+          copyPrompt(btn, 'self-improve: entry=' + entry.id + ' (' + file + '), apply fix option ' + opt.label);
+        });
+        table.appendChild(el('tr', {}, [
+          el('td', { text: String(opt.label) }),
+          el('td', { text: opt.addresses || '' }),
+          el('td', { text: (opt.files || []).join(', ') }),
+          el('td', {}, [steps]),
+          el('td', {}, [btn]),
+        ]));
+      });
+      return table;
+    }
+
+    function renderEntry(entry, file, readOnly) {
+      var card = el('div', { 'class': 'entry' });
+      card.appendChild(el('div', { 'class': 'entry-header' }, [
+        el('div', { 'class': 'entry-title', text: entry.title || entry.id }),
+        el('div', { 'class': 'entry-meta', text: 'id: ' + entry.id + ' · first seen: ' + entry.firstSeen + ' · by: ' + entry.reportedBy + ' · status: ' + entry.status }),
+      ]));
+      card.appendChild(el('div', { 'class': 'entry-problem', text: entry.problem || '' }));
+      var occ = el('div', { 'class': 'occurrences' });
+      occ.appendChild(el('div', { text: 'Occurrences (' + (entry.occurrences || []).length + '):' }));
+      var list = el('ul');
+      (entry.occurrences || []).forEach(function(o) {
+        list.appendChild(el('li', { text: o.date + ' — ' + o.by + ': ' + o.note }));
+      });
+      occ.appendChild(list);
+      card.appendChild(occ);
+      card.appendChild(renderFixOptions(entry, file));
+      if (readOnly) {
+        card.appendChild(el('div', { 'class': 'log-fields', text: 'chosen option: ' + entry.chosenOption + ' · applied: ' + entry.appliedDate }));
+      } else {
+        var wrap = el('div', { 'class': 'custom-fix' });
+        var input = el('input', { type: 'text', placeholder: 'Describe a custom fix...' });
+        var btn = el('button', { 'class': 'copy-btn', text: 'Copy custom fix prompt' });
+        btn.addEventListener('click', function() {
+          var t = input.value.trim();
+          if (t) copyPrompt(btn, 'self-improve: entry=' + entry.id + ' (' + file + '), custom fix: ' + t);
+        });
+        wrap.appendChild(input);
+        wrap.appendChild(btn);
+        card.appendChild(wrap);
+      }
+      return card;
+    }
+
+    function renderPanel(tier, file, entries, readOnly) {
+      var panel = document.getElementById('panel-' + tier);
+      document.getElementById('count-' + tier).textContent = entries.length;
+      if (!entries.length) {
+        panel.appendChild(el('div', { 'class': 'empty', text: 'No entries.' }));
+      } else {
+        entries.forEach(function(e) { panel.appendChild(renderEntry(e, file, readOnly)); });
+      }
+    }
+
+    renderPanel('small',  'small-learn.js',  typeof SMALL_LEARN  !== 'undefined' ? SMALL_LEARN  : []);
+    renderPanel('medium', 'medium-learn.js', typeof MEDIUM_LEARN !== 'undefined' ? MEDIUM_LEARN : []);
+    renderPanel('heavy',  'heavy-learn.js',  typeof HEAVY_LEARN  !== 'undefined' ? HEAVY_LEARN  : []);
+    renderPanel('log',    'log.js',          typeof LOG_DATA     !== 'undefined' ? LOG_DATA     : [], true);
+  </script>
+</body>
+</html>

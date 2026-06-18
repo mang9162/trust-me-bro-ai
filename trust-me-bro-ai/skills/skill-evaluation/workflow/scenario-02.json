@@ -1,0 +1,100 @@
+{
+  "skill_name": "workflow",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Go ahead and start the add-to-cart feature.",
+      "expected_output": "workflow invokes get-requirement first — does not skip to another stage",
+      "expectations": [
+        "workflow identifies that it is in Stage 1",
+        "workflow invokes or names get-requirement as the skill to use",
+        "workflow does not invoke create-test-data or create-task without going through Stage 1 first",
+        "workflow does not perform get-requirement's procedure itself, such as asking gaps or writing steps"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Looks good, scenario.html is fine — let's move on.",
+      "expected_output": "workflow advances to Stage 2, invokes create-test-data, then PAUSEs again",
+      "expectations": [
+        "workflow identifies that it is in Stage 2",
+        "workflow invokes or names create-test-data as the skill to use",
+        "workflow does not skip Stage 2 and jump straight to Stage 3",
+        "workflow states that it will PAUSE for user review after Stage 2 finishes"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "All tasks done, all tests pass — keep going.",
+      "expected_output": "workflow advances to Stage 5, invokes api-test, then PAUSEs",
+      "expectations": [
+        "workflow identifies that it is in Stage 5",
+        "workflow invokes or names api-test as the skill to use",
+        "workflow does not skip Stage 5 and jump straight to Stage 6",
+        "workflow does not perform api-test's procedure itself"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Didn't pass — E2E flow is missing the cleanup step.",
+      "expected_output": "workflow loops back to Stage 1 with the rejection reason as new input",
+      "expectations": [
+        "workflow identifies this as a rejection and routes back to Stage 1",
+        "workflow passes the rejection reason (missing cleanup step) as input to get-requirement",
+        "workflow does not mark the scenario as done",
+        "workflow does not jump directly to Stage 2"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Context hasn't been set up yet — can we just start the login feature anyway?",
+      "expected_output": "workflow invokes initialize first and does not start Stage 1 yet",
+      "expectations": [
+        "workflow detects that context/ or tech-stack/ is missing",
+        "workflow invokes or names initialize as the skill to run first",
+        "workflow does not invoke get-requirement until initialize is done"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Can you just write the addToCart function for me?",
+      "expected_output": "workflow declines to implement it directly and routes to the correct Stage 4 skill",
+      "expectations": [
+        "workflow does not write code or implement any function itself",
+        "workflow identifies implementation as belonging to Stage 4 (code-task skill)",
+        "workflow explains that its own role is control-only"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "There are still unit-test, integration-test, and code-task left — which one goes first?",
+      "expected_output": "workflow dispatches tasks one at a time by task.type — no parallel execution",
+      "expectations": [
+        "workflow states that Stage 4 dispatches per task.type",
+        "workflow does not perform any task type's procedure itself",
+        "workflow names unit-test, integration-test, and code-task skills in task order"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Can we run unit-test and code-task at the same time to speed things up?",
+      "expected_output": "workflow declines because parallel execution conflicts with its Role & Boundary",
+      "expectations": [
+        "workflow refuses to change routing logic that conflicts with its design",
+        "workflow explains that dispatch per task means one task at a time",
+        "workflow does not implement parallel execution logic"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Add to Cart is done and accepted — let's do the remove-from-cart feature next.",
+      "expected_output": "workflow starts a fresh cycle from Stage 1 for the new scenario",
+      "expectations": [
+        "workflow confirms the previous scenario is done",
+        "workflow starts Stage 1 fresh for the remove-from-cart feature",
+        "workflow invokes get-requirement for the new requirement",
+        "workflow does not carry over state from the previous scenario"
+      ]
+    }
+  ]
+}

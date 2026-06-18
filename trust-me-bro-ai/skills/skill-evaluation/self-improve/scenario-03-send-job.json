@@ -1,0 +1,53 @@
+{
+  "skill_name": "self-improve",
+  "group": "initialize",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "self-improve: entry=20260616-initialize-error-registry-missing (medium-learn.json), apply fix option 1",
+      "files": [
+        "evals/files-initialize/medium-learn.json",
+        "evals/files-initialize/log.json"
+      ],
+      "expected_output": "self-improve execute fix โดยส่ง INITIALIZE_BASE_RESPONSE_ERROR_CODE เข้า workflow Stage 1 ไม่สร้าง error registry เอง แล้ว move entry ไป log.json",
+      "expectations": [
+        "self-improve trigger workflow โดยส่ง INITIALIZE_BASE_RESPONSE_ERROR_CODE เข้า Stage 1 (get-requirement)",
+        "self-improve ไม่สร้าง error registry หรือเขียน error code เอง",
+        "entry 20260616-initialize-error-registry-missing ถูกลบออกจาก medium-learn.json",
+        "entry ถูก append เข้า log.json พร้อม status: done และ chosenOption: 1",
+        "log.json entry มี appliedDate เป็นวันนี้"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "self-improve: entry=20260616-initialize-api-test-infra-missing (medium-learn.json), apply fix option 1",
+      "files": [
+        "evals/files-initialize/medium-learn.json",
+        "evals/files-initialize/log.json"
+      ],
+      "expected_output": "self-improve execute fix โดยส่ง INITIALIZE_API_TEST_SETUP เข้า workflow Stage 1 ไม่ scaffold infra เอง แล้ว move entry ไป log.json",
+      "expectations": [
+        "self-improve trigger workflow โดยส่ง INITIALIZE_API_TEST_SETUP เข้า Stage 1 (get-requirement)",
+        "self-improve ไม่ scaffold api-test infra เอง",
+        "entry 20260616-initialize-api-test-infra-missing ถูกลบออกจาก medium-learn.json",
+        "entry ถูก append เข้า log.json พร้อม status: done และ chosenOption: 1",
+        "entry อื่นใน medium-learn.json ไม่ถูกแตะ"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "self-improve: entry=20260616-initialize-error-registry-missing (medium-learn.json)",
+      "files": [
+        "evals/files-initialize/medium-learn.json",
+        "evals/files-initialize/log.json"
+      ],
+      "expected_output": "ไม่ระบุ option มา — self-improve แสดง fixOptions ให้ user เลือกก่อน ไม่ trigger workflow ทันที",
+      "expectations": [
+        "self-improve แสดง fixOptions ของ entry นี้ให้ user เลือก",
+        "self-improve ไม่ trigger workflow ก่อน user เลือก option",
+        "self-improve ไม่แตะ log.json จนกว่า user จะเลือกและ confirm",
+        "self-improve อธิบายว่า fix คือการส่ง INITIALIZE_BASE_RESPONSE_ERROR_CODE เข้า workflow"
+      ]
+    }
+  ]
+}

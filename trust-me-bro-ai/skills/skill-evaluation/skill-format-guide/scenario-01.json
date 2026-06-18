@@ -1,0 +1,106 @@
+{
+  "skill_name": "skill-format-guide",
+  "group": "skill-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "อยากเพิ่ม connection type ใหม่ชื่อ 'notify' สำหรับกรณีที่ skill แจ้งอีก skill แต่ไม่ได้ hand-off จริงๆ",
+      "expected_output": "แก้ได้ — เป็นการเพิ่ม connection type vocabulary ซึ่งอยู่ใน scope ของ skill นี้",
+      "expectations": [
+        "skill ยอมรับว่าแก้ได้",
+        "skill ระบุว่าต้องเพิ่ม notify ใน ## Connection Types section",
+        "skill ถามก่อนว่า notify จะแสดงเป็น edge style ไหนใน file-map.html เพราะ connection type ใหม่ต้องมี edge แบบใหม่ด้วย ไม่สามารถ reuse เส้นที่มีอยู่แล้วได้",
+        "skill ไม่ redirect ไปที่อื่น"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "อยากเปลี่ยนลำดับ section ใน Skill File Structure ให้ ## Role & Boundary ขึ้นมาอยู่บนสุดเสมอ ไม่ต้องมี position exception",
+      "expected_output": "แก้ได้ — เป็นการเปลี่ยน section ordering rule ซึ่งอยู่ใน scope ของ skill นี้",
+      "expectations": [
+        "skill ยอมรับว่าแก้ได้",
+        "skill ระบุว่าแก้ใน ## Skill File Structure section",
+        "skill ไม่ redirect ไปที่อื่น"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "อยากเปลี่ยน format ของ ## References จาก '- <type>: <file> — <what>' เป็น '- <file> (<type>): <what>' ให้อ่านง่ายขึ้น",
+      "expected_output": "แก้ได้ — เป็นการเปลี่ยน section format ซึ่งอยู่ใน scope ของ skill นี้ แต่ต้องอัปเดตทุก skill ที่ใช้ format นี้ด้วย",
+      "expectations": [
+        "skill ยอมรับว่าแก้ได้",
+        "skill เตือนว่า format change นี้กระทบทุก skill ที่มี ## References section อยู่แล้ว",
+        "skill ไม่ redirect ไปที่อื่น"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "อยากเพิ่ม checklist step ใน 'Before You Create or Edit a Skill' ให้ตรวจว่า skill ใหม่ไม่ duplicate content จาก skill อื่น",
+      "expected_output": "แก้ได้ — เป็นการเพิ่ม guidance ใน Before You Create or Edit a Skill ซึ่งอยู่ใน scope",
+      "expectations": [
+        "skill ยอมรับว่าแก้ได้",
+        "skill ระบุว่าเพิ่มใน ## Before You Create or Edit a Skill section",
+        "skill ไม่ redirect ไปที่อื่น"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "อยากให้ skill-format-guide บันทึกด้วยว่า skill ไหน own อะไรบ้าง จะได้ไม่ต้องไปดู workflow/SKILL.md",
+      "expected_output": "แก้ไม่ได้ — Responsibility map เป็นของ workflow/SKILL.md ไม่ใช่ scope ของ skill นี้",
+      "expectations": [
+        "skill ปฏิเสธ",
+        "skill อ้างถึง Role & Boundary ว่า skill นี้ไม่ track ว่า skill ไหนทำอะไร"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "อยากให้ skill-format-guide เก็บ list ว่าตอนนี้มี skill อะไรบ้างใน project",
+      "expected_output": "แก้ไม่ได้ — skill inventory ไม่ใช่ scope ของ skill นี้",
+      "expectations": [
+        "skill ปฏิเสธ",
+        "skill อ้างถึง Role & Boundary ว่า skill นี้ own แค่ format และ vocabulary",
+        "skill ไม่เพิ่ม skill inventory ลงในไฟล์นี้"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "อยากให้ skill-format-guide track ด้วยว่า file ไหน connect กับ file ไหนบ้าง จะได้ครบในที่เดียว",
+      "expected_output": "แก้ไม่ได้ — concrete connection tracking เป็นของ file-map.html",
+      "expectations": [
+        "skill ปฏิเสธ",
+        "skill อ้างถึง Role & Boundary ว่า skill นี้ไม่ track concrete file connections",
+        "skill redirect ไป file-map.html"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "อยากให้ skill-format-guide กำหนดด้วยว่า skill แต่ละอันต้องมี unit test หรือเปล่า",
+      "expected_output": "แก้ไม่ได้ — testing requirement ไม่ใช่ scope ของ skill นี้",
+      "expectations": [
+        "skill ปฏิเสธ",
+        "skill อธิบายว่า skill นี้ own แค่ format ของ cross-file connection declaration",
+        "skill ไม่เพิ่ม testing requirement ลงในไฟล์นี้"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "อยากแก้ Role & Boundary ของ skill นี้ให้ครอบคลุม connection tracking ด้วย แล้วค่อยย้ายข้อมูลจาก file-map.html มา",
+      "expected_output": "แก้ได้ถ้าตั้งใจขยาย scope — แต่ต้องอัปเดต Role & Boundary ก่อน แล้วค่อยย้ายข้อมูล",
+      "expectations": [
+        "skill ยอมรับว่า Role & Boundary แก้ได้",
+        "skill อธิบายว่าต้องแก้ Role & Boundary ก่อนเสมอ ก่อนขยาย scope จริง",
+        "skill เตือนว่าถ้าย้าย connection tracking มา file-map.html จะกลายเป็น redundant และต้องจัดการ bridge ระหว่างสองไฟล์ด้วย"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "อยากเพิ่ม ## References line ใน get-requirement skill โดยไม่อัปเดต file-map.html",
+      "expected_output": "แก้ไม่ได้แบบนั้น — ทุกครั้งที่แก้ ## References ต้องอัปเดต file-map.html ด้วยเสมอ เพราะเป็น bridge pair",
+      "expectations": [
+        "skill ปฏิเสธการแก้โดยไม่อัปเดต file-map.html",
+        "skill อ้างถึง Before You Create or Edit a Skill ว่า file-map.html เป็น bridge กับ References/Trigger Skill/Writes To",
+        "skill อธิบายว่าต้องอ่าน file-map.html ก่อน แก้ skill แล้วอัปเดต edge ใน diagram ด้วย"
+      ]
+    }
+  ]
+}

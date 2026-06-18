@@ -1,0 +1,33 @@
+{
+  "skill_name": "initialize",
+  "group": "bootstrap",
+  "evals": [
+    {
+      "id": 1,
+      "conversation": [
+        { "user": "เพิ่งเอา skill ชุดนี้มาใส่ในโปรเจค ช่วย setup ให้ AI พร้อมทำงานหน่อย" },
+        { "ai": "ได้เลย เริ่ม initialize — อยากให้สแกนแบบ light (เก็บโครงไว้ก่อน) หรือ full (เก็บรายละเอียดให้ครบ) ดีครับ?" },
+        { "user": "เอา full" },
+        { "ai": "สแกนรีโปแล้ว: NestJS monorepo มี 2 app — live-service กับ live-consumer, database เป็น postgres. ฝั่ง inbound เจอ route/controller ของแต่ละ app, ฝั่ง outbound เจอ gateway/client ที่เรียกออกในโค้ด. ขอ confirm หน่อย — domain เป็นระบบ live selling ใช่ไหมครับ?" },
+        { "user": "ใช่ live selling" },
+        { "ai": "โอเค สร้าง context/gateway-directory.md ตาม format แล้ว — Inbound แยก 2 ตารางตาม app (live-service, live-consumer), Outbound แยกตามปลายทางที่เจอในโค้ด. รายละเอียดที่สแกนไม่ครบจะให้ self-learn เติมตอนรัน workflow จริง" }
+      ],
+      "expected_output": "AI เข้าสู่ initialize, ถาม light/full, รายงานสิ่งที่สแกนเจอ + ถาม confirm สิ่งที่ไม่ชัวร์ แล้วเขียน context/gateway-directory.md ตาม gateway-directory-format.md",
+      "expectations": [
+        "AI เข้าสู่ skill initialize (ไม่เดาลงมือทำเอง)",
+        "ถาม light หรือ full scan ก่อนเริ่ม (Phase 1)",
+        "รายงานสิ่งที่สแกนเจอเอง (NestJS 2 app, postgres, inbound routes, outbound gateway calls) — ไม่ให้ user ป้อนทุกอย่าง",
+        "สิ่งที่สแกนไม่ชัวร์ → ถามกลับ (เช่น confirm domain) หรือเว้นว่างให้ self-learn เติม — ไม่เดา และไม่ mock",
+        "เขียนลง context/gateway-directory.md ตาม Target ใน format (ไม่ใช่ที่อื่น)",
+        "copy format ลง target (## How to use + per-section template + ## References + ## Role & Boundary) แต่ไม่เอา Target line / ## How to scan ลงไฟล์จริง",
+        "## Inbound Gateway แยก 1 ตารางต่อ app: ### live-service และ ### live-consumer",
+        "## Outbound Gateway จัดกลุ่มตามปลายทาง (1 ### ต่อ 1 ระบบ) ไม่ใช่ตามชื่อ gateway-class/function",
+        "ทุกตารางใช้คอลัมน์: endpoint | condition | purpose | bridge | function | note",
+        "bridge เป็นไอดีรูป <service>(<path>) ไม่ใช่ชื่อ function",
+        "function เก็บที่อยู่ของโค้ด (controller/handler ฝั่ง inbound, gateway/client ฝั่ง outbound); ไม่เขียน request/response shape ในไฟล์นี้ (อยู่ที่ gateway-contract.md)",
+        "endpoint ที่มีหลาย variant ถูกแยกเป็น 1 row ต่อ variant ด้วย condition (เช่น action=RESERVE vs action=RELEASE)",
+        "Phase 2: เช็ค doc เดิมที่ต้อง migrate — เคสนี้ไม่มี จึงไม่ migrate อะไร"
+      ]
+    }
+  ]
+}

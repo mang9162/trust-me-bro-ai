@@ -1,0 +1,53 @@
+{
+  "skill_name": "self-improve",
+  "group": "initialize",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "self-improve: entry=20260616-initialize-error-registry-missing (medium-learn.json), apply fix option 1",
+      "files": [
+        "evals/files-initialize/medium-learn.json",
+        "evals/files-initialize/log.json"
+      ],
+      "expected_output": "self-improve executes the fix by feeding INITIALIZE_BASE_RESPONSE_ERROR_CODE into workflow Stage 1 — does not create the error registry itself — then moves the entry to log.json",
+      "expectations": [
+        "self-improve triggers workflow by feeding INITIALIZE_BASE_RESPONSE_ERROR_CODE into Stage 1 (get-requirement)",
+        "self-improve does not create the error registry or write error codes itself",
+        "entry 20260616-initialize-error-registry-missing is removed from medium-learn.json",
+        "entry is appended to log.json with status: done and chosenOption: 1",
+        "log.json entry has appliedDate set to today"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "self-improve: entry=20260616-initialize-api-test-infra-missing (medium-learn.json), apply fix option 1",
+      "files": [
+        "evals/files-initialize/medium-learn.json",
+        "evals/files-initialize/log.json"
+      ],
+      "expected_output": "self-improve executes the fix by feeding INITIALIZE_API_TEST_SETUP into workflow Stage 1 — does not scaffold the infra itself — then moves the entry to log.json",
+      "expectations": [
+        "self-improve triggers workflow by feeding INITIALIZE_API_TEST_SETUP into Stage 1 (get-requirement)",
+        "self-improve does not scaffold the api-test infra itself",
+        "entry 20260616-initialize-api-test-infra-missing is removed from medium-learn.json",
+        "entry is appended to log.json with status: done and chosenOption: 1",
+        "other entries in medium-learn.json are not touched"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "self-improve: entry=20260616-initialize-error-registry-missing (medium-learn.json)",
+      "files": [
+        "evals/files-initialize/medium-learn.json",
+        "evals/files-initialize/log.json"
+      ],
+      "expected_output": "No option specified — self-improve presents fixOptions for the user to choose, does not trigger workflow immediately",
+      "expectations": [
+        "self-improve displays the entry's fixOptions for the user to select",
+        "self-improve does not trigger workflow before the user chooses an option",
+        "self-improve does not touch log.json until the user selects and confirms",
+        "self-improve explains that the fix is feeding INITIALIZE_BASE_RESPONSE_ERROR_CODE into workflow"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "skill_name": "create-test-data",
+  "group": "skill-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "อยากเพิ่ม column ชื่อ owner ใน Datatest.md เพื่อระบุว่าแต่ละ variable มาจาก service ไหน",
+      "expected_output": "แก้ได้ — เป็นการเปลี่ยน Datatest.md format ซึ่งอยู่ใน scope ของ skill นี้",
+      "expectations": [
+        "skill ยอมรับว่าแก้ได้",
+        "skill อธิบายว่า Datatest.md เป็น output ของ skill นี้ แก้ format ได้โดยตรง",
+        "skill ไม่ปฏิเสธหรือ redirect ไป stage อื่น"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "อยากเปลี่ยน status value จาก 'new → self-report' เป็น 'MISSING' ให้อ่านง่ายขึ้น",
+      "expected_output": "แก้ได้ — เป็นการเปลี่ยน status convention ใน Datatest.md ซึ่งอยู่ใน scope",
+      "expectations": [
+        "skill ยอมรับว่าแก้ได้",
+        "skill ระบุว่าแก้ได้โดยเปลี่ยน status value ใน skill นี้จาก new → self-report เป็น MISSING",
+        "skill ไม่ redirect ไป self-report หรือ stage อื่น"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "อยากให้ self-report ถูก trigger ทันทีทุกครั้งที่เจอ gap แทนที่จะรวมครั้งเดียวตอนจบ",
+      "expected_output": "แก้ได้ — เป็นการเปลี่ยน timing ของ self-report trigger ใน step 5 ซึ่งอยู่ใน scope",
+      "expectations": [
+        "skill ยอมรับว่าแก้ได้",
+        "skill อธิบายว่าแก้ได้โดยย้าย self-report trigger จาก step 5 ไปแทรกระหว่าง step 2-4 แทนแต่ละครั้งที่เจอ gap",
+        "skill ไม่ redirect ไป self-report skill"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "อยากเพิ่ม step ให้ตรวจว่า Datatest.md ทุก row มีค่า value ก่อน PAUSE",
+      "expected_output": "แก้ได้ — เป็นการเพิ่ม self-consistency check ใน step 7 ซึ่งอยู่ใน scope",
+      "expectations": [
+        "skill ยอมรับว่าแก้ได้",
+        "skill ระบุว่าเพิ่มใน step 7 (self-consistency check ก่อน PAUSE)",
+        "skill ไม่ redirect ไป stage อื่น"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "อยากให้ create-test-data เขียน assertion ลง Datatest.md ด้วยเลย จะได้ไม่ต้องรอ Stage 5",
+      "expected_output": "แก้ไม่ได้ — assertion เป็น scope ของ Stage 5 api-test",
+      "expectations": [
+        "skill ปฏิเสธ",
+        "skill อ้างถึง Role & Boundary ว่า assertion ไม่ใช่ scope ของ Stage 2",
+        "skill ระบุว่า assertion เป็นของ Stage 5 api-test"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "อยากให้ create-test-data ออกแบบ functional tree ของ function ที่ต้องเขียนด้วย จะได้รู้ก่อน Stage 3",
+      "expected_output": "แก้ไม่ได้ — functional/task design เป็น scope ของ Stage 3 create-task",
+      "expectations": [
+        "skill ปฏิเสธ",
+        "skill อ้างถึง Role & Boundary ว่า task design ไม่ใช่ scope ของ Stage 2",
+        "skill ระบุว่า functional design เป็นของ Stage 3 create-task"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "อยากให้ create-test-data move stubs ไป test-env ให้ด้วยตอนสร้างเสร็จ",
+      "expected_output": "แก้ไม่ได้ — การ move stubs เป็น scope ของ Stage 4 env-setup",
+      "expectations": [
+        "skill ปฏิเสธ",
+        "skill อ้างถึง Role & Boundary ว่าการ move stubs ไม่ใช่ scope ของ Stage 2",
+        "skill ระบุว่าเป็นของ Stage 4 env-setup"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "อยากให้ create-test-data เพิ่ม variable ใหม่ลง data.md เองถ้าเจอ field ที่ยังไม่มี",
+      "expected_output": "แก้ไม่ได้ — skill นี้อ่าน reference files อย่างเดียว ห้ามแก้",
+      "expectations": [
+        "skill ปฏิเสธ",
+        "skill อ้างถึง Role & Boundary ว่า skill นี้ read-only สำหรับ reference files",
+        "skill อธิบายว่า gap ต้องส่งไป self-report เท่านั้น ไม่แก้ data.md เอง"
+      ]
+    }
+  ]
+}

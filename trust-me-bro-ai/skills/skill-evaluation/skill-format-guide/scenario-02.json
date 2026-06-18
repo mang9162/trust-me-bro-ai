@@ -1,0 +1,106 @@
+{
+  "skill_name": "skill-format-guide",
+  "group": "skill-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add a new connection type called 'notify' for cases where a skill alerts another skill without actually handing off.",
+      "expected_output": "allowed — adding a connection type to the vocabulary is within scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill identifies ## Connection Types as the section to update",
+        "skill asks what edge style notify should use in file-map.html — a new connection type needs a new edge style and cannot reuse an existing one",
+        "skill does not redirect elsewhere"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to change the section ordering so ## Role & Boundary always comes first, removing the position exception.",
+      "expected_output": "allowed — changing the section ordering rule is within scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill identifies ## Skill File Structure as the section to update",
+        "skill does not redirect elsewhere"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want to change the ## References format from '- <type>: <file> — <what>' to '- <file> (<type>): <what>' to make it easier to read.",
+      "expected_output": "allowed — changing a section format is within scope, but all existing skills using this format must also be updated",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill warns that this format change affects every skill that already has a ## References section",
+        "skill does not redirect elsewhere"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want to add a checklist step in 'Before You Create or Edit a Skill' to verify that a new skill doesn't duplicate content from another skill.",
+      "expected_output": "allowed — adding guidance to Before You Create or Edit a Skill is within scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill identifies ## Before You Create or Edit a Skill as the section to update",
+        "skill does not redirect elsewhere"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I want skill-format-guide to also record which skill owns what, so I don't have to go to workflow/SKILL.md.",
+      "expected_output": "not allowed — the Responsibility map belongs to workflow/SKILL.md, not this skill",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating this skill does not track which skill owns what"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I want skill-format-guide to keep a list of all skills currently in the project.",
+      "expected_output": "not allowed — skill inventory is not within this skill's scope",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating this skill only owns format and vocabulary",
+        "skill does not add a skill inventory to this file"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I want skill-format-guide to also track which files connect to which, so everything is in one place.",
+      "expected_output": "not allowed — concrete connection tracking belongs to file-map.html",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating this skill does not track concrete file connections",
+        "skill redirects to file-map.html"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I want skill-format-guide to specify whether each skill is required to have unit tests.",
+      "expected_output": "not allowed — testing requirements are not within this skill's scope",
+      "expectations": [
+        "skill refuses",
+        "skill explains that this skill only owns the format for cross-file connection declarations",
+        "skill does not add testing requirements to this file"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "I want to update the Role & Boundary of this skill to also cover connection tracking, then move that data from file-map.html here.",
+      "expected_output": "allowed if intentionally expanding scope — but Role & Boundary must be updated first before moving any content",
+      "expectations": [
+        "skill confirms that Role & Boundary itself can be changed",
+        "skill explains that Role & Boundary must be updated first, before actually expanding the scope",
+        "skill warns that moving connection tracking here would make file-map.html redundant and the bridge between the two files would need to be resolved"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "I want to add a ## References line to the get-requirement skill without updating file-map.html.",
+      "expected_output": "not allowed that way — every ## References change must be paired with a file-map.html update since they are a bridge pair",
+      "expectations": [
+        "skill refuses to make the change without updating file-map.html",
+        "skill cites Before You Create or Edit a Skill stating file-map.html is a bridge with References/Trigger Skill/Writes To",
+        "skill explains the correct order: read file-map.html first, make the skill change, then update the matching edge in the diagram"
+      ]
+    }
+  ]
+}

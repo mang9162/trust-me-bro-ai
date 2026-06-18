@@ -1,0 +1,33 @@
+{
+  "skill_name": "initialize",
+  "group": "bootstrap",
+  "evals": [
+    {
+      "id": 1,
+      "conversation": [
+        { "user": "I just dropped this skill kit into my project — can you set it up so the AI is ready to work?" },
+        { "ai": "Sure — starting initialize. Do you want a light scan (skeleton first) or a full scan (fill in all the detail)?" },
+        { "user": "Full." },
+        { "ai": "Scanned the repo: it's a NestJS monorepo with two apps — live-service and live-consumer — on Postgres. Inbound: I found each app's routes/controllers; Outbound: I found the gateway/client calls in the code. Quick check — is the domain a live-selling system?" },
+        { "user": "Yes, live selling." },
+        { "ai": "Done — created context/gateway-directory.md from the format. Inbound is split into one table per app (live-service, live-consumer); Outbound is grouped by target system as found in the code. Anything the scan couldn't fully resolve is left for self-learn to fill during real workflow runs." }
+      ],
+      "expected_output": "AI enters initialize, asks light/full, reports what it scanned + asks to confirm the uncertain parts, then writes context/gateway-directory.md following gateway-directory-format.md",
+      "expectations": [
+        "AI enters the initialize skill (doesn't just do it ad-hoc)",
+        "asks light vs full scan before starting (Phase 1)",
+        "reports what it scanned itself (NestJS 2 apps, postgres, inbound routes, outbound gateway calls) — doesn't make the user provide everything",
+        "for anything the scan can't resolve → asks back (e.g. confirm domain) or leaves it for self-learn — does not guess, does not mock",
+        "writes to context/gateway-directory.md per the Target in the format (not elsewhere)",
+        "copies the template's format into the target (## How to use + per-section templates + ## References + ## Role & Boundary) but not the Target line / ## How to scan",
+        "## Inbound Gateway has one table per app: ### live-service and ### live-consumer",
+        "## Outbound Gateway groups by target system (one ### per system), not by gateway-class/function name",
+        "every table uses columns: endpoint | condition | purpose | bridge | function | note",
+        "bridge is an id in the form <service>(<path>), not a function name",
+        "function holds where the code lives (controller/handler for inbound, gateway/client for outbound); request/response shapes are NOT written here (they live in gateway-contract.md)",
+        "an endpoint with multiple variants is split into one row per variant via the condition key (e.g. action=RESERVE vs action=RELEASE)",
+        "Phase 2: checks for existing docs to migrate — none here, so nothing is migrated"
+      ]
+    }
+  ]
+}

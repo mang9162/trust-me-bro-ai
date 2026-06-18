@@ -1,0 +1,302 @@
+{
+  "skill_name": "initialize",
+  "note": "Each case is a flow where the AI guides a user (who doesn't know this skill) step by step: ask → scan → report what was found → flag what's unclear and ask back → user answers. The prompt is the user's latest turn; expectations check the AI's next step per the skill.",
+  "evals": [
+    {
+      "id": 1,
+      "label": "After choosing light — AI walks Phase 1→2→3, then asks Phase 4",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Initialize this repo, it's a NestJS API."
+        },
+        {
+          "role": "assistant",
+          "content": "Sure — quick question first: should I do a rough pass that grabs the main structure now (faster, details filled in later as you work), or capture everything in full right now (slower)?"
+        },
+        {
+          "role": "user",
+          "content": "The rough one is fine."
+        },
+        {
+          "role": "assistant",
+          "content": "Okay, scanning now (Phase 1) — it's a NestJS project, found TypeORM with Postgres so there'll be a database-schema, plus several controllers and 2 outbound gateway lines. Keeping just names and structure for now as you chose.\n\nPhase 2 — looked for existing docs in the repo, didn't find any README or docs holding knowledge for these targets, so nothing to migrate.\n\nPhase 3 — no existing context/tech-stack files, so I read the format templates and created them fresh, writing in the skeleton: context/gateway-directory.md, tech-stack/database-schema.md, etc.\n\nNow there's something I can't tell from the code — a gateway line called NotifyClient. I'm not sure when it's called or what it's for. Could you explain?"
+        },
+        {
+          "role": "user",
+          "content": "NotifyClient is called when a live ends, to send a push notification to customers."
+        }
+      ],
+      "prompt": "NotifyClient is called when a live ends, to send a push notification to customers.",
+      "expected_output": "AI writes NotifyClient's purpose into the gateway directory, then moves to the next Phase 4 item",
+      "expectations": [
+        "AI writes NotifyClient's purpose (called when a live ends, sends push notification) into the gateway directory",
+        "AI also updates the contract row paired with NotifyClient",
+        "AI does not guess the purpose of other gateway lines it hasn't asked about",
+        "AI moves on to the next Phase 4 item the scan couldn't answer, one at a time",
+        "AI does not fire all Phase 4 questions at once"
+      ]
+    },
+    {
+      "id": 2,
+      "label": "AI scans, finds a gateway with unknown purpose — asks back",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Initialize this project, it's Spring Boot using Postgres."
+        },
+        {
+          "role": "assistant",
+          "content": "Quick question first — grab a rough structure first, or capture full detail now?"
+        },
+        {
+          "role": "user",
+          "content": "Full detail."
+        },
+        {
+          "role": "assistant",
+          "content": "Full scan done (Phase 1) — it's Spring Boot, found JPA entities for Postgres so there'll be a database-schema, plus several controllers and 3 outbound gateway lines.\n\nPhase 2 — no existing docs to migrate.\n\nPhase 3 — no existing context/tech-stack files, so I read the format templates, created them fresh and filled in full detail per the full scan.\n\nBut one line, PaymentClient, I couldn't tell from the code when it's called or what it's for — on a full scan I don't want to guess, so could you tell me what it does?"
+        },
+        {
+          "role": "user",
+          "content": "PaymentClient is called at checkout to charge through an external provider."
+        }
+      ],
+      "prompt": "PaymentClient is called at checkout to charge through an external provider.",
+      "expected_output": "AI writes the purpose into the gateway directory + paired contract row, then moves to the next Phase 4 item",
+      "expectations": [
+        "AI writes PaymentClient's purpose (called at checkout, charges via external provider) into the gateway directory",
+        "AI also updates the contract row paired with PaymentClient",
+        "AI does not guess the purpose of other lines it hasn't asked about",
+        "AI moves on to the next Phase 4 item it hasn't asked yet"
+      ]
+    },
+    {
+      "id": 3,
+      "label": "frontend-only — AI skips database-schema and irrelevant questions",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Initialize this repo, it's a React app only, no backend, it calls other services' APIs."
+        },
+        {
+          "role": "assistant",
+          "content": "Quick question first — rough structure first, or full detail now?"
+        },
+        {
+          "role": "user",
+          "content": "Rough first."
+        },
+        {
+          "role": "assistant",
+          "content": "Scanned it (Phase 1) — it's a pure React SPA. Checked the deps, no ORM/DB driver, so I won't create a database-schema.\n\nFor outbound calls I went through the fetch/axios clients in the code and found it hits 2 destinations: order-service (GET /orders, POST /orders) and payment-service (POST /pay) — I'll treat those as gateway lines.\n\nPhase 2 found no existing docs to migrate. Phase 3 created the context/tech-stack files fresh from the templates (no database-schema).\n\nNow into Phase 4 — what naming pattern do your scenarios follow? (default if none is <FEATURE>_<TYPE>_<N>)"
+        },
+        {
+          "role": "user",
+          "content": "Just use that default, it's fine."
+        }
+      ],
+      "prompt": "Just use that default, it's fine.",
+      "expected_output": "AI writes the default scenario naming into the target then asks the next Phase 4 item; throughout it creates no database-schema and treats external APIs as gateways",
+      "expectations": [
+        "AI does not create a database-schema because the deps scan found no ORM/DB driver",
+        "AI finds outbound calls from the fetch/axios clients in the code and treats order-service and payment-service as gateway lines",
+        "AI skips irrelevant Phase 4 questions such as error-code format (no own API surface)",
+        "AI writes the scenario naming (default <FEATURE>_<TYPE>_<N>) into the target",
+        "AI asks Phase 4 one item at a time, only frontend-relevant ones"
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Phase 4 finds missing setup — creates a Setup Concern via self-report",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Initialize this repo, it's a Go service using gRPC, no api-level tests yet."
+        },
+        {
+          "role": "assistant",
+          "content": "Quick question first — rough structure, or full detail?"
+        },
+        {
+          "role": "user",
+          "content": "Rough first."
+        },
+        {
+          "role": "assistant",
+          "content": "Scan done — I've created the context/tech-stack files from what I found. One thing needs extra setup though: this repo has no local api-test infra yet, so api-tests can't run until it does. Want me to propose scaffolding the kit's default?"
+        },
+        {
+          "role": "user",
+          "content": "Yes please, go ahead and handle it."
+        }
+      ],
+      "prompt": "Yes please, go ahead and handle it.",
+      "expected_output": "AI creates a Setup Concern named INITIALIZE_API_TEST_SETUP via self-report — does not scaffold itself — then tells the user to pick it from feed-back.html",
+      "expectations": [
+        "AI names the setup concern INITIALIZE_API_TEST_SETUP",
+        "AI triggers self-report to record the concern with a fix that says to start a workflow",
+        "AI does not scaffold the api-test infra itself",
+        "AI tells the user to open self-learn/feed-back.html, pick a solution, and copy-paste it back to start"
+      ]
+    },
+    {
+      "id": 5,
+      "label": "re-sync an already-initialized repo — update by the file's own format, no overwrite",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "This repo was initialized once already, but I just added a new controller and gateway — can you sync it up?"
+        },
+        {
+          "role": "assistant",
+          "content": "Sure — should I quickly check just the parts likely to have changed, or re-scan everything thoroughly?"
+        },
+        {
+          "role": "user",
+          "content": "Do the full thing so nothing gets missed."
+        }
+      ],
+      "prompt": "Do the full thing so nothing gets missed.",
+      "expected_output": "AI updates existing targets following each file's own format — no overwrite, no template — and adds the new items found",
+      "expectations": [
+        "AI does not overwrite existing targets",
+        "AI extends/updates targets following the format inside each file itself, not the template",
+        "AI adds the new controller and gateway found in the scan",
+        "AI reports the updated paths"
+      ]
+    },
+    {
+      "id": 6,
+      "label": "Phase 2 — finds existing docs, must migrate rather than start blank",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Initialize this repo — there's a README and an AGENTS.md that already note some gateways."
+        },
+        {
+          "role": "assistant",
+          "content": "Quick question first — rough structure, or full detail?"
+        },
+        {
+          "role": "user",
+          "content": "Full detail."
+        },
+        {
+          "role": "assistant",
+          "content": "Scan done (Phase 1). Now into Phase 2 — I looked for existing docs in the repo that might hold knowledge for these targets and found 2 (skipping the kit's own skill files):\n\n1. README.md — has a gateway list table → maps directly to gateway-directory.md (direct)\n2. AGENTS.md — has both coding rules and some gateway lines → needs splitting into 2 targets: rules to code-standards, gateways to gateway-directory.md (split)\n\nCross-checking, the gateway WarehouseClient appears in both README and AGENTS.md but with conflicting purposes — one says allocate, the other says reserve.\n\nHere's the full flag list. I haven't touched anything until you decide: (1) README→gateway-directory direct, (2) AGENTS split into code-standards + gateway-directory, (3) WarehouseClient purpose conflict, need to pick which is right. How do you want to handle these?"
+        },
+        {
+          "role": "user",
+          "content": "1 and 2 as you described. For 3, allocate is correct, reserve is the old one."
+        }
+      ],
+      "prompt": "1 and 2 as you described. For 3, allocate is correct, reserve is the old one.",
+      "expected_output": "AI applies the migration per the user's decisions in one pass: README→gateway-directory, AGENTS split, WarehouseClient uses allocate",
+      "expectations": [
+        "AI migrates README into gateway-directory.md (direct)",
+        "AI splits AGENTS.md — rules to code-standards, gateways to gateway-directory.md",
+        "AI writes WarehouseClient's purpose as allocate per the user's choice, not reserve",
+        "AI applies everything in one pass following each target's format",
+        "AI did not auto-apply anything earlier without asking (the full flag list was shown before the user decided)"
+      ]
+    },
+    {
+      "id": 7,
+      "label": "Full Phase 4 — all 8 items asked and answered, plus Setup Concerns",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "Initialize this repo, it's a NestJS API with Postgres."
+        },
+        {
+          "role": "assistant",
+          "content": "Quick question first — rough structure, or full detail?"
+        },
+        {
+          "role": "user",
+          "content": "Full detail."
+        },
+        {
+          "role": "assistant",
+          "content": "Full scan done (Phase 1) — NestJS, TypeORM + Postgres so there's a database-schema, found the controllers and outbound gateways. Phase 2 found no existing docs to migrate. Phase 3 had no existing context/tech-stack files, so I created them fresh from the templates with full detail.\n\nInto Phase 4 — let me confirm first: from package.json I'm guessing the domain is a live commerce system, is that right?"
+        },
+        {
+          "role": "user",
+          "content": "Yes, selling products through live streams."
+        },
+        {
+          "role": "assistant",
+          "content": "Got it, written the domain in — next, item 2: what naming pattern do your scenarios follow? If there's none in particular the default is <FEATURE>_<TYPE>_<N>."
+        },
+        {
+          "role": "user",
+          "content": "We use things like FEATURE_SUCCESS_1, FEATURE_FAIL_1."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted — item 3: when scanning, almost all gateway lines had their purpose filled in. Only one left, InventoryClient — I'm not sure when it's called or what for?"
+        },
+        {
+          "role": "user",
+          "content": "InventoryClient is called when a live starts, to reserve product stock."
+        },
+        {
+          "role": "assistant",
+          "content": "Written into the gateway directory — item 4: are there any actions the AI must never do in this project that aren't visible from the code, e.g. never edit migrations, no auto-format?"
+        },
+        {
+          "role": "user",
+          "content": "Never touch files in migrations/, and don't run eslint --fix yourself."
+        },
+        {
+          "role": "assistant",
+          "content": "Recorded as hard rules in code-standards — item 5: where do the test files live and how are they named? When scanning I found *.spec.ts mixed with source but no integration/api-test."
+        },
+        {
+          "role": "user",
+          "content": "unit/component sit next to source as .spec.ts; we don't have a place for integration or api-test yet."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood — item 6: since this is an API service and Phase 3 saw several error returns but no error registry yet, I'd propose a format of <DOMAIN3>_<SERVICE3><4=client/5=system>NNN — what abbreviations do you want for domain/service?"
+        },
+        {
+          "role": "user",
+          "content": "Use LIV for domain and CMT for service."
+        },
+        {
+          "role": "assistant",
+          "content": "Okay — item 7: the repo has no local api-test infra (Bruno/mountebank) yet, so api-tests can't run until it does. Want me to propose scaffolding the kit's default?"
+        },
+        {
+          "role": "user",
+          "content": "Yes, scaffold it."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted — last one: anything else the AI should know before real work starts?"
+        },
+        {
+          "role": "user",
+          "content": "Nope, you can start."
+        }
+      ],
+      "prompt": "Nope, you can start.",
+      "expected_output": "AI writes every answer into its target, collects the leftover setup (error registry + api-test infra) as Setup Concerns via self-report, then tells the user to pick from feed-back.html",
+      "expectations": [
+        "AI writes the domain (live commerce) into the target",
+        "AI writes the scenario naming (FEATURE_SUCCESS_1) into the target",
+        "AI writes InventoryClient's purpose (live start, reserve stock) into the gateway directory + contract row",
+        "AI writes the hard rules (never touch migrations/, no eslint --fix) into code-standards, not mixed with code style the scan inferred",
+        "AI records test placement (.spec.ts next to source) in the target",
+        "AI sets the error-code format with the user's abbreviations (LIV/CMT)",
+        "AI collects the two leftover setups as Setup Concerns: INITIALIZE_BASE_RESPONSE_ERROR_CODE and INITIALIZE_API_TEST_SETUP",
+        "AI triggers self-report to record each Setup Concern with a fix that says to start a workflow",
+        "AI does not create the error registry or scaffold the api-test infra itself",
+        "AI tells the user to open self-learn/feed-back.html, pick a solution, and copy-paste it back to start",
+        "AI asks Phase 4 one item at a time in order, not all at once, skipping items the scan already answered"
+      ]
+    }
+  ]
+}

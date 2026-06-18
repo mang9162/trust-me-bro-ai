@@ -1,0 +1,71 @@
+{
+  "skill_name": "get-requirement",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "อยากทำ feature เพิ่มสินค้าลงตะกร้า ระบบต้อง login ก่อน ใช้ endpoint POST /cart/add stock check real-time ถ้าสินค้าซ้ำให้ merge qty สูงสุด 9999 ถ้าหมดให้ notify",
+      "expected_output": "scenario-meta JSON พร้อม steps ที่เป็น plain language ครบ E2E ตั้งแต่ login → add → verify → cleanup พร้อม PAUSE รอ user review",
+      "expectations": [
+        "ผลลัพธ์มี scenario-meta JSON ที่มีฟิลด์ครบ: scenario, category, description, steps, accepted, acceptanceHistory",
+        "accepted มีค่าเป็น false และ acceptanceHistory เป็น array ว่าง",
+        "steps ทุกข้อเขียนเป็นภาษา user/system ไม่มี API path เช่น POST /cart/add อยู่ใน steps",
+        "steps ครอบคลุม setup (login), action (add product), verification, และ cleanup",
+        "มี PAUSE หรือขอให้ user review ก่อนดำเนินต่อ",
+        "ไม่มีการออกแบบ test data หรือ functional design ใน output"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "feature ชำระเงิน",
+      "expected_output": "Claude ถามกลับเพื่อ resolve gaps ก่อน ไม่เขียน steps ทันที",
+      "expectations": [
+        "ถามเกี่ยวกับ scope ว่า scenario ไหนบ้างที่ต้องทำ",
+        "ถามเกี่ยวกับ E2E flow หรือ payment method หรือ endpoint",
+        "ไม่เขียน scenario-meta หรือ steps ก่อนได้รับคำตอบ"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "feature ล็อกอิน: Success คือ user ใส่ email+password ถูก ได้ JWT กลับมา Alternative คือ password ผิด ได้ error INVALID_CREDENTIALS กลับมา endpoint POST /auth/login ไม่ต้อง session",
+      "expected_output": "scenario-meta JSON สำหรับทั้ง 2 scenarios พร้อม steps ที่ถูกต้อง",
+      "expectations": [
+        "มี scenario-meta สำหรับ Success scenario ที่มี category: Success",
+        "มี scenario-meta สำหรับ Alternative scenario ที่มี category: Alternative",
+        "steps ของ Alternative ระบุ condition ที่ทำให้เกิด failure (password ผิด) และ expected outcome (error)",
+        "ไม่มี API path POST /auth/login อยู่ใน steps array",
+        "มีการขอให้ user review ก่อนดำเนินต่อ"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "feature ดูประวัติคำสั่งซื้อ endpoint GET /orders แสดงรายการ order ทั้งหมดของ user ที่ login อยู่",
+      "expected_output": "Claude ถามเพิ่มเติมเกี่ยวกับ edge cases หรือ alternative scenarios ก่อนเขียน",
+      "expectations": [
+        "Claude ถามเกี่ยวกับ alternative scenarios เช่น กรณีไม่มี order หรือ unauthorized",
+        "ถ้า Claude เขียน steps ต้องไม่มี GET /orders อยู่ใน steps array",
+        "Claude ไม่เริ่มออกแบบ test data หรือ task"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "อยากเพิ่ม ref ไปหา test data design guideline ใน get-requirement skill",
+      "expected_output": "Claude ปฏิเสธและอธิบายว่าเกิน boundary ของ Stage 1",
+      "expectations": [
+        "Claude ปฏิเสธการเพิ่ม ref test data ใน skill นี้",
+        "Claude อ้างถึง Role & Boundary ที่ระบุว่า test data design ไม่ใช่ scope ของ Stage 1",
+        "Claude แนะนำ stage หรือ skill ที่เหมาะสมกว่าแทน เช่น Stage 2 หรือ create-test-data"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "feature ลบสินค้าออกจากตะกร้า user กด remove สินค้าหายออกจาก cart ทันที endpoint DELETE /cart/item ไม่ต้อง confirm",
+      "expected_output": "scenario-meta JSON พร้อม steps ครบ E2E",
+      "expectations": [
+        "steps มี action ลบสินค้าและ verify ว่าสินค้าหายออกจาก cart",
+        "steps ไม่มี DELETE /cart/item อยู่ใน steps array",
+        "scenario-meta มี accepted: false และ acceptanceHistory: []",
+        "มี PAUSE หรือขอให้ user review ก่อนดำเนินต่อ"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+var MEDIUM_LEARN = [];

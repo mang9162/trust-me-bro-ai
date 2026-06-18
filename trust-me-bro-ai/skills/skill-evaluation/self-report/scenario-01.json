@@ -1,0 +1,105 @@
+{
+  "skill_name": "self-report",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "self-report จาก create-test-data: ตอนทำ feature add cart เจอ gateway ชื่อ InventoryGateway ที่ไม่มีใน gateway-directory.md เลย ไม่รู้ว่า purpose มันคืออะไร",
+      "expected_output": "สร้าง entry ใหม่บันทึกว่าเจอ gateway ที่ไม่มีใน directory พร้อม fixOptions ให้เพิ่มลง gateway-directory.md",
+      "expectations": [
+        "สร้าง entry ใหม่ใน learn.js",
+        "problem อธิบายว่า InventoryGateway ไม่มีใน gateway-directory.md",
+        "reportedBy เป็น create-test-data",
+        "fixOptions ระบุ files รวม gateway-directory.md",
+        "self-report ไม่เพิ่ม InventoryGateway ลง gateway-directory.md เอง",
+        "ไม่แจ้ง user เพราะ tier ไม่ใช่ heavy"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "self-report จาก create-test-data: เจอ field ชื่อ ref_order_no ใน response แต่ไม่รู้ว่ามาจาก service ไหน ไม่มีใน data.md และไม่มีใน database-schema.md เลย",
+      "expected_output": "สร้าง entry ใหม่บันทึกว่าเจอ field ที่ไม่มีใน dictionary พร้อม fixOptions",
+      "expectations": [
+        "สร้าง entry ใหม่ใน learn.js",
+        "problem อธิบายว่า ref_order_no ไม่มีใน data.md หรือ database-schema.md",
+        "reportedBy เป็น create-test-data",
+        "fixOptions เสนอให้เพิ่ม ref_order_no ใน data.md หรือ database-schema.md",
+        "self-report ไม่เพิ่ม field เองลงในไฟล์ใดเลย"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "self-report จาก acceptance-review: ผู้ใช้ feedback ว่าอยากให้มี stage code quality review ก่อน api-test ทุกครั้ง ตอนนี้ workflow ไม่มี stage นี้เลย",
+      "expected_output": "สร้าง entry ใน heavy-learn.js เพราะเป็น process-level change และแจ้ง user",
+      "expectations": [
+        "tier เป็น heavy เพราะกระทบ workflow stage ordering และหลายไฟล์",
+        "entry ถูกเขียนลง heavy-learn.js",
+        "มีการแจ้ง user เกี่ยวกับ heavy issue",
+        "fixOptions อธิบายว่าต้องแก้ workflow SKILL.md และอาจต้องสร้าง skill ใหม่",
+        "self-report ไม่แก้ workflow เอง"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "self-report จาก get-requirement: ผู้ใช้มี endpoint POST /inventory/reserve ที่ไม่เคยเห็นมาก่อน ไม่มีใน gateway-directory.md และไม่มีใน gwcontract",
+      "expected_output": "สร้าง entry บันทึกว่าเจอ endpoint ใหม่ที่ไม่มีใน reference ไหนเลย",
+      "expectations": [
+        "สร้าง entry ใหม่ใน learn.js",
+        "problem อธิบายว่า POST /inventory/reserve ไม่มีใน gateway-directory.md และ gateway-contract.md",
+        "reportedBy เป็น get-requirement",
+        "fixOptions ระบุให้เพิ่มทั้ง gateway-directory.md และ gateway-contract.md",
+        "self-report ไม่เพิ่ม endpoint เองลงในไฟล์ใดเลย"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "self-report จาก create-task: data.md ระบุว่า field stockAmount มี type เป็น String แต่ใน database-schema.md เป็น Integer จริงๆ ทำให้ seed data ผิดมาตลอด",
+      "expected_output": "สร้าง entry บันทึก bridge mismatch ระหว่าง data.md และ database-schema.md",
+      "expectations": [
+        "สร้าง entry ใหม่ใน learn.js",
+        "problem อธิบายว่า stockAmount type ขัดกันระหว่าง data.md (String) กับ database-schema.md (Integer)",
+        "reportedBy เป็น create-task",
+        "fixOptions ระบุ files รวมทั้ง data.md และ database-schema.md",
+        "tier เป็น small หรือ medium ขึ้นกับจำนวนไฟล์ที่แตะ",
+        "self-report ไม่แก้ type ใน data.md หรือ database-schema.md เอง"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "self-report จาก create-task: เจอ naming ไม่ตรงกัน scenario folder ใช้ AddToCart แต่ใน scenario-meta ใช้ add-to-cart ทำให้ generate-report หา path ไม่เจอ",
+      "expected_output": "สร้าง entry ใหม่บันทึก naming inconsistency",
+      "expectations": [
+        "สร้าง entry ใหม่ใน learn.js",
+        "problem อธิบาย naming mismatch ระหว่าง folder name และ scenario-meta",
+        "reportedBy เป็น create-task",
+        "occurrences มี 1 item",
+        "ไม่แจ้ง user"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "self-report จาก unit-test: เจอ naming ไม่ตรงกัน scenario folder ใช้ AddToCart แต่ใน scenario-meta ใช้ add-to-cart (เจอซ้ำอีกครั้ง คนละ feature กับครั้งก่อน)",
+      "expected_output": "ไม่สร้าง entry ใหม่ แต่ append occurrence เข้า entry เดิม tier และ fixOptions ไม่เปลี่ยน",
+      "expectations": [
+        "ไม่มีการสร้าง entry ใหม่ที่ problem ซ้ำกับ entry เดิม",
+        "occurrences ของ entry เดิมมี item เพิ่มขึ้น 1",
+        "occurrence ใหม่ระบุ by เป็น unit-test",
+        "tier ของ entry เดิมไม่ถูกเปลี่ยน",
+        "fixOptions ของ entry เดิมไม่ถูกเปลี่ยน",
+        "ไม่แจ้ง user"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "self-report จาก api-test: code-standards.md ไม่มีบอกเลยว่าต้อง handle error แบบไหนสำหรับ async function ทำให้แต่ละ feature เขียนต่างกันหมด",
+      "expected_output": "สร้าง entry บันทึกว่า code-standards.md ขาด async error handling guideline",
+      "expectations": [
+        "สร้าง entry ใหม่ใน learn.js",
+        "problem อธิบายว่า code-standards.md ไม่มี async error handling convention",
+        "reportedBy เป็น api-test",
+        "fixOptions ระบุ files รวม code-standards.md",
+        "self-report ไม่เขียน convention ลง code-standards.md เอง",
+        "tier เป็น small (แตะ soft component ไฟล์เดียว)"
+      ]
+    }
+  ]
+}

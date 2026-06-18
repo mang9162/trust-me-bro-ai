@@ -1,0 +1,86 @@
+{
+  "skill_name": "create-test-data",
+  "group": "skill-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add an owner column to Datatest.md to indicate which service each variable comes from.",
+      "expected_output": "allowed — adding a column to Datatest.md is a format change within this skill scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill explains that Datatest.md is this skill own output and its format can be changed directly",
+        "skill does not refuse or redirect to another stage"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to change the status value from 'new → self-report' to just 'MISSING' to make it easier to read.",
+      "expected_output": "allowed — changing status convention in Datatest.md is within scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill states that the change can be made within this skill by updating the status value from new → self-report to MISSING",
+        "skill does not redirect to self-report or another stage"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want self-report to be triggered immediately each time a gap is found instead of aggregating once at the end.",
+      "expected_output": "allowed — changing the trigger timing in step 5 is within scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill explains that the trigger timing can be changed by moving the self-report call from step 5 to between steps 2-4, firing once per gap instead of aggregating at the end",
+        "skill does not redirect to the self-report skill"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want to add a check that every row in Datatest.md has a value before PAUSEing.",
+      "expected_output": "allowed — adding a self-consistency check to step 7 is within scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill identifies step 7 (self-consistency check before PAUSE) as the right place",
+        "skill does not redirect to another stage"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I want create-test-data to write assertions into Datatest.md so we don't have to wait for Stage 5.",
+      "expected_output": "not allowed — assertions belong to Stage 5 api-test",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating assertions are not in Stage 2 scope",
+        "skill identifies assertions as belonging to Stage 5 api-test"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I want create-test-data to design the functional tree of functions to implement so we know it before Stage 3.",
+      "expected_output": "not allowed — functional/task design belongs to Stage 3 create-task",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating task design is not in Stage 2 scope",
+        "skill identifies functional design as belonging to Stage 3 create-task"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I want create-test-data to move stubs into the test-env as soon as they are created.",
+      "expected_output": "not allowed — moving stubs belongs to Stage 4 env-setup",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating stub deployment is not in Stage 2 scope",
+        "skill identifies stub moving as belonging to Stage 4 env-setup"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I want create-test-data to add new variables directly to data.md when it finds a field that isn't there yet.",
+      "expected_output": "not allowed — this skill is read-only for reference files",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating reference files are read-only for this skill",
+        "skill explains that gaps must go to self-report only — data.md must not be edited directly"
+      ]
+    }
+  ]
+}
