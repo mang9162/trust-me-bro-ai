@@ -89,7 +89,7 @@
         },
         {
           "role": "assistant",
-          "content": "Scanned it (Phase 1) — it's a pure React SPA. Checked the deps, no ORM/DB driver, so I won't create a database-schema.\n\nFor outbound calls I went through the fetch/axios clients in the code and found it hits 2 destinations: order-service (GET /orders, POST /orders) and payment-service (POST /pay) — I'll treat those as gateway lines.\n\nPhase 2 found no existing docs to migrate. Phase 3 created the context/tech-stack files fresh from the templates (no database-schema).\n\nNow into Phase 4 — what naming pattern do your scenarios follow? (default if none is <FEATURE>_<TYPE>_<N>)"
+          "content": "Scanned it (Phase 1) — it's a pure React SPA. Checked the deps, no ORM/DB driver, so I'll still create database-schema but mark inside that this project doesn't use a DB (so bridges pointing to it still resolve).\n\nFor outbound calls I went through the fetch/axios clients in the code and found it hits 2 destinations: order-service (GET /orders, POST /orders) and payment-service (POST /pay) — I'll treat those as gateway lines.\n\nPhase 2 found no existing docs to migrate. Phase 3 created the context/tech-stack files fresh from the templates (database-schema included, but marked not used).\n\nNow into Phase 4 — what naming pattern do your scenarios follow? (default if none is <FEATURE>_<TYPE>_<N>)"
         },
         {
           "role": "user",
@@ -97,9 +97,9 @@
         }
       ],
       "prompt": "Just use that default, it's fine.",
-      "expected_output": "AI writes the default scenario naming into the target then asks the next Phase 4 item; throughout it creates no database-schema and treats external APIs as gateways",
+      "expected_output": "AI writes the default scenario naming into the target then asks the next Phase 4 item; throughout it creates database-schema but marks it not used by this project, and treats external APIs as gateways",
       "expectations": [
-        "AI does not create a database-schema because the deps scan found no ORM/DB driver",
+        "AI still creates database-schema but marks inside that this project doesn't use a DB (does not skip, so bridges pointing to it keep resolving)",
         "AI finds outbound calls from the fetch/axios clients in the code and treats order-service and payment-service as gateway lines",
         "AI skips irrelevant Phase 4 questions such as error-code format (no own API surface)",
         "AI writes the scenario naming (default <FEATURE>_<TYPE>_<N>) into the target",

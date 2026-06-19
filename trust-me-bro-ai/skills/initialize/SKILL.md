@@ -17,6 +17,8 @@ Stay language/framework-agnostic: read whatever the repo exposes (project metada
 
 Don't invent: if the repo doesn't show a value, leave it blank rather than guess.
 
+When the scan is done, report what was found to the user directly (in the conversation — NOT via self-report); surface only the parts the scan couldn't resolve for Phase 4 to confirm.
+
 ## Phase 2 — Detect existing docs & migrate
 Find knowledge the repo already has (in other docs, or in the wrong shape) and migrate it into the targets — instead of starting blank or duplicating. Runs before Phase 3 fills the gaps.
 1. Enumerate — list existing docs that could hold target knowledge (README, docs folders, AGENTS.md / CLAUDE.md, any prior context notes). Skip the kit's own skill files.
@@ -29,9 +31,10 @@ Find knowledge the repo already has (in other docs, or in the wrong shape) and m
 
 ## Phase 3 — Bootstrap (write the targets)
 For each format template:
-- Target does not exist → create it by copying the template's format (## How to use + the per-section templates) into the target, then fill the tables from the Phase 1 scan. The target now carries its own format, so later edits / self-learn follow it without re-reading initialize.
+- Target does not exist → create it by copying the whole template into the target — everything **except** the `Target:` line and the `## How to scan (when filling this file)` section (those are initialize-only) — then fill the tables from the Phase 1 scan. The target now carries its own format, so later edits / self-learn follow it without re-reading initialize.
 - Target already exists → don't overwrite; extend/update it from the scan, following the format inside the target file itself (not the template — the project may have customized it).
 - Don't guess — leave unclear values blank (light); a full scan should already have filled the detail.
+- Subject not present in the repo → still create the target (so cross-file bridges keep resolving), but write a clear "not used by this project" marker inside rather than skipping or leaving it empty (e.g. no DB driver → database-schema.md states the project has no database).
 
 Then report what was created/updated (paths).
 
@@ -60,4 +63,4 @@ Collect everything still needing setup but not done (from Phase 3 + items 6/7). 
 - each template's `Target:` file (e.g. `context/gateway-directory.md`, `tech-stack/database-schema.md`) — created on first run, or updated/extended when it already exists.
 
 ## Role & Boundary (Read Before Editing)
-initialize bootstraps and re-syncs the `context/`/`tech-stack/` files from the `*-format.md` templates by scanning the repo (light or full) and migrating existing docs. On create it follows the template's format; on update it follows the target file's own (inherited) format. It does NOT own the formats (each `*-format.md` / target file does) and does NOT fill fine detail in light mode — that's self-learn during workflow runs. For where any other change belongs, see the Responsibility map in workflow/SKILL.md.
+initialize bootstraps and re-syncs the `context/`/`tech-stack/` files from the `*-format.md` templates by scanning the repo (light or full) and migrating existing docs. On create it follows the template's format; on update it follows the target file's own (inherited) format. It does NOT own the formats (each `*-format.md` / target file does) and does NOT fill fine detail in light mode — that's self-learn during workflow runs. It also does not continuously keep the files up to date during workflow runs — that ongoing job belongs to self-learn; initialize runs only on explicit first-run / re-sync, so redirect such requests there. For where any other change belongs, see the Responsibility map in workflow/SKILL.md.

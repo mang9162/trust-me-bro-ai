@@ -16,7 +16,7 @@
       "expectations": [
         "AI เข้าสู่ skill initialize (ไม่เดาลงมือทำเอง)",
         "ถาม light หรือ full scan ก่อนเริ่ม (Phase 1)",
-        "รายงานสิ่งที่สแกนเจอเอง (NestJS 2 app, postgres, inbound routes, outbound gateway calls) — ไม่ให้ user ป้อนทุกอย่าง",
+        "รายงานสิ่งที่สแกนเจอเอง (NestJS 2 app, postgres, inbound routes, outbound gateway calls) ไม่ใช่ส่ง self-report skill — ไม่ให้ user ป้อนทุกอย่าง",
         "สิ่งที่สแกนไม่ชัวร์ → ถามกลับ (เช่น confirm domain) หรือเว้นว่างให้ self-learn เติม — ไม่เดา และไม่ mock",
         "เขียนลง context/gateway-directory.md ตาม Target ใน format (ไม่ใช่ที่อื่น)",
         "copy format ลง target (## How to use + per-section template + ## References + ## Role & Boundary) แต่ไม่เอา Target line / ## How to scan ลงไฟล์จริง",
@@ -27,6 +27,53 @@
         "function เก็บที่อยู่ของโค้ด (controller/handler ฝั่ง inbound, gateway/client ฝั่ง outbound); ไม่เขียน request/response shape ในไฟล์นี้ (อยู่ที่ gateway-contract.md)",
         "endpoint ที่มีหลาย variant ถูกแยกเป็น 1 row ต่อ variant ด้วย condition (เช่น action=RESERVE vs action=RELEASE)",
         "Phase 2: เช็ค doc เดิมที่ต้อง migrate — เคสนี้ไม่มี จึงไม่ migrate อะไร"
+      ]
+    },
+    {
+      "id": 2,
+      "conversation": [
+        { "user": "เพิ่งเอา skill ชุดนี้มาใส่ ช่วย setup ให้ AI พร้อมทำงานหน่อย" },
+        { "ai": "ได้เลย เริ่ม initialize — สแกนแบบ light หรือ full ดีครับ?" },
+        { "user": "full" },
+        { "ai": "สแกนแล้ว: (1) Phase 2 เจอ doc เดิมในรีโปที่เขียน mountebank stub ไว้ (= วิธี mock เส้นขาออก) → จับเป็น split: รายการเส้น → gateway-directory.md, ส่วน shape/วิธี mock → gateway-contract.md แล้ว migrate เข้าไป ไม่ทำซ้ำ. (2) Phase 3 เอา scan มาเขียน gateway-directory.md ต่อ เจอ outbound บางตัวที่ไม่มีใน doc นั้น (gaps) → เพิ่มเข้าไป + seed ไว้ให้ self-learn เติม shape ทีหลัง. โอเคไหม?" },
+        { "user": "โอเค" },
+        { "ai": "เรียบร้อย — Phase 2 migrate doc mountebank (split เข้า gateway-directory + gateway-contract), Phase 3 เพิ่ม outbound ที่เป็น gap เข้า gateway-directory.md (flag ว่ายังไม่มี shape) แล้วรายงาน migrate + gap ให้แล้ว" }
+      ],
+      "expected_output": "AI สแกนเจอ doc mountebank เอง; Phase 2 migrate (split: gateway-directory + gateway-contract); Phase 3 เขียนจาก scan → เพิ่ม outbound ที่เป็น gap (ไม่มีใน doc) เข้า gateway-directory.md + seed/flag",
+      "expectations": [
+        "ถาม light หรือ full scan ก่อนเริ่ม (Phase 1)",
+        "ผู้ใช้ไม่ได้บอกว่ามี doc — AI สแกนเจอ doc mountebank เองใน Phase 2 (enumerate)",
+        "Phase 2 จับคู่ doc mountebank กับ target ที่ถูกแล้ว migrate (ไม่ปล่อยทิ้ง/ไม่ทำซ้ำ) — shape/วิธี mock → gateway-contract.md, รายการเส้น → gateway-directory.md (split)",
+        "Phase 1 สแกนโค้ดเจอ outbound ที่ไม่มีใน doc เดิม (gaps) — ไม่เชื่อ doc อย่างเดียว",
+        "Phase 3 (เขียน/extend จาก scan) เป็นตัวเพิ่ม gaps เข้า gateway-directory.md ตาม format — ไม่ใช่ Phase 2",
+        "gaps ที่ยังไม่มี shape → seed (skeleton) + flag ให้ self-learn เติม ไม่เดา",
+        "ไม่ duplicate เนื้อหา mountebank ลงหลายที่ (single source — shape อยู่ gateway-contract, catalog อยู่ gateway-directory)",
+        "รายงานให้ user ตรง ๆ ว่าอะไร migrate / อะไรเป็น gap (ไม่ส่ง self-report)"
+      ]
+    },
+    {
+      "id": 3,
+      "conversation": [
+        { "user": "ช่วย initialize repo นี้ — NestJS API + postgres" },
+        { "ai": "ได้เลย — สแกน light หรือ full ดีครับ?" },
+        { "user": "full" },
+        { "ai": "สแกน full เสร็จ — สร้าง 2 ไฟล์คู่กันด้วย bridge id เดียวกัน: context/gateway-directory.md (มีเส้นอะไร) + tech-stack/gateway-contract.md (หน้าตา request/response). ใน gateway-contract แต่ละเส้น = 1 entry: request (method+body), success (status+body), errors (list + map error_code), mock (outbound = stub match/stub/returns, inbound = api-test). เส้น outbound action=RESERVE/RELEASE รวมเป็น entry เดียว (shape ต่างกัน <25%). เหลือ PaymentGateway ที่ผมไม่แน่ใจว่ามี error อะไรบ้าง ช่วยบอกหน่อย?" },
+        { "user": "Payment error 402 ตอนบัตรถูกปฏิเสธ" },
+        { "ai": "เพิ่ม 402 เข้า errors ของ Payment entry แล้ว (external code ไม่ map local) — gateway-contract.md จับคู่ gateway-directory ครบ" }
+      ],
+      "expected_output": "initialize สร้าง tech-stack/gateway-contract.md จาก format คู่กับ gateway-directory (bridge id), 1 entry/line, protocol-aware fields, JSON payloads, errors+error_code map, mock เป็นโครง",
+      "expectations": [
+        "ถาม light/full ก่อนเริ่ม (Phase 1)",
+        "สร้าง tech-stack/gateway-contract.md จาก gateway-contract-format.md (ตาม Target ใน format)",
+        "จับคู่ gateway-directory.md ด้วย bridge id เดียวกัน · 1 entry ต่อ 1 เส้น (ไม่แยกตาม condition)",
+        "fields ตาม protocol (HTTP = request/success/errors)",
+        "request = method + body (JSON), success = status + body (JSON)",
+        "errors เป็น list · inbound map → error_code (error-codes.md), outbound external ไม่ map",
+        "mock: outbound = match/stub/returns (โครงสร้าง stub อยู่ tech-stack.md ไม่ซ้ำในนี้); inbound = api-test no stub",
+        "condition variant (RESERVE/RELEASE) รวมเป็น 1 entry — แยก case เฉพาะเมื่อต่าง >25%",
+        "queue consumer → แทนด้วย inbound HTTP test-consumer entry (ไม่ใช่ protocol แยก)",
+        "copy format ลง target ยกเว้น Target + How to scan",
+        "shape/error ที่ scan ไม่ชัด → ถาม ไม่เดา"
       ]
     }
   ]

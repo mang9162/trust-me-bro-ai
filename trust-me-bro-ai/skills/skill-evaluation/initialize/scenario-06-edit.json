@@ -1,0 +1,96 @@
+{
+  "skill_name": "initialize",
+  "group": "skill-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to add a new phase to initialize that verifies every bridge id in the created targets still resolves before finishing.",
+      "expected_output": "allowed — adding a phase to initialize's procedure is within scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill identifies that a phase can be added to initialize's procedure",
+        "skill does not redirect to another skill"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to change the default scenario naming pattern from <FEATURE>_<TYPE>_<N> to <TYPE>-<FEATURE>-<N>.",
+      "expected_output": "allowed — the default used in the Phase 4 question is within initialize's scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill identifies the change as the scenario naming default in Phase 4",
+        "skill does not redirect elsewhere"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I want to add a Phase 4 question asking what timezone the project uses.",
+      "expected_output": "allowed — adding/removing Phase 4 questions is within initialize's scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill identifies the change as adding to the Phase 4 question set",
+        "skill does not redirect elsewhere"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want to change the Phase 1 scan to default to full instead of light.",
+      "expected_output": "allowed — the light/full default is Phase 1 behavior, within scope",
+      "expectations": [
+        "skill confirms this is allowed",
+        "skill identifies the change as the default mode in Phase 1",
+        "skill does not redirect elsewhere"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I want to change the format of gateway-directory.md to add a new column — can I do that in initialize?",
+      "expected_output": "not allowed — initialize does not own target formats; each target/template owns its own",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating initialize does not own target formats",
+        "skill identifies the format as living in gateway-directory-format.md or the target file itself"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I want initialize to keep the context files up to date every time the repo changes, including during normal workflow runs.",
+      "expected_output": "not allowed — keeping files up to date during runs belongs to self-learn, not initialize",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating initialize does not keep files up to date after bootstrap",
+        "skill identifies updates during workflow runs as belonging to self-learn"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I want initialize in light mode to also fill in the full request/response shapes.",
+      "expected_output": "not allowed — light mode is meant to seed a skeleton only; detail belongs to self-learn",
+      "expectations": [
+        "skill refuses",
+        "skill cites Role & Boundary stating light mode does not fill fine detail",
+        "skill identifies detail in light mode as belonging to self-learn during workflow runs (use full mode if complete detail is wanted)"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I want initialize to decide on its own when each setup concern should start a workflow, without the user choosing.",
+      "expected_output": "not allowed — initialize only reports concerns to self-report; the user chooses via feed-back.html",
+      "expectations": [
+        "skill refuses",
+        "skill states that initialize reports setup concerns to self-report and the user chooses via feed-back.html",
+        "skill does not make initialize decide to start a workflow on its own"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "I want to hardcode into Phase 1 that it always greps for *Gateway and *GatewayService so gateways are fully scanned.",
+      "expected_output": "not allowed as such — Phase 1 is meant to be language-agnostic; the where-to-look for each target lives in its *-format.md, not hardcoded in initialize",
+      "expectations": [
+        "skill refuses to hardcode a stack-specific pattern into Phase 1",
+        "skill states that Phase 1 is intentionally language/framework-agnostic",
+        "skill identifies the where-to-look for each target as living in its own *-format.md, not initialize"
+      ]
+    }
+  ]
+}

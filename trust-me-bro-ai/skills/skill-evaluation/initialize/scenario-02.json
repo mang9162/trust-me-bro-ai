@@ -16,7 +16,7 @@
       "expectations": [
         "AI enters the initialize skill (doesn't just do it ad-hoc)",
         "asks light vs full scan before starting (Phase 1)",
-        "reports what it scanned itself (NestJS 2 apps, postgres, inbound routes, outbound gateway calls) — doesn't make the user provide everything",
+        "reports what it scanned itself (NestJS 2 apps, postgres, inbound routes, outbound gateway calls) just report not to send self-report skill — doesn't make the user provide everything",
         "for anything the scan can't resolve → asks back (e.g. confirm domain) or leaves it for self-learn — does not guess, does not mock",
         "writes to context/gateway-directory.md per the Target in the format (not elsewhere)",
         "copies the template's format into the target (## How to use + per-section templates + ## References + ## Role & Boundary) but not the Target line / ## How to scan",
@@ -27,6 +27,53 @@
         "function holds where the code lives (controller/handler for inbound, gateway/client for outbound); request/response shapes are NOT written here (they live in gateway-contract.md)",
         "an endpoint with multiple variants is split into one row per variant via the condition key (e.g. action=RESERVE vs action=RELEASE)",
         "Phase 2: checks for existing docs to migrate — none here, so nothing is migrated"
+      ]
+    },
+    {
+      "id": 2,
+      "conversation": [
+        { "user": "I just dropped this skill kit in — can you set up the project so the AI is ready to work?" },
+        { "ai": "Sure — starting initialize. Light scan or full scan?" },
+        { "user": "Full." },
+        { "ai": "Scanned: (1) Phase 2 found an existing doc in the repo that documents mountebank stubs (i.e. how the outbound lines are mocked) → matched as a split: the line list → gateway-directory.md, the shape/mock detail → gateway-contract.md, then migrated it in (no duplication). (2) In Phase 3 I write gateway-directory.md from the scan and found some outbound gateways that aren't in that doc (gaps) → adding them and seeding them for self-learn to fill the shapes later. Okay?" },
+        { "user": "Okay." },
+        { "ai": "Done — Phase 2 migrated the mountebank doc (split into gateway-directory + gateway-contract), Phase 3 added the gap outbound lines into gateway-directory.md (flagged as shape-not-yet-known), and reported what was migrated vs what was a gap." }
+      ],
+      "expected_output": "AI discovers the mountebank doc itself; Phase 2 migrates it (split: gateway-directory + gateway-contract); Phase 3 writes from the scan → adds the outbound gaps (not in the doc) to gateway-directory.md + seed/flag",
+      "expectations": [
+        "asks light vs full scan before starting (Phase 1)",
+        "the user did NOT mention any doc — the AI discovers the mountebank doc itself in Phase 2 (enumerate)",
+        "Phase 2 matches the mountebank doc to the right target(s) and migrates it (doesn't ignore/duplicate) — shape/mock detail → gateway-contract.md, the line list → gateway-directory.md (split)",
+        "Phase 1 scans the code and finds outbound lines not in the existing doc (gaps) — not trusting the doc alone",
+        "Phase 3 (writing/extending from the scan) is what adds the gaps to gateway-directory.md per the format — not Phase 2",
+        "gaps with no shape yet → seeded (skeleton) + flagged for self-learn to fill — no guessing",
+        "no duplicated mountebank content across files (single source — shapes in gateway-contract, catalog in gateway-directory)",
+        "reports to the user directly what was migrated vs what was a gap (not via self-report)"
+      ]
+    },
+    {
+      "id": 3,
+      "conversation": [
+        { "user": "Initialize this repo — NestJS API + postgres." },
+        { "ai": "Sure — light scan or full?" },
+        { "user": "Full." },
+        { "ai": "Full scan done — I created two paired files keyed by the same bridge id: context/gateway-directory.md (which lines exist) + tech-stack/gateway-contract.md (the request/response shapes). In gateway-contract each line is one entry: request (method+body), success (status+body), errors (list + error_code map), mock (outbound = stub match/stub/returns, inbound = api-test). The outbound action=RESERVE/RELEASE lines collapse into one entry (shapes differ <25%). One line, PaymentGateway, I can't tell its errors — what are they?" },
+        { "user": "Payment returns 402 when the card is declined." },
+        { "ai": "Added 402 to the Payment entry's errors (external code, no local map) — gateway-contract.md now pairs fully with gateway-directory." }
+      ],
+      "expected_output": "initialize creates tech-stack/gateway-contract.md from the format, paired with gateway-directory by bridge id, one entry per line, protocol-aware fields, JSON payloads, errors + error_code map, structured mock",
+      "expectations": [
+        "asks light/full before starting (Phase 1)",
+        "creates tech-stack/gateway-contract.md from gateway-contract-format.md (per the Target in the format)",
+        "pairs with gateway-directory.md by the same bridge id · one entry per line (not per condition)",
+        "fields follow the protocol (HTTP = request/success/errors)",
+        "request = method + body (JSON), success = status + body (JSON)",
+        "errors is a list · inbound maps to error_code (error-codes.md), an external outbound code has no local map",
+        "mock: outbound = match/stub/returns (stub structure lives in tech-stack.md, not repeated here); inbound = api-test no stub",
+        "condition variants (RESERVE/RELEASE) collapse into one entry — split into cases only when they differ >25%",
+        "a queue consumer is represented as an inbound HTTP test-consumer entry (not a separate queue shape)",
+        "copies the format into the target except the Target line and ## How to scan",
+        "does not guess unknown shapes/errors — asks instead"
       ]
     }
   ]

@@ -89,7 +89,7 @@
         },
         {
           "role": "assistant",
-          "content": "สแกนแล้วครับ (Phase 1) — เป็น React SPA ล้วน ดู deps แล้วไม่มี ORM/DB driver เลยจะไม่สร้าง database-schema\n\nส่วน outbound ผมไล่ดู fetch/axios client ในโค้ด เจอว่ายิงไป 2 ปลายทาง: order-service (GET /orders, POST /orders) กับ payment-service (POST /pay) — สองอันนี้จะถือเป็น gateway lines\n\nPhase 2 ไม่เจอเอกสารเดิมที่ต้อง migrate, Phase 3 สร้าง context/tech-stack ใหม่จาก template แล้ว (ไม่มี database-schema)\n\nทีนี้เข้า Phase 4 — โปรเจกต์นี้ตั้งชื่อ scenario แบบไหนครับ? (default ถ้าไม่มีคือ <FEATURE>_<TYPE>_<N>)"
+          "content": "สแกนแล้วครับ (Phase 1) — เป็น React SPA ล้วน ดู deps แล้วไม่มี ORM/DB driver แต่จะยังสร้าง database-schema ไว้ แล้วระบุข้างในว่า project นี้ไม่ได้ใช้ DB (กัน bridge ที่ชี้มาพัง)\n\nส่วน outbound ผมไล่ดู fetch/axios client ในโค้ด เจอว่ายิงไป 2 ปลายทาง: order-service (GET /orders, POST /orders) กับ payment-service (POST /pay) — สองอันนี้จะถือเป็น gateway lines\n\nPhase 2 ไม่เจอเอกสารเดิมที่ต้อง migrate, Phase 3 สร้าง context/tech-stack ใหม่จาก template แล้ว (database-schema มี แต่ mark ว่าไม่ได้ใช้)\n\nทีนี้เข้า Phase 4 — โปรเจกต์นี้ตั้งชื่อ scenario แบบไหนครับ? (default ถ้าไม่มีคือ <FEATURE>_<TYPE>_<N>)"
         },
         {
           "role": "user",
@@ -97,9 +97,9 @@
         }
       ],
       "prompt": "ใช้ตามนั้นแหละ default ก็ได้",
-      "expected_output": "AI เขียน scenario naming default ลง target แล้วถาม Phase 4 ข้อถัดไป ตลอด flow ไม่สร้าง database-schema และถือ external API เป็น gateway",
+      "expected_output": "AI เขียน scenario naming default ลง target แล้วถาม Phase 4 ข้อถัดไป ตลอด flow สร้าง database-schema แต่ mark ว่า project ไม่ได้ใช้ DB และถือ external API เป็น gateway",
       "expectations": [
-        "AI ไม่สร้าง database-schema เพราะ scan deps แล้วไม่มี ORM/DB driver",
+        "AI ยังสร้าง database-schema แต่ระบุข้างในว่า project นี้ไม่ได้ใช้ DB (ไม่ skip เพื่อให้ bridge ที่ชี้มาไม่พัง)",
         "AI ไล่หา outbound จาก fetch/axios client ในโค้ด แล้วถือ order-service และ payment-service เป็น gateway lines",
         "AI ข้ามคำถาม Phase 4 ที่ไม่เกี่ยว เช่น error-code format (ไม่มี API surface ของตัวเอง)",
         "AI เขียน scenario naming (default <FEATURE>_<TYPE>_<N>) ลง target",
