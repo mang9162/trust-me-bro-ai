@@ -1,0 +1,23 @@
+{
+  "name": "@trust-me-bro/skill-eval",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "LLM-as-judge runner for skill-evaluation scenarios — drives the actor & judge through the Claude Code CLI (claude -p), no API key.",
+  "bin": {
+    "skill-eval": "src/index.ts"
+  },
+  "scripts": {
+    "eval": "tsx src/index.ts --root .. --skill initialize",
+    "eval:all": "tsx src/index.ts --root ..",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
