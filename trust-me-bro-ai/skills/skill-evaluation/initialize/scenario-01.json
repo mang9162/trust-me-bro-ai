@@ -5,75 +5,75 @@
     {
       "id": 1,
       "conversation": [
-        { "user": "เพิ่งเอา skill ชุดนี้มาใส่ในโปรเจค ช่วย setup ให้ AI พร้อมทำงานหน่อย" },
-        { "ai": "ได้เลย เริ่ม initialize — อยากให้สแกนแบบ light (เก็บโครงไว้ก่อน) หรือ full (เก็บรายละเอียดให้ครบ) ดีครับ?" },
-        { "user": "เอา full" },
-        { "ai": "สแกนรีโปแล้ว: NestJS monorepo มี 2 app — live-service กับ live-consumer, database เป็น postgres. ฝั่ง inbound เจอ route/controller ของแต่ละ app, ฝั่ง outbound เจอ gateway/client ที่เรียกออกในโค้ด. ขอ confirm หน่อย — domain เป็นระบบ live selling ใช่ไหมครับ?" },
-        { "user": "ใช่ live selling" },
-        { "ai": "โอเค สร้าง context/gateway-directory.md ตาม format แล้ว — Inbound แยก 2 ตารางตาม app (live-service, live-consumer), Outbound แยกตามปลายทางที่เจอในโค้ด. รายละเอียดที่สแกนไม่ครบจะให้ self-learn เติมตอนรัน workflow จริง" }
+        { "user": "I just dropped this skill kit into my project — can you set it up so the AI is ready to work?" },
+        { "ai": "Sure — starting initialize. Do you want a light scan (skeleton first) or a full scan (fill in all the detail)?" },
+        { "user": "Full." },
+        { "ai": "Scanned the repo: it's a NestJS monorepo with two apps — live-service and live-consumer — on Postgres. Inbound: I found each app's routes/controllers; Outbound: I found the gateway/client calls in the code. Quick check — is the domain a live-selling system?" },
+        { "user": "Yes, live selling." },
+        { "ai": "Done — created context/gateway-directory.md from the format. Inbound is split into one table per app (live-service, live-consumer); Outbound is grouped by target system as found in the code. Anything the scan couldn't fully resolve is left for self-learn to fill during real workflow runs." }
       ],
-      "expected_output": "AI เข้าสู่ initialize, ถาม light/full, รายงานสิ่งที่สแกนเจอ + ถาม confirm สิ่งที่ไม่ชัวร์ แล้วเขียน context/gateway-directory.md ตาม gateway-directory-format.md",
+      "expected_output": "AI enters initialize, asks light/full, reports what it scanned + asks to confirm the uncertain parts, then writes context/gateway-directory.md following gateway-directory-format.md",
       "expectations": [
-        "AI เข้าสู่ skill initialize (ไม่เดาลงมือทำเอง)",
-        "ถาม light หรือ full scan ก่อนเริ่ม (Phase 1)",
-        "รายงานสิ่งที่สแกนเจอเอง (NestJS 2 app, postgres, inbound routes, outbound gateway calls) ไม่ใช่ส่ง self-report skill — ไม่ให้ user ป้อนทุกอย่าง",
-        "สิ่งที่สแกนไม่ชัวร์ → ถามกลับ (เช่น confirm domain) หรือเว้นว่างให้ self-learn เติม — ไม่เดา และไม่ mock",
-        "เขียนลง context/gateway-directory.md ตาม Target ใน format (ไม่ใช่ที่อื่น)",
-        "copy format ลง target (## How to use + per-section template + ## References + ## Role & Boundary) แต่ไม่เอา Target line / ## How to scan ลงไฟล์จริง",
-        "## Inbound Gateway แยก 1 ตารางต่อ app: ### live-service และ ### live-consumer",
-        "## Outbound Gateway จัดกลุ่มตามปลายทาง (1 ### ต่อ 1 ระบบ) ไม่ใช่ตามชื่อ gateway-class/function",
-        "ทุกตารางใช้คอลัมน์: endpoint | condition | purpose | bridge | function | note",
-        "bridge เป็นไอดีรูป <service>(<path>) ไม่ใช่ชื่อ function",
-        "function เก็บที่อยู่ของโค้ด (controller/handler ฝั่ง inbound, gateway/client ฝั่ง outbound); ไม่เขียน request/response shape ในไฟล์นี้ (อยู่ที่ gateway-contract.md)",
-        "endpoint ที่มีหลาย variant ถูกแยกเป็น 1 row ต่อ variant ด้วย condition (เช่น action=RESERVE vs action=RELEASE)",
-        "Phase 2: เช็ค doc เดิมที่ต้อง migrate — เคสนี้ไม่มี จึงไม่ migrate อะไร"
+        "AI enters the initialize skill (doesn't just do it ad-hoc)",
+        "asks light vs full scan before starting (Phase 1)",
+        "reports what it scanned itself (NestJS 2 apps, postgres, inbound routes, outbound gateway calls) just report not to send self-report skill — doesn't make the user provide everything",
+        "for anything the scan can't resolve → asks back (e.g. confirm domain) or leaves it for self-learn — does not guess, does not mock",
+        "writes to context/gateway-directory.md per the Target in the format (not elsewhere)",
+        "copies the template's format into the target (## How to use + per-section templates + ## References + ## Role & Boundary) but not the Target line / ## How to scan",
+        "## Inbound Gateway has one table per app: ### live-service and ### live-consumer",
+        "## Outbound Gateway groups by target system (one ### per system), not by gateway-class/function name",
+        "every table uses columns: endpoint | condition | purpose | bridge | function | note",
+        "bridge is an id in the form <service>(<path>), not a function name",
+        "function holds where the code lives (controller/handler for inbound, gateway/client for outbound); request/response shapes are NOT written here (they live in gateway-contract.md)",
+        "an endpoint with multiple variants is split into one row per variant via the condition key (e.g. action=RESERVE vs action=RELEASE)",
+        "Phase 2: checks for existing docs to migrate — none here, so nothing is migrated"
       ]
     },
     {
       "id": 2,
       "conversation": [
-        { "user": "เพิ่งเอา skill ชุดนี้มาใส่ ช่วย setup ให้ AI พร้อมทำงานหน่อย" },
-        { "ai": "ได้เลย เริ่ม initialize — สแกนแบบ light หรือ full ดีครับ?" },
-        { "user": "full" },
-        { "ai": "สแกนแล้ว: (1) Phase 2 เจอ doc เดิมในรีโปที่เขียน mountebank stub ไว้ (= วิธี mock เส้นขาออก) → จับเป็น split: รายการเส้น → gateway-directory.md, ส่วน shape/วิธี mock → gateway-contract.md แล้ว migrate เข้าไป ไม่ทำซ้ำ. (2) Phase 3 เอา scan มาเขียน gateway-directory.md ต่อ เจอ outbound บางตัวที่ไม่มีใน doc นั้น (gaps) → เพิ่มเข้าไป + seed ไว้ให้ self-learn เติม shape ทีหลัง. โอเคไหม?" },
-        { "user": "โอเค" },
-        { "ai": "เรียบร้อย — Phase 2 migrate doc mountebank (split เข้า gateway-directory + gateway-contract), Phase 3 เพิ่ม outbound ที่เป็น gap เข้า gateway-directory.md (flag ว่ายังไม่มี shape) แล้วรายงาน migrate + gap ให้แล้ว" }
+        { "user": "I just dropped this skill kit in — can you set up the project so the AI is ready to work?" },
+        { "ai": "Sure — starting initialize. Light scan or full scan?" },
+        { "user": "Full." },
+        { "ai": "Scanned: (1) Phase 2 found an existing doc in the repo that documents mountebank stubs (i.e. how the outbound lines are mocked) → matched as a split: the line list → gateway-directory.md, the shape/mock detail → gateway-contract.md, then migrated it in (no duplication). (2) In Phase 3 I write gateway-directory.md from the scan and found some outbound gateways that aren't in that doc (gaps) → adding them and seeding them for self-learn to fill the shapes later. Okay?" },
+        { "user": "Okay." },
+        { "ai": "Done — Phase 2 migrated the mountebank doc (split into gateway-directory + gateway-contract), Phase 3 added the gap outbound lines into gateway-directory.md (flagged as shape-not-yet-known), and reported what was migrated vs what was a gap." }
       ],
-      "expected_output": "AI สแกนเจอ doc mountebank เอง; Phase 2 migrate (split: gateway-directory + gateway-contract); Phase 3 เขียนจาก scan → เพิ่ม outbound ที่เป็น gap (ไม่มีใน doc) เข้า gateway-directory.md + seed/flag",
+      "expected_output": "AI discovers the mountebank doc itself; Phase 2 migrates it (split: gateway-directory + gateway-contract); Phase 3 writes from the scan → adds the outbound gaps (not in the doc) to gateway-directory.md + seed/flag",
       "expectations": [
-        "ถาม light หรือ full scan ก่อนเริ่ม (Phase 1)",
-        "ผู้ใช้ไม่ได้บอกว่ามี doc — AI สแกนเจอ doc mountebank เองใน Phase 2 (enumerate)",
-        "Phase 2 จับคู่ doc mountebank กับ target ที่ถูกแล้ว migrate (ไม่ปล่อยทิ้ง/ไม่ทำซ้ำ) — shape/วิธี mock → gateway-contract.md, รายการเส้น → gateway-directory.md (split)",
-        "Phase 1 สแกนโค้ดเจอ outbound ที่ไม่มีใน doc เดิม (gaps) — ไม่เชื่อ doc อย่างเดียว",
-        "Phase 3 (เขียน/extend จาก scan) เป็นตัวเพิ่ม gaps เข้า gateway-directory.md ตาม format — ไม่ใช่ Phase 2",
-        "gaps ที่ยังไม่มี shape → seed (skeleton) + flag ให้ self-learn เติม ไม่เดา",
-        "ไม่ duplicate เนื้อหา mountebank ลงหลายที่ (single source — shape อยู่ gateway-contract, catalog อยู่ gateway-directory)",
-        "รายงานให้ user ตรง ๆ ว่าอะไร migrate / อะไรเป็น gap (ไม่ส่ง self-report)"
+        "asks light vs full scan before starting (Phase 1)",
+        "the user did NOT mention any doc — the AI discovers the mountebank doc itself in Phase 2 (enumerate)",
+        "Phase 2 matches the mountebank doc to the right target(s) and migrates it (doesn't ignore/duplicate) — shape/mock detail → gateway-contract.md, the line list → gateway-directory.md (split)",
+        "Phase 1 scans the code and finds outbound lines not in the existing doc (gaps) — not trusting the doc alone",
+        "Phase 3 (writing/extending from the scan) is what adds the gaps to gateway-directory.md per the format — not Phase 2",
+        "gaps with no shape yet → seeded (skeleton) + flagged for self-learn to fill — no guessing",
+        "no duplicated mountebank content across files (single source — shapes in gateway-contract, catalog in gateway-directory)",
+        "reports to the user directly what was migrated vs what was a gap (not via self-report)"
       ]
     },
     {
       "id": 3,
       "conversation": [
-        { "user": "ช่วย initialize repo นี้ — NestJS API + postgres" },
-        { "ai": "ได้เลย — สแกน light หรือ full ดีครับ?" },
-        { "user": "full" },
-        { "ai": "สแกน full เสร็จ — สร้าง 2 ไฟล์คู่กันด้วย bridge id เดียวกัน: context/gateway-directory.md (มีเส้นอะไร) + tech-stack/gateway-contract.md (หน้าตา request/response). ใน gateway-contract แต่ละเส้น = 1 entry: request (method+body), success (status+body), errors (list + map error_code), mock (outbound = stub match/stub/returns, inbound = api-test). เส้น outbound action=RESERVE/RELEASE รวมเป็น entry เดียว (shape ต่างกัน <25%). เหลือ PaymentGateway ที่ผมไม่แน่ใจว่ามี error อะไรบ้าง ช่วยบอกหน่อย?" },
-        { "user": "Payment error 402 ตอนบัตรถูกปฏิเสธ" },
-        { "ai": "เพิ่ม 402 เข้า errors ของ Payment entry แล้ว (external code ไม่ map local) — gateway-contract.md จับคู่ gateway-directory ครบ" }
+        { "user": "Initialize this repo — NestJS API + postgres." },
+        { "ai": "Sure — light scan or full?" },
+        { "user": "Full." },
+        { "ai": "Full scan done — I created two paired files keyed by the same bridge id: context/gateway-directory.md (which lines exist) + tech-stack/gateway-contract.md (the request/response shapes). In gateway-contract each line is one entry: request (method+body), success (status+body), errors (list + error_code map), mock (outbound = stub match/stub/returns, inbound = api-test). The outbound action=RESERVE/RELEASE lines collapse into one entry (shapes differ <25%). One line, PaymentGateway, I can't tell its errors — what are they?" },
+        { "user": "Payment returns 402 when the card is declined." },
+        { "ai": "Added 402 to the Payment entry's errors (external code, no local map) — gateway-contract.md now pairs fully with gateway-directory." }
       ],
-      "expected_output": "initialize สร้าง tech-stack/gateway-contract.md จาก format คู่กับ gateway-directory (bridge id), 1 entry/line, protocol-aware fields, JSON payloads, errors+error_code map, mock เป็นโครง",
+      "expected_output": "initialize creates tech-stack/gateway-contract.md from the format, paired with gateway-directory by bridge id, one entry per line, protocol-aware fields, JSON payloads, errors + error_code map, structured mock",
       "expectations": [
-        "ถาม light/full ก่อนเริ่ม (Phase 1)",
-        "สร้าง tech-stack/gateway-contract.md จาก gateway-contract-format.md (ตาม Target ใน format)",
-        "จับคู่ gateway-directory.md ด้วย bridge id เดียวกัน · 1 entry ต่อ 1 เส้น (ไม่แยกตาม condition)",
-        "fields ตาม protocol (HTTP = request/success/errors)",
+        "asks light/full before starting (Phase 1)",
+        "creates tech-stack/gateway-contract.md from gateway-contract-format.md (per the Target in the format)",
+        "pairs with gateway-directory.md by the same bridge id · one entry per line (not per condition)",
+        "fields follow the protocol (HTTP = request/success/errors)",
         "request = method + body (JSON), success = status + body (JSON)",
-        "errors เป็น list · inbound map → error_code (error-codes.md), outbound external ไม่ map",
-        "mock: outbound = match/stub/returns (โครงสร้าง stub อยู่ tech-stack.md ไม่ซ้ำในนี้); inbound = api-test no stub",
-        "condition variant (RESERVE/RELEASE) รวมเป็น 1 entry — แยก case เฉพาะเมื่อต่าง >25%",
-        "queue consumer → แทนด้วย inbound HTTP test-consumer entry (ไม่ใช่ protocol แยก)",
-        "copy format ลง target ยกเว้น Target + How to scan",
-        "shape/error ที่ scan ไม่ชัด → ถาม ไม่เดา"
+        "errors is a list · inbound maps to error_code (error-codes.md), an external outbound code has no local map",
+        "mock: outbound = match/stub/returns (stub structure lives in tech-stack.md, not repeated here); inbound = api-test no stub",
+        "condition variants (RESERVE/RELEASE) collapse into one entry — split into cases only when they differ >25%",
+        "a queue consumer is represented as an inbound HTTP test-consumer entry (not a separate queue shape)",
+        "copies the format into the target except the Target line and ## How to scan",
+        "does not guess unknown shapes/errors — asks instead"
       ]
     }
   ]

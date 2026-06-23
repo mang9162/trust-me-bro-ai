@@ -4,102 +4,102 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "อยากเพิ่ม connection type ใหม่ชื่อ 'notify' สำหรับกรณีที่ skill แจ้งอีก skill แต่ไม่ได้ hand-off จริงๆ",
-      "expected_output": "แก้ได้ — เป็นการเพิ่ม connection type vocabulary ซึ่งอยู่ใน scope ของ skill นี้",
+      "prompt": "I want to add a new connection type called 'notify' for cases where a skill alerts another skill without actually handing off.",
+      "expected_output": "allowed — adding a connection type to the vocabulary is within scope",
       "expectations": [
-        "skill ยอมรับว่าแก้ได้",
-        "skill ระบุว่าต้องเพิ่ม notify ใน ## Connection Types section",
-        "skill ถามก่อนว่า notify จะแสดงเป็น edge style ไหนใน file-map.html เพราะ connection type ใหม่ต้องมี edge แบบใหม่ด้วย ไม่สามารถ reuse เส้นที่มีอยู่แล้วได้",
-        "skill ไม่ redirect ไปที่อื่น"
+        "skill confirms this is allowed",
+        "skill identifies ## Connection Types as the section to update",
+        "skill asks what edge style notify should use in file-map.html — a new connection type needs a new edge style and cannot reuse an existing one",
+        "skill does not redirect elsewhere"
       ]
     },
     {
       "id": 2,
-      "prompt": "อยากเปลี่ยนลำดับ section ใน Skill File Structure ให้ ## Role & Boundary ขึ้นมาอยู่บนสุดเสมอ ไม่ต้องมี position exception",
-      "expected_output": "แก้ได้ — เป็นการเปลี่ยน section ordering rule ซึ่งอยู่ใน scope ของ skill นี้",
+      "prompt": "I want to change the section ordering so ## Role & Boundary always comes first, removing the position exception.",
+      "expected_output": "allowed — changing the section ordering rule is within scope",
       "expectations": [
-        "skill ยอมรับว่าแก้ได้",
-        "skill ระบุว่าแก้ใน ## Skill File Structure section",
-        "skill ไม่ redirect ไปที่อื่น"
+        "skill confirms this is allowed",
+        "skill identifies ## Skill File Structure as the section to update",
+        "skill does not redirect elsewhere"
       ]
     },
     {
       "id": 3,
-      "prompt": "อยากเปลี่ยน format ของ ## References จาก '- <type>: <file> — <what>' เป็น '- <file> (<type>): <what>' ให้อ่านง่ายขึ้น",
-      "expected_output": "แก้ได้ — เป็นการเปลี่ยน section format ซึ่งอยู่ใน scope ของ skill นี้ แต่ต้องอัปเดตทุก skill ที่ใช้ format นี้ด้วย",
+      "prompt": "I want to change the ## References format from '- <type>: <file> — <what>' to '- <file> (<type>): <what>' to make it easier to read.",
+      "expected_output": "allowed — changing a section format is within scope, but all existing skills using this format must also be updated",
       "expectations": [
-        "skill ยอมรับว่าแก้ได้",
-        "skill เตือนว่า format change นี้กระทบทุก skill ที่มี ## References section อยู่แล้ว",
-        "skill ไม่ redirect ไปที่อื่น"
+        "skill confirms this is allowed",
+        "skill warns that this format change affects every skill that already has a ## References section",
+        "skill does not redirect elsewhere"
       ]
     },
     {
       "id": 4,
-      "prompt": "อยากเพิ่ม checklist step ใน 'Before You Create or Edit a Skill' ให้ตรวจว่า skill ใหม่ไม่ duplicate content จาก skill อื่น",
-      "expected_output": "แก้ได้ — เป็นการเพิ่ม guidance ใน Before You Create or Edit a Skill ซึ่งอยู่ใน scope",
+      "prompt": "I want to add a checklist step in 'Before You Create or Edit a Skill' to verify that a new skill doesn't duplicate content from another skill.",
+      "expected_output": "allowed — adding guidance to Before You Create or Edit a Skill is within scope",
       "expectations": [
-        "skill ยอมรับว่าแก้ได้",
-        "skill ระบุว่าเพิ่มใน ## Before You Create or Edit a Skill section",
-        "skill ไม่ redirect ไปที่อื่น"
+        "skill confirms this is allowed",
+        "skill identifies ## Before You Create or Edit a Skill as the section to update",
+        "skill does not redirect elsewhere"
       ]
     },
     {
       "id": 5,
-      "prompt": "อยากให้ skill-format-guide บันทึกด้วยว่า skill ไหน own อะไรบ้าง จะได้ไม่ต้องไปดู workflow/SKILL.md",
-      "expected_output": "แก้ไม่ได้ — Responsibility map เป็นของ workflow/SKILL.md ไม่ใช่ scope ของ skill นี้",
+      "prompt": "I want skill-format-guide to also record which skill owns what, so I don't have to go to workflow/SKILL.md.",
+      "expected_output": "not allowed — the Responsibility map belongs to workflow/SKILL.md, not this skill",
       "expectations": [
-        "skill ปฏิเสธ",
-        "skill อ้างถึง Role & Boundary ว่า skill นี้ไม่ track ว่า skill ไหนทำอะไร"
+        "skill refuses",
+        "skill cites Role & Boundary stating this skill does not track which skill owns what"
       ]
     },
     {
       "id": 6,
-      "prompt": "อยากให้ skill-format-guide เก็บ list ว่าตอนนี้มี skill อะไรบ้างใน project",
-      "expected_output": "แก้ไม่ได้ — skill inventory ไม่ใช่ scope ของ skill นี้",
+      "prompt": "I want skill-format-guide to keep a list of all skills currently in the project.",
+      "expected_output": "not allowed — skill inventory is not within this skill's scope",
       "expectations": [
-        "skill ปฏิเสธ",
-        "skill อ้างถึง Role & Boundary ว่า skill นี้ own แค่ format และ vocabulary",
-        "skill ไม่เพิ่ม skill inventory ลงในไฟล์นี้"
+        "skill refuses",
+        "skill cites Role & Boundary stating this skill only owns format and vocabulary",
+        "skill does not add a skill inventory to this file"
       ]
     },
     {
       "id": 7,
-      "prompt": "อยากให้ skill-format-guide track ด้วยว่า file ไหน connect กับ file ไหนบ้าง จะได้ครบในที่เดียว",
-      "expected_output": "แก้ไม่ได้ — concrete connection tracking เป็นของ file-map.html",
+      "prompt": "I want skill-format-guide to also track which files connect to which, so everything is in one place.",
+      "expected_output": "not allowed — concrete connection tracking belongs to file-map.html",
       "expectations": [
-        "skill ปฏิเสธ",
-        "skill อ้างถึง Role & Boundary ว่า skill นี้ไม่ track concrete file connections",
-        "skill redirect ไป file-map.html"
+        "skill refuses",
+        "skill cites Role & Boundary stating this skill does not track concrete file connections",
+        "skill redirects to file-map.html"
       ]
     },
     {
       "id": 8,
-      "prompt": "อยากให้ skill-format-guide กำหนดด้วยว่า skill แต่ละอันต้องมี unit test หรือเปล่า",
-      "expected_output": "แก้ไม่ได้ — testing requirement ไม่ใช่ scope ของ skill นี้",
+      "prompt": "I want skill-format-guide to specify whether each skill is required to have unit tests.",
+      "expected_output": "not allowed — testing requirements are not within this skill's scope",
       "expectations": [
-        "skill ปฏิเสธ",
-        "skill อธิบายว่า skill นี้ own แค่ format ของ cross-file connection declaration",
-        "skill ไม่เพิ่ม testing requirement ลงในไฟล์นี้"
+        "skill refuses",
+        "skill explains that this skill only owns the format for cross-file connection declarations",
+        "skill does not add testing requirements to this file"
       ]
     },
     {
       "id": 9,
-      "prompt": "อยากแก้ Role & Boundary ของ skill นี้ให้ครอบคลุม connection tracking ด้วย แล้วค่อยย้ายข้อมูลจาก file-map.html มา",
-      "expected_output": "แก้ได้ถ้าตั้งใจขยาย scope — แต่ต้องอัปเดต Role & Boundary ก่อน แล้วค่อยย้ายข้อมูล",
+      "prompt": "I want to update the Role & Boundary of this skill to also cover connection tracking, then move that data from file-map.html here.",
+      "expected_output": "allowed if intentionally expanding scope — but Role & Boundary must be updated first before moving any content",
       "expectations": [
-        "skill ยอมรับว่า Role & Boundary แก้ได้",
-        "skill อธิบายว่าต้องแก้ Role & Boundary ก่อนเสมอ ก่อนขยาย scope จริง",
-        "skill เตือนว่าถ้าย้าย connection tracking มา file-map.html จะกลายเป็น redundant และต้องจัดการ bridge ระหว่างสองไฟล์ด้วย"
+        "skill confirms that Role & Boundary itself can be changed",
+        "skill explains that Role & Boundary must be updated first, before actually expanding the scope",
+        "skill warns that moving connection tracking here would make file-map.html redundant and the bridge between the two files would need to be resolved"
       ]
     },
     {
       "id": 10,
-      "prompt": "อยากเพิ่ม ## References line ใน get-requirement skill โดยไม่อัปเดต file-map.html",
-      "expected_output": "แก้ไม่ได้แบบนั้น — ทุกครั้งที่แก้ ## References ต้องอัปเดต file-map.html ด้วยเสมอ เพราะเป็น bridge pair",
+      "prompt": "I want to add a ## References line to the get-requirement skill without updating file-map.html.",
+      "expected_output": "not allowed that way — every ## References change must be paired with a file-map.html update since they are a bridge pair",
       "expectations": [
-        "skill ปฏิเสธการแก้โดยไม่อัปเดต file-map.html",
-        "skill อ้างถึง Before You Create or Edit a Skill ว่า file-map.html เป็น bridge กับ References/Trigger Skill/Writes To",
-        "skill อธิบายว่าต้องอ่าน file-map.html ก่อน แก้ skill แล้วอัปเดต edge ใน diagram ด้วย"
+        "skill refuses to make the change without updating file-map.html",
+        "skill cites Before You Create or Edit a Skill stating file-map.html is a bridge with References/Trigger Skill/Writes To",
+        "skill explains the correct order: read file-map.html first, make the skill change, then update the matching edge in the diagram"
       ]
     }
   ]

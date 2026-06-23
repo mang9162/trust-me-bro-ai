@@ -114,13 +114,13 @@
     },
     {
       "id": 10,
-      "group": "cannot_edit",
+      "group": "can_edit",
       "prompt": "In database-schema.md, add a description to each table header explaining what it stores — e.g. ### users — 'Stores system user accounts'.",
-      "expected_output": "Refuses or redirects — the template has no table-level description field; description belongs at the datastore level only.",
+      "expected_output": "Adds a short description under each table header without disturbing the table's columns/Indexes or the datastore-level fields.",
       "expectations": [
-        "Does not add a table-level description that is absent from the template",
-        "Explains that the template defines description at the datastore level only",
-        "If the user wants to adjust the datastore description, redirects to that field instead"
+        "Adds a one-line description for each table (e.g. under its ### header)",
+        "Each table's columns, types, keys, relationships, and Indexes are preserved",
+        "The datastore-level type/description/seeding are not changed"
       ]
     },
     {

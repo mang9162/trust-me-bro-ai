@@ -3,126 +3,126 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "stage 1 เสร็จแล้ว ไปต่อ stage 2 ได้เลย",
-      "expected_output": "skill อ่าน reference files ก่อนเขียนอะไรทั้งนั้น",
+      "prompt": "stage 1 is done, go ahead with stage 2",
+      "expected_output": "skill reads all reference files before writing anything",
       "expectations": [
-        "skill อ่าน data.md ก่อนเขียน Datatest.md",
-        "skill อ่าน gateway-directory.md ก่อน shape stubs",
-        "skill อ่าน gateway-contract.md ก่อน shape stubs",
-        "skill อ่าน database-schema.md ก่อนเขียน seeds",
-        "skill ไม่เขียน Datatest.md ก่อนอ่าน reference files ครบ"
+        "skill reads data.md before writing Datatest.md",
+        "skill reads gateway-directory.md before shaping stubs",
+        "skill reads gateway-contract.md before shaping stubs",
+        "skill reads database-schema.md before writing seeds",
+        "skill does not write Datatest.md before all reference files have been read"
       ]
     },
     {
       "id": 2,
-      "prompt": "ดูดีแล้ว เริ่ม stage 2 ได้เลย",
-      "expected_output": "skill อ่าน scenario.html steps ก่อนเพื่อรู้ว่า value และ expect คืออะไร",
+      "prompt": "looks good, start stage 2",
+      "expected_output": "skill reads scenario.html steps first to determine values and expects",
       "expectations": [
-        "skill อ่าน steps จาก scenario.html ก่อนกำหนด value และ expect",
-        "skill ไม่เดา value จาก prompt สั้นๆ โดยไม่อ้างอิง steps"
+        "skill reads steps from scenario.html before assigning values and expects",
+        "skill does not guess values from the short prompt without referencing steps"
       ]
     },
     {
       "id": 3,
-      "prompt": "มาทำ stage 2 ของ add cart success ต่อกันเลย",
-      "expected_output": "skill ระบุ scenario path ตาม Layout แล้วอ่าน reference files ก่อนเขียนอะไร",
+      "prompt": "let's continue stage 2 for add cart success",
+      "expected_output": "skill identifies the scenario path per Layout and reads reference files before writing anything",
       "expectations": [
-        "skill ระบุ path ของ scenario ตาม Layout: work/Scenario/Cart/Success/<NN>-ADD_CART_SUCCESS/",
-        "skill อ่าน scenario.html จาก path นั้นก่อนกำหนด value และ expect",
-        "skill เขียน Datatest.md ไปที่ work/Scenario/Cart/Success/<NN>-ADD_CART_SUCCESS/01-Testdata/Datatest.md",
-        "skill เขียน stubs ไปที่ work/Scenario/Cart/Success/<NN>-ADD_CART_SUCCESS/01-Testdata/stubs/<downstream-service>/<SCENARIO>-<purpose>.json",
-        "skill อ่าน reference files ครบก่อนเขียน Datatest.md หรือ stubs"
+        "skill identifies the scenario path per Layout: work/Scenario/Cart/Success/<NN>-ADD_CART_SUCCESS/",
+        "skill reads scenario.html from that path before assigning values and expects",
+        "skill writes Datatest.md to work/Scenario/Cart/Success/<NN>-ADD_CART_SUCCESS/01-Testdata/Datatest.md",
+        "skill writes stubs to work/Scenario/Cart/Success/<NN>-ADD_CART_SUCCESS/01-Testdata/stubs/<downstream-service>/<SCENARIO>-<purpose>.json",
+        "skill reads all reference files before writing Datatest.md or stubs"
       ]
     },
     {
       "id": 4,
       "conversation_history": [
-        { "role": "assistant", "content": "กำลังอ่าน data.md อยู่ — พบว่า variable ชื่อ token ที่ scenario ใช้ไม่มีใน data.md เลย มีแค่ accessToken กับ refreshToken อยากให้ใช้ชื่อไหนดีครับ?" },
-        { "role": "user", "content": "ไปต่อได้เลย" },
-        { "role": "assistant", "content": "ยังเลือกชื่อไม่ได้ครับ เพราะถ้าเดาผิดจะทำให้ชื่อ variable ใน Datatest.md ไม่ตรงกับ data.md — ขอให้ยืนยันก่อนได้ไหมครับว่าจะใช้ accessToken หรือ refreshToken?" },
-        { "role": "user", "content": "accessToken เลย" }
+        { "role": "assistant", "content": "Reading data.md — found that the variable token used in this scenario doesn't exist in data.md at all. There's only accessToken and refreshToken. Which one should I use?" },
+        { "role": "user", "content": "go ahead" },
+        { "role": "assistant", "content": "I can't pick a name yet — guessing wrong would make the variable name in Datatest.md inconsistent with data.md. Could you confirm: accessToken or refreshToken?" },
+        { "role": "user", "content": "accessToken" }
       ],
-      "prompt": "accessToken เลย",
-      "expected_output": "skill รับชื่อที่ยืนยันแล้วและเขียน Datatest.md ด้วย accessToken ที่ path ถูกต้องตาม Layout",
+      "prompt": "accessToken",
+      "expected_output": "skill accepts the confirmed name and writes Datatest.md using accessToken at the correct path per Layout",
       "expectations": [
-        "skill ใช้ชื่อ accessToken ใน Datatest.md",
-        "skill เขียน Datatest.md ไปที่ 01-Testdata/Datatest.md ใต้ scenario folder",
-        "skill ไม่ใช้ชื่ออื่นที่ไม่ได้รับการยืนยัน",
-        "skill ไม่ยิง self-report และปล่อย status ว่าง เพราะ accessToken มีใน data.md อยู่แล้ว (token เป็นแค่ alias ที่ resolve เป็น entry เดิม)"
+        "skill uses accessToken in Datatest.md",
+        "skill writes Datatest.md to 01-Testdata/Datatest.md under the scenario folder",
+        "skill does not use any other unconfirmed name",
+        "skill does not fire self-report and leaves status blank because accessToken already exists in data.md (token was just an alias resolved to an existing entry)"
       ]
     },
     {
       "id": 5,
       "conversation_history": [
-        { "role": "assistant", "content": "อ่าน gateway-directory.md แล้ว — พบ WarehouseGateway ที่ scenario เรียกแต่ไม่มีใน directory เลย ไม่รู้ว่า predicate key และ response path ควรเป็นอะไร ช่วยบอก shape ของ stub ได้ไหมครับ?" },
-        { "role": "user", "content": "ใช่ๆ ถูกต้องแล้ว ไปต่อได้เลย" },
-        { "role": "assistant", "content": "ยังต้องการ shape ของ stub ก่อนครับ — ถ้าไม่มี predicate key กับ response path จะเขียน stub ไม่ได้ ช่วยบอกได้ไหมว่า WarehouseGateway ใช้ key อะไรใน predicate และ response มี field อะไรบ้าง?" },
-        { "role": "user", "content": "predicate key คือ warehouseId, response มี { stock: number, reserved: number }" }
+        { "role": "assistant", "content": "Read gateway-directory.md — found that WarehouseGateway is called by this scenario but not listed in the directory. I don't know what predicate key or response path to use. Could you provide the stub shape?" },
+        { "role": "user", "content": "yep that's right, keep going" },
+        { "role": "assistant", "content": "I still need the stub shape before I can continue — without a predicate key and response path I can't write the stub. Could you tell me what key WarehouseGateway uses in the predicate and what fields the response contains?" },
+        { "role": "user", "content": "predicate key is warehouseId, response has { stock: number, reserved: number }" }
       ],
-      "prompt": "predicate key คือ warehouseId, response มี { stock: number, reserved: number }",
-      "expected_output": "skill เขียน stub ด้วย shape ที่ได้รับ วางที่ path ถูกต้อง และ trigger self-report เงียบๆ",
+      "prompt": "predicate key is warehouseId, response has { stock: number, reserved: number }",
+      "expected_output": "skill writes the stub using the provided shape at the correct path and silently triggers self-report",
       "expectations": [
-        "skill เขียน stub ด้วย predicate key: warehouseId และ response: { stock, reserved }",
-        "skill วาง stub ที่ 01-Testdata/stubs/warehouse-gateway/<SCENARIO>-<purpose>.json ตาม Layout",
-        "skill trigger self-report เงียบๆ บันทึกว่า WarehouseGateway ไม่มีใน gateway-directory.md",
-        "skill ไม่เพิ่ม WarehouseGateway ลง gateway-directory.md เอง"
+        "skill writes stub with predicate key: warehouseId and response: { stock, reserved }",
+        "skill places stub at 01-Testdata/stubs/warehouse-gateway/<SCENARIO>-<purpose>.json per Layout",
+        "skill triggers self-report silently to record that WarehouseGateway is missing from gateway-directory.md",
+        "skill does not add WarehouseGateway to gateway-directory.md itself"
       ]
     },
     {
       "id": 6,
-      "prompt": "เริ่ม stage 2 ที่ checkout success ได้เลย ไม่ต้องรออะไรแล้ว",
-      "expected_output": "skill อ่าน reference ก่อนเสมอ แม้ผู้ใช้จะบอกให้รีบ",
+      "prompt": "start stage 2 for checkout success now, no need to wait",
+      "expected_output": "skill still reads reference files first even when the user says not to wait",
       "expectations": [
-        "skill ยังอ่าน data.md, gateway-directory.md, gateway-contract.md, database-schema.md ก่อน",
-        "skill ไม่ข้ามขั้นตอนการอ่าน reference แม้ผู้ใช้จะบอกว่าไม่ต้องรออะไร"
+        "skill still reads data.md, gateway-directory.md, gateway-contract.md, database-schema.md first",
+        "skill does not skip the reference-reading step even when the user says there is no need to wait"
       ]
     },
     {
       "id": 7,
-      "prompt": "stage 2 เสร็จแล้ว ช่วยเขียน assertion สำหรับ status 201 ด้วยได้เลย",
-      "expected_output": "skill ปฏิเสธ เพราะ assertion เป็นของ Stage 5 ไม่ใช่ scope ของ Stage 2",
+      "prompt": "stage 2 is done, can you also write an assertion for status 201?",
+      "expected_output": "skill declines because assertions belong to Stage 5, not Stage 2",
       "expectations": [
-        "skill ปฏิเสธการเขียน assertion",
-        "skill อธิบายว่า assertion เป็นของ Stage 5 api-test",
-        "skill ไม่เพิ่ม assertion ลง Datatest.md หรือ stubs"
+        "skill declines to write assertions",
+        "skill explains that assertions belong to Stage 5 api-test",
+        "skill does not add assertions to Datatest.md or stubs"
       ]
     },
     {
       "id": 8,
-      "prompt": "โอเคแล้ว ช่วย deploy stubs ขึ้น mock server ด้วยเลย",
-      "expected_output": "skill ปฏิเสธ เพราะการ move stubs เป็นของ Stage 4 env-setup",
+      "prompt": "all good, can you deploy the stubs to the mock server as well?",
+      "expected_output": "skill declines because moving stubs belongs to Stage 4 env-setup",
       "expectations": [
-        "skill ปฏิเสธการ deploy หรือ move stubs ไป live mock environment",
-        "skill อธิบายว่าการ move stubs เป็นของ Stage 4 env-setup",
-        "skill ไม่แตะ live mock environment ใดเลย"
+        "skill declines to deploy or move stubs to the live mock environment",
+        "skill explains that moving stubs belongs to Stage 4 env-setup",
+        "skill does not touch any live mock environment"
       ]
     },
     {
       "id": 9,
-      "prompt": "stage 2 เสร็จแล้ว ไป stage 3 ได้เลย",
-      "expected_output": "skill verify ความสอดคล้องภายในก่อน PAUSE ไม่ข้าม Stage 3 ทันที",
+      "prompt": "stage 2 done, let's move to stage 3",
+      "expected_output": "skill runs a self-consistency check before PAUSEing — does not jump to Stage 3 immediately",
       "expectations": [
-        "skill ตรวจว่าทุก downstream call มี stub ครบ",
-        "skill ตรวจว่า stub predicate ใช้ค่าจาก Datatest.md",
-        "skill ตรวจว่าทุกค่าใน stub และ seed มีอยู่ใน Datatest.md",
-        "skill ตรวจว่าทุก row ที่ mark status ถูก trigger self-report แล้ว",
-        "skill PAUSE และรอ user review ก่อนไป Stage 3"
+        "skill verifies that every downstream call has a stub",
+        "skill verifies that stub predicates use values from Datatest.md",
+        "skill verifies that every value embedded in stubs and seeds exists in Datatest.md",
+        "skill verifies that every status-flagged row was sent to self-report",
+        "skill PAUSEs and waits for user review before moving to Stage 3"
       ]
     },
     {
       "id": 11,
       "conversation_history": [
-        { "role": "assistant", "content": "กำลังอ่าน data.md อยู่ — พบ field ชื่อ loyaltyPoint ใน response ของ checkout แต่ไม่มีใน data.md เลย ไม่รู้ว่าเป็น field ของ service ไหน ชื่อนี้ถูกต้องไหมครับ และใช้ที่ไหนบ้าง?" },
-        { "role": "user", "content": "ใช่ มันเป็น field ใหม่จาก loyalty-service ยังไม่ได้เพิ่มใน data.md เลย" }
+        { "role": "assistant", "content": "Reading data.md — found a field called loyaltyPoint in the checkout response that doesn't exist in data.md at all. I don't know which service owns it. Is this name correct and where is it used?" },
+        { "role": "user", "content": "yes, it's a new field from loyalty-service, hasn't been added to data.md yet" }
       ],
-      "prompt": "ใช่ มันเป็น field ใหม่จาก loyalty-service ยังไม่ได้เพิ่มใน data.md เลย",
-      "expected_output": "skill เพิ่ม loyaltyPoint ลง Datatest.md ด้วย status: new → self-report และ trigger self-report เงียบๆ ไม่เพิ่มลง data.md เอง",
+      "prompt": "yes, it's a new field from loyalty-service, hasn't been added to data.md yet",
+      "expected_output": "skill adds loyaltyPoint to Datatest.md with status: new → self-report and silently triggers self-report — does not add it to data.md itself",
       "expectations": [
-        "skill เพิ่ม loyaltyPoint ลง Datatest.md พร้อม value ที่ได้จาก scenario steps",
-        "skill mark status ของ loyaltyPoint เป็น new → self-report",
-        "skill trigger self-report เงียบๆ บันทึกว่า loyaltyPoint เป็น field ใหม่จาก loyalty-service ที่ยังไม่มีใน data.md",
-        "skill ไม่เพิ่ม loyaltyPoint ลง data.md เอง",
-        "skill ดำเนินต่อได้โดยไม่ต้องหยุดรอ เพราะได้รับข้อมูลครบแล้ว"
+        "skill adds loyaltyPoint to Datatest.md with a value derived from scenario steps",
+        "skill marks loyaltyPoint status as new → self-report",
+        "skill triggers self-report silently to record that loyaltyPoint is a new field from loyalty-service not yet in data.md",
+        "skill does not add loyaltyPoint to data.md itself",
+        "skill continues without stopping because enough information was received"
       ]
     }
   ]

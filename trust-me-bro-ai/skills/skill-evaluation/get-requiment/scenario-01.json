@@ -3,68 +3,68 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "อยากทำ feature เพิ่มสินค้าลงตะกร้า ระบบต้อง login ก่อน ใช้ endpoint POST /cart/add stock check real-time ถ้าสินค้าซ้ำให้ merge qty สูงสุด 9999 ถ้าหมดให้ notify",
-      "expected_output": "scenario-meta JSON พร้อม steps ที่เป็น plain language ครบ E2E ตั้งแต่ login → add → verify → cleanup พร้อม PAUSE รอ user review",
+      "prompt": "I want to build an add-to-cart feature. User must be logged in, endpoint is POST /cart/add, stock check is real-time, duplicate items should merge qty up to 9999, and out-of-stock should notify the user.",
+      "expected_output": "scenario-meta JSON with plain-language steps covering the full E2E flow from login → add → verify → cleanup, plus a PAUSE for user review",
       "expectations": [
-        "ผลลัพธ์มี scenario-meta JSON ที่มีฟิลด์ครบ: scenario, category, description, steps, accepted, acceptanceHistory",
-        "accepted มีค่าเป็น false และ acceptanceHistory เป็น array ว่าง",
-        "steps ทุกข้อเขียนเป็นภาษา user/system ไม่มี API path เช่น POST /cart/add อยู่ใน steps",
-        "steps ครอบคลุม setup (login), action (add product), verification, และ cleanup",
-        "มี PAUSE หรือขอให้ user review ก่อนดำเนินต่อ",
-        "ไม่มีการออกแบบ test data หรือ functional design ใน output"
+        "Output contains a scenario-meta JSON with all required fields: scenario, category, description, steps, accepted, acceptanceHistory",
+        "accepted is false and acceptanceHistory is an empty array",
+        "Every step is written in user/system language — no API paths such as POST /cart/add appear inside steps",
+        "Steps cover setup (login), action (add product), verification, and cleanup",
+        "A PAUSE or request for user review appears before proceeding",
+        "No test data design or functional design is included in the output"
       ]
     },
     {
       "id": 2,
-      "prompt": "feature ชำระเงิน",
-      "expected_output": "Claude ถามกลับเพื่อ resolve gaps ก่อน ไม่เขียน steps ทันที",
+      "prompt": "checkout feature",
+      "expected_output": "Claude asks clarifying questions to resolve gaps before writing any steps",
       "expectations": [
-        "ถามเกี่ยวกับ scope ว่า scenario ไหนบ้างที่ต้องทำ",
-        "ถามเกี่ยวกับ E2E flow หรือ payment method หรือ endpoint",
-        "ไม่เขียน scenario-meta หรือ steps ก่อนได้รับคำตอบ"
+        "Claude asks about scope — which scenarios need to be covered",
+        "Claude asks about the E2E flow, payment methods, or endpoint",
+        "Claude does not write scenario-meta or steps before receiving answers"
       ]
     },
     {
       "id": 3,
-      "prompt": "feature ล็อกอิน: Success คือ user ใส่ email+password ถูก ได้ JWT กลับมา Alternative คือ password ผิด ได้ error INVALID_CREDENTIALS กลับมา endpoint POST /auth/login ไม่ต้อง session",
-      "expected_output": "scenario-meta JSON สำหรับทั้ง 2 scenarios พร้อม steps ที่ถูกต้อง",
+      "prompt": "Login feature: Success = user enters correct email+password and receives a JWT. Alternative = wrong password returns error INVALID_CREDENTIALS. Endpoint is POST /auth/login, no session needed.",
+      "expected_output": "scenario-meta JSON for both scenarios with correct steps",
       "expectations": [
-        "มี scenario-meta สำหรับ Success scenario ที่มี category: Success",
-        "มี scenario-meta สำหรับ Alternative scenario ที่มี category: Alternative",
-        "steps ของ Alternative ระบุ condition ที่ทำให้เกิด failure (password ผิด) และ expected outcome (error)",
-        "ไม่มี API path POST /auth/login อยู่ใน steps array",
-        "มีการขอให้ user review ก่อนดำเนินต่อ"
+        "A scenario-meta exists for the Success scenario with category: Success",
+        "A scenario-meta exists for the Alternative scenario with category: Alternative",
+        "Steps for Alternative clearly state the failure condition (wrong password) and expected outcome (error)",
+        "No API path POST /auth/login appears inside the steps array",
+        "A request for user review appears before proceeding"
       ]
     },
     {
       "id": 4,
-      "prompt": "feature ดูประวัติคำสั่งซื้อ endpoint GET /orders แสดงรายการ order ทั้งหมดของ user ที่ login อยู่",
-      "expected_output": "Claude ถามเพิ่มเติมเกี่ยวกับ edge cases หรือ alternative scenarios ก่อนเขียน",
+      "prompt": "Order history feature — endpoint GET /orders, shows all orders belonging to the logged-in user.",
+      "expected_output": "Claude asks about edge cases or alternative scenarios before writing steps",
       "expectations": [
-        "Claude ถามเกี่ยวกับ alternative scenarios เช่น กรณีไม่มี order หรือ unauthorized",
-        "ถ้า Claude เขียน steps ต้องไม่มี GET /orders อยู่ใน steps array",
-        "Claude ไม่เริ่มออกแบบ test data หรือ task"
+        "Claude asks about alternative scenarios such as no orders or unauthorized access",
+        "If Claude writes steps, GET /orders must not appear inside the steps array",
+        "Claude does not start designing test data or tasks"
       ]
     },
     {
       "id": 5,
-      "prompt": "อยากเพิ่ม ref ไปหา test data design guideline ใน get-requirement skill",
-      "expected_output": "Claude ปฏิเสธและอธิบายว่าเกิน boundary ของ Stage 1",
+      "prompt": "Can we add a reference to a test data design guideline inside the get-requirement skill?",
+      "expected_output": "Claude declines and explains this is outside the boundary of Stage 1",
       "expectations": [
-        "Claude ปฏิเสธการเพิ่ม ref test data ใน skill นี้",
-        "Claude อ้างถึง Role & Boundary ที่ระบุว่า test data design ไม่ใช่ scope ของ Stage 1",
-        "Claude แนะนำ stage หรือ skill ที่เหมาะสมกว่าแทน เช่น Stage 2 หรือ create-test-data"
+        "Claude refuses to add a test data reference to this skill",
+        "Claude cites Role & Boundary, which states test data design is not in scope for Stage 1",
+        "Claude suggests a more appropriate stage or skill instead, such as Stage 3 or create-task"
       ]
     },
     {
       "id": 6,
-      "prompt": "feature ลบสินค้าออกจากตะกร้า user กด remove สินค้าหายออกจาก cart ทันที endpoint DELETE /cart/item ไม่ต้อง confirm",
-      "expected_output": "scenario-meta JSON พร้อม steps ครบ E2E",
+      "prompt": "Remove item from cart — user clicks remove and the item disappears from the cart immediately. Endpoint DELETE /cart/item, no confirmation needed.",
+      "expected_output": "scenario-meta JSON with complete E2E steps",
       "expectations": [
-        "steps มี action ลบสินค้าและ verify ว่าสินค้าหายออกจาก cart",
-        "steps ไม่มี DELETE /cart/item อยู่ใน steps array",
-        "scenario-meta มี accepted: false และ acceptanceHistory: []",
-        "มี PAUSE หรือขอให้ user review ก่อนดำเนินต่อ"
+        "Steps include the remove action and verification that the item is gone from the cart",
+        "DELETE /cart/item does not appear inside the steps array",
+        "scenario-meta has accepted: false and acceptanceHistory: []",
+        "A PAUSE or request for user review appears before proceeding"
       ]
     }
   ]

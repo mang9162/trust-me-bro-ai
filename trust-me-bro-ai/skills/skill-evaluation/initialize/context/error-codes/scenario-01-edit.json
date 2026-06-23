@@ -1,0 +1,74 @@
+{
+  "skill_name": "error-codes",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our actual base-response has `trace_id` and `timestamp` fields but no `paging`. Update error-codes.md to reflect the real shape:\n```json\n{ \"request_id\": \"...\", \"trace_id\": \"...\", \"timestamp\": \"...\", \"error_code\": \"...\", \"message\": \"...\", \"data\": {} }\n```",
+      "expected_output": "base-response section updated to record the actual shape (with trace_id, timestamp, without paging) and flags divergence from the recommended standard",
+      "files": [],
+      "expectations": [
+        "base-response section shows the actual shape including trace_id and timestamp",
+        "paging is absent from the recorded shape",
+        "Divergence from recommended standard is flagged (added trace_id/timestamp, missing paging)",
+        "Recommended standard is preserved for reference — not deleted"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The team wants to simplify Severity levels from 4 down to 3:\n- 0 = critical (same as before)\n- 1 = warning (merge high + medium)\n- 2 = info (same as old minor)\nUpdate error-codes.md to reflect this.",
+      "expected_output": "Severity table rewritten to 3 levels as specified, with a note that it deviates from the default baseline",
+      "files": [],
+      "expectations": [
+        "Severity table has exactly 3 rows: level 0, 1, 2",
+        "Criteria and action for each level match what the team specified",
+        "Registry section still references severity correctly under the new scheme"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our project already uses its own error code format, not the recommended DOM_SVC4NNN convention:\n- ERR-1001 (auth invalid)\n- ERR-1002 (token expired)\n- ERR-2001 (DB connection failed)\nFill the registry using the project's actual format. Don't force-convert to DOM_SVC4NNN.",
+      "expected_output": "Registry uses the ERR-XXXX format as-is, with a note that it diverges from the recommended convention",
+      "files": [],
+      "expectations": [
+        "Registry table contains ERR-1001, ERR-1002, ERR-2001 in the project's own format",
+        "Codes are not force-converted to DOM_SVC4NNN",
+        "Severity, ResponseMessage, and LogMessage are still filled in for each code"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "We want to add a Deprecation Policy section to error-codes.md — when retiring an old error code, mark it deprecated for 2 releases before removing. Add this without touching existing sections.",
+      "expected_output": "New Deprecation Policy section added; all existing sections unchanged",
+      "files": [],
+      "expectations": [
+        "A new Deprecation Policy section exists with the process: mark deprecated → wait 2 releases → remove",
+        "Existing sections (base-response, Severity, Registry, Role & Boundary) are unmodified",
+        "Content stays within the file's boundary — still about the error code registry"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "During the Implement stage I noticed USR_AUTH4001's ResponseMessage is wrong — it says 'Invalid credentials' but it should say 'Email or password is incorrect'. Let me just fix it directly in error-codes.md.",
+      "expected_output": "Refuses direct edit — error-codes.md is read-only from workflow stages; directs to self-report instead",
+      "files": [],
+      "expectations": [
+        "Registry table is not modified directly",
+        "References Role & Boundary stating the file is read-only to every workflow stage",
+        "Recommends sending the conflicting code to self-report",
+        "Acknowledges the message may indeed need updating — just not through direct edit from a stage"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I want to add the request body shape for POST /users/login into error-codes.md next to USR_AUTH4001 — it's related anyway and it'd be nice to see everything in one place.",
+      "expected_output": "Refuses — request/response payload shapes belong in gateway-contract.md, not here",
+      "files": [],
+      "expectations": [
+        "Does not add request body shape to error-codes.md",
+        "References Role & Boundary stating per-line request/response payloads live in gateway-contract.md",
+        "Suggests editing gateway-contract.md instead",
+        "Acknowledges the user's intent (convenience) without being harsh about the boundary"
+      ]
+    }
+  ]
+}

@@ -8,13 +8,13 @@
         "evals/files/small-learn.js",
         "evals/files/log.js"
       ],
-      "expected_output": "execute fix แล้ว move entry ออกจาก small-learn.js ไปยัง log.js พร้อม chosenOption และ appliedDate",
+      "expected_output": "Executes the fix then moves the entry from small-learn.js to log.js with chosenOption and appliedDate",
       "expectations": [
-        "entry 20260615-inventory-gateway-missing ถูกลบออกจาก small-learn.js",
-        "entry ถูก append เข้า log.js พร้อม status: done",
-        "log.js entry มี chosenOption เป็น 1",
-        "log.js entry มี appliedDate เป็นวันที่วันนี้",
-        "self-improve execute steps ของ fixOptions[0] คือเพิ่ม InventoryGateway ลง gateway-directory.md"
+        "Entry 20260615-inventory-gateway-missing is removed from small-learn.js",
+        "Entry is appended to log.js with status: done",
+        "log.js entry has chosenOption set to 1",
+        "log.js entry has appliedDate set to today's date",
+        "self-improve executes the steps of fixOptions[0]: adding InventoryGateway to gateway-directory.md"
       ]
     },
     {
@@ -24,28 +24,28 @@
         "evals/files/medium-learn.js",
         "evals/files/log.js"
       ],
-      "expected_output": "execute fix option 2 (แก้ทั้งสองไฟล์) แล้ว move entry ไป log.js",
+      "expected_output": "Executes fix option 2 (updates both files) then moves the entry to log.js",
       "expectations": [
-        "entry 20260615-stockamount-type-mismatch ถูกลบออกจาก medium-learn.js",
-        "entry ถูก append เข้า log.js พร้อม status: done",
-        "log.js entry มี chosenOption เป็น 2",
-        "self-improve แก้ทั้ง context/data.md และ tech-stack/database-schema.md ตาม steps ของ option 2",
-        "entry อื่นใน medium-learn.js ไม่ถูกแตะ"
+        "Entry 20260615-stockamount-type-mismatch is removed from medium-learn.js",
+        "Entry is appended to log.js with status: done",
+        "log.js entry has chosenOption set to 2",
+        "self-improve updates both context/data.md and tech-stack/database-schema.md per option 2 steps",
+        "Other entries in medium-learn.js are not touched"
       ]
     },
     {
       "id": 3,
-      "prompt": "self-improve: entry=20260615-scenario-naming-mismatch (small-learn.js), custom fix: เพิ่ม naming convention ลง domain-reference.md ให้ระบุว่า folder ต้องใช้ kebab-case เสมอ",
+      "prompt": "self-improve: entry=20260615-scenario-naming-mismatch (small-learn.js), custom fix: add a naming convention to domain-reference.md stating that folders must always use kebab-case.",
       "files": [
         "evals/files/small-learn.js",
         "evals/files/log.js"
       ],
-      "expected_output": "append custom fix เป็น fixOption ใหม่ก่อน execute แล้ว move entry ไป log.js พร้อม chosenOption: custom",
+      "expected_output": "Appends the custom fix as a new fixOption before executing, then moves the entry to log.js with chosenOption: custom",
       "expectations": [
-        "self-improve append fixOption ใหม่ label: custom เข้า entry ก่อน execute",
-        "custom fixOption มี files และ steps ที่ถูก generate จาก custom fix text",
-        "entry ถูก move ไป log.js พร้อม chosenOption: custom",
-        "entry ถูกลบออกจาก small-learn.js"
+        "self-improve appends a new fixOption with label: custom to the entry before executing",
+        "The custom fixOption has files and steps generated from the custom fix text",
+        "Entry is moved to log.js with chosenOption: custom",
+        "Entry is removed from small-learn.js"
       ]
     },
     {
@@ -55,12 +55,12 @@
         "evals/files/heavy-learn.js",
         "evals/files/log.js"
       ],
-      "expected_output": "self-improve ต้อง confirm กับ user ก่อน เพราะ fix กระทบ workflow หลายไฟล์และสร้าง skill ใหม่",
+      "expected_output": "self-improve confirms with the user before executing because the fix touches multiple files and creates a new skill",
       "expectations": [
-        "self-improve ถามยืนยัน user ก่อน execute เพราะ fix มี ambiguity หรือ scope กว้าง",
-        "self-improve ไม่ execute steps ทันทีโดยไม่ confirm",
-        "หลัง user confirm แล้ว execute steps ของ option 1 ครบ",
-        "entry ถูก move ไป log.js พร้อม chosenOption: 1 หลัง execute เสร็จ"
+        "self-improve asks the user to confirm before executing because the fix is ambiguous or has wide scope",
+        "self-improve does not execute steps immediately without confirmation",
+        "After user confirms, self-improve executes all steps of option 1",
+        "Entry is moved to log.js with chosenOption: 1 after execution completes"
       ]
     },
     {
@@ -70,12 +70,12 @@
         "evals/files/medium-learn.js",
         "evals/files/log.js"
       ],
-      "expected_output": "self-improve แสดง fixOptions ให้ user เลือกก่อน เพราะไม่ได้ระบุ option มา",
+      "expected_output": "self-improve presents fixOptions for the user to choose because no option was specified",
       "expectations": [
-        "self-improve แสดง fixOptions ทั้งหมดของ entry นี้ให้ user เลือก",
-        "self-improve ไม่ execute fix ทันทีโดยไม่รอ user เลือก option",
-        "self-improve เสนอ option เพิ่ม custom fix ด้วย",
-        "self-improve ไม่แตะ log.js จนกว่า user จะเลือก option และ confirm"
+        "self-improve displays all fixOptions for this entry for the user to select",
+        "self-improve does not execute any fix immediately without waiting for user selection",
+        "self-improve also offers the option to provide a custom fix",
+        "self-improve does not touch log.js until the user selects an option and confirms"
       ]
     },
     {
@@ -87,29 +87,29 @@
         "evals/files/heavy-learn.js",
         "evals/files/log.js"
       ],
-      "expected_output": "execute fix แล้ว move entry ไป log.js ไม่แตะ entry อื่นใน tier อื่น",
+      "expected_output": "Executes the fix and moves the entry to log.js without touching any entry in other tiers",
       "expectations": [
-        "entry 20260615-code-standards-async-error ถูกลบออกจาก small-learn.js",
-        "entry ถูก append เข้า log.js พร้อม status: done และ chosenOption: 1",
-        "medium-learn.js และ heavy-learn.js ไม่ถูกแตะ",
-        "entry อื่นใน small-learn.js ไม่ถูกแตะ"
+        "Entry 20260615-code-standards-async-error is removed from small-learn.js",
+        "Entry is appended to log.js with status: done and chosenOption: 1",
+        "medium-learn.js and heavy-learn.js are not touched",
+        "Other entries in small-learn.js are not touched"
       ]
     },
     {
       "id": 7,
-      "prompt": "ช่วย review pending entries ทั้งหมดหน่อย",
+      "prompt": "Can you review all pending entries?",
       "files": [
         "evals/files/small-learn.js",
         "evals/files/medium-learn.js",
         "evals/files/heavy-learn.js",
         "evals/files/log.js"
       ],
-      "expected_output": "self-improve อ่านทั้ง 3 tier files แล้วสรุป pending entries ให้ user เลือกว่าจะ fix อันไหนก่อน",
+      "expected_output": "self-improve reads all three tier files and summarises pending entries for the user to choose from",
       "expectations": [
-        "self-improve อ่าน small-learn.js, medium-learn.js, และ heavy-learn.js ครบทั้ง 3 ไฟล์",
-        "self-improve แสดง pending entries ทั้งหมดพร้อม id, title, tier",
-        "self-improve รอ user เลือก entry และ option ก่อน execute",
-        "ไม่มีการ execute fix หรือ move entry ใดเลยก่อน user เลือก"
+        "self-improve reads small-learn.js, medium-learn.js, and heavy-learn.js — all three files",
+        "self-improve displays all pending entries with id, title, and tier",
+        "self-improve waits for the user to select an entry and option before executing",
+        "No fix is executed and no entry is moved before the user makes a selection"
       ]
     }
   ]

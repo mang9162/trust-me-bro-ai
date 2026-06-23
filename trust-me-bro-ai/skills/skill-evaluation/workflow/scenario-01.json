@@ -3,96 +3,97 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "เริ่มทำ feature เพิ่มสินค้าลงตะกร้าได้เลยนะ ให้ใช้สกิล workflow เริ่มที่ stage 1",
-      "expected_output": "workflow invoke get-requirement ก่อน ไม่ข้ามไป stage อื่น",
+      "prompt": "Go ahead and start the add-to-cart feature.",
+      "expected_output": "workflow invokes get-requirement first — does not skip to another stage",
       "expectations": [
-        "workflow ระบุว่าอยู่ใน Stage 1",
-        "workflow invoke หรือระบุว่าต้องใช้ get-requirement skill",
-        "workflow ไม่ invoke create-test-data หรือ create-task โดยไม่ผ่าน Stage 1 ก่อน",
-        "workflow ไม่ทำ procedure ของ get-requirement เอง เช่น ถาม gap หรือเขียน steps แทน"
+        "workflow identifies that it is in Stage 1",
+        "workflow invokes or names get-requirement as the skill to use",
+        "workflow does not invoke create-test-data or create-task without going through Stage 1 first",
+        "workflow does not perform get-requirement's procedure itself, such as asking gaps or writing steps"
       ]
     },
     {
       "id": 2,
-      "prompt": "โอเค scenario.html ดูโอเคแล้ว ไปต่อเลย",
-      "expected_output": "workflow ไปที่ Stage 2 invoke create-test-data แล้ว PAUSE รออีกครั้ง",
+      "prompt": "Looks good, scenario.html is fine — let's move on.",
+      "expected_output": "workflow advances to Stage 2, invokes create-test-data, then PAUSEs again",
       "expectations": [
-        "workflow ระบุว่าอยู่ใน Stage 2",
-        "workflow invoke หรือระบุว่าต้องใช้ create-test-data skill",
-        "workflow ไม่ข้าม Stage 2 ไป Stage 3 ทันที",
-        "workflow ระบุว่าจะ PAUSE รอ user review หลัง Stage 2 เสร็จ"
+        "workflow identifies that it is in Stage 2",
+        "workflow invokes or names create-test-data as the skill to use",
+        "workflow does not skip Stage 2 and jump straight to Stage 3",
+        "workflow states that it will PAUSE for user review after Stage 2 finishes"
       ]
     },
     {
       "id": 3,
-      "prompt": "task หมดแล้ว เทสผ่านหมด ต่อเลย",
-      "expected_output": "workflow ไปที่ Stage 5 invoke api-test แล้ว PAUSE",
+      "prompt": "All tasks done, all tests pass — keep going.",
+      "expected_output": "workflow advances to Stage 5, invokes api-test, then PAUSEs",
       "expectations": [
-        "workflow ระบุว่าอยู่ใน Stage 5",
-        "workflow invoke หรือระบุว่าต้องใช้ api-test skill",
-        "workflow ไม่ข้าม Stage 5 ไป Stage 6 ทันที",
-        "workflow ไม่ทำ procedure ของ api-test เอง"
+        "workflow identifies that it is in Stage 5",
+        "workflow invokes or names api-test as the skill to use",
+        "workflow does not skip Stage 5 and jump straight to Stage 6",
+        "workflow does not perform api-test's procedure itself"
       ]
     },
     {
       "id": 4,
-      "prompt": "E2E ดูแปลกๆขาด ขาด cleanup step มาแก้กันก่อน",
-      "expected_output": "workflow วนกลับไป Stage 1 พร้อม rejection reason เป็น input ใหม่",
+      "prompt": "Didn't pass — E2E flow is missing the cleanup step.",
+      "expected_output": "workflow loops back to Stage 1 with the rejection reason as new input",
       "expectations": [
-        "workflow ระบุว่า reject และต้องวนกลับ Stage 1",
-        "workflow ส่ง rejection reason (ขาด cleanup step) เป็น input ให้ get-requirement",
-        "workflow ไม่จบ scenario หรือถือว่า done",
-        "workflow ไม่ข้ามไป Stage 2 โดยตรง"
+        "workflow identifies this as a rejection and routes back to Stage 1",
+        "workflow passes the rejection reason (missing cleanup step) as input to get-requirement",
+        "workflow does not mark the scenario as done",
+        "workflow does not jump directly to Stage 2"
       ]
     },
     {
       "id": 5,
-      "prompt": "เราเพิ่งเริ่มใช้ครั้งแรก ทำ scenario แรกเลย อยากได้ระบบ login",
-      "expected_output": "workflow invoke initialize ก่อน ไม่เริ่ม Stage 1 ทันที",
+      "prompt": "Context hasn't been set up yet — can we just start the login feature anyway?",
+      "expected_output": "workflow invokes initialize first and does not start Stage 1 yet",
       "expectations": [
-        "workflow ตรวจพบว่า context/ หรือ tech-stack/ missing",
-        "workflow invoke หรือระบุว่าต้องใช้ initialize skill ก่อน",
-        "workflow ไม่ invoke get-requirement จนกว่า initialize จะเสร็จ"
+        "workflow detects that context/ or tech-stack/ is missing",
+        "workflow invokes or names initialize as the skill to run first",
+        "workflow does not invoke get-requirement until initialize is done"
       ]
     },
     {
       "id": 6,
-      "prompt": "เขียน code เลยได้ไหม ไม่อยากวางแผน",
-      "expected_output": "workflow ปฏิเสธการ implement เอง และ route ไปที่ Stage 4 skill ที่ถูกต้อง",
+      "prompt": "Can you just write the addToCart function for me?",
+      "expected_output": "workflow declines to implement it directly and routes to the correct Stage 4 skill",
       "expectations": [
-        "workflow ไม่เขียน code หรือ implement function เอง",
-        "workflow ระบุว่าการ implement เป็นของ Stage 4 (code-task skill)",
-        "workflow อธิบาย role ของตัวเองว่าเป็น control-only"
+        "workflow does not write code or implement any function itself",
+        "workflow identifies implementation as belonging to Stage 4 (code-task skill)",
+        "workflow explains that its own role is control-only"
       ]
     },
     {
-      "id":  7,
-      "prompt": "รัน unit-test กับ code-task พร้อมกันเลยได้ไหม จะได้เร็วขึ้น",
-      "expected_output": "workflow ปฏิเสธ เพราะ parallel execution ขัดกับ Role & Boundary ของ workflow",
+      "id": 7,
+      "prompt": "There are still unit-test, integration-test, and code-task left — which one goes first?",
+      "expected_output": "workflow dispatches tasks one at a time by task.type — no parallel execution",
       "expectations": [
-        "workflow ปฏิเสธการแก้ไข routing logic ที่ขัดกับ design",
-        "workflow อธิบายว่า dispatch per task หมายถึงทีละ task",
-        "workflow ไม่ implement parallel execution logic"
+        "workflow states that Stage 4 dispatches per task.type",
+        "workflow does not perform any task type's procedure itself",
+        "workflow names unit-test, integration-test, and code-task skills in task order"
       ]
     },
     {
       "id": 8,
-      "prompt": "Add to Cart เสร็จละ accept แล้ว ตอนนี้ขอทำ feature ลบสินค้าออกจากตะกร้าต่อเลย",
-      "expected_output": "workflow เริ่ม cycle ใหม่จาก Stage 1 สำหรับ scenario ใหม่",
+      "prompt": "Can we run unit-test and code-task at the same time to speed things up?",
+      "expected_output": "workflow declines because parallel execution conflicts with its Role & Boundary",
       "expectations": [
-        "workflow ระบุว่า scenario เดิม done แล้ว",
-        "workflow เริ่ม Stage 1 ใหม่สำหรับ feature ลบสินค้า",
-        "workflow invoke get-requirement สำหรับ requirement ใหม่",
-        "workflow ไม่นำ state ของ scenario เดิมมาปะปน"
+        "workflow refuses to change routing logic that conflicts with its design",
+        "workflow explains that dispatch per task means one task at a time",
+        "workflow does not implement parallel execution logic"
       ]
     },
     {
       "id": 9,
-      "prompt": "ผลที่ได้จาก Stage 5 ยังแปลกๆ ไม่รับนะ ไปเริ่มใหม่กัน",
-      "expected_output": "workflow วน cycle กลับไปที่ Stage 1 สำหรับ scenario เดิม",
+      "prompt": "Add to Cart is done and accepted — let's do the remove-from-cart feature next.",
+      "expected_output": "workflow starts a fresh cycle from Stage 1 for the new scenario",
       "expectations": [
-        "workflow ระบุประวัติไปที่ acceptanceHistory ว่าไม่ตรวจรับ",
-        "workflow เริ่ม Stage 1 ใหม่อีกรอบ โดยใช้ scenario เดิม"
+        "workflow confirms the previous scenario is done",
+        "workflow starts Stage 1 fresh for the remove-from-cart feature",
+        "workflow invokes get-requirement for the new requirement",
+        "workflow does not carry over state from the previous scenario"
       ]
     }
   ]
