@@ -1,0 +1,182 @@
+{
+  "skill_name": "database-schema",
+  "description": "Evals testing what Claude can and cannot edit in database-schema.md per the Role & Boundary rules",
+  "evals": [
+    {
+      "id": 1,
+      "group": "can_edit",
+      "prompt": "In database-schema.md, the users table has an email column but no index defined for it. Please add index `idx_users_email` (unique).",
+      "expected_output": "Adds an index entry under the users table Indexes section — e.g. `idx_users_email — (email) unique` — without touching anything else.",
+      "expectations": [
+        "Adds an index bullet under the users table in the correct template format",
+        "Names the index idx_users_email",
+        "Lists email as the covered column",
+        "Marks it as unique",
+        "Does not modify type / description / seeding of the datastore",
+        "Does not touch tables that were not mentioned"
+      ]
+    },
+    {
+      "id": 2,
+      "group": "can_edit",
+      "prompt": "Update the PostgreSQL datastore type in database-schema.md from 'PostgreSQL 14' to 'PostgreSQL 16' — we just upgraded.",
+      "expected_output": "Changes only the `type:` line in the ## PostgreSQL section to `PostgreSQL 16`.",
+      "expectations": [
+        "Updates the type field of the PostgreSQL section to version 16",
+        "Does not modify the datastore description",
+        "Does not modify seeding",
+        "Does not modify any tables or columns"
+      ]
+    },
+    {
+      "id": 3,
+      "group": "can_edit",
+      "prompt": "Add the audit_logs table to the PostgreSQL datastore in database-schema.md. Columns: id (PK, uuid), user_id (FK → users.id), action (varchar), created_at (timestamp). No special indexes.",
+      "expected_output": "Adds a ### audit_logs block inside ## PostgreSQL with a complete Markdown column table and `Indexes: —` per the template.",
+      "expectations": [
+        "Adds ### audit_logs inside the PostgreSQL section",
+        "id column is PK of type uuid",
+        "user_id column is FK pointing to users.id",
+        "action column is of type varchar",
+        "created_at column is of type timestamp",
+        "Includes `Indexes: —` because no indexes were specified",
+        "Does not modify type / description / seeding of the datastore"
+      ]
+    },
+    {
+      "id": 4,
+      "group": "can_edit",
+      "prompt": "Update the Redis datastore seeding in database-schema.md: change the seed file from `redis.json` to `redis-seed.json` — we renamed the file.",
+      "expected_output": "Changes only the seed filename in the seeding line of the ## Redis section.",
+      "expectations": [
+        "Updates the seed filename in the Redis seeding line to redis-seed.json",
+        "Does not modify the seeding mechanism or caveat",
+        "Does not modify type or description of the Redis section",
+        "Does not touch any other datastore"
+      ]
+    },
+    {
+      "id": 5,
+      "group": "can_edit",
+      "prompt": "In database-schema.md, the products table has the price column typed as `float`. It should be `decimal(10,2)`. Please fix it.",
+      "expected_output": "Changes only the type cell of the price column in the products table.",
+      "expectations": [
+        "Updates the price column type to decimal(10,2)",
+        "Does not modify the key or relationship of that column",
+        "Does not modify any other columns in the products table",
+        "Does not modify the products table indexes"
+      ]
+    },
+    {
+      "id": 6,
+      "group": "cannot_edit",
+      "prompt": "In database-schema.md, please add a `default_value` column to every column in every table so we can record each field's default.",
+      "expected_output": "Refuses — default values are value shapes, which belong in data.md, not database-schema.md.",
+      "expectations": [
+        "Does not add a default_value column to any table",
+        "Explains that value shapes / default values belong in data.md, not database-schema.md",
+        "Redirects the user to data.md"
+      ]
+    },
+    {
+      "id": 7,
+      "group": "cannot_edit",
+      "prompt": "Add sample test data for the users table to database-schema.md — e.g. user_id=1, email=test@example.com.",
+      "expected_output": "Refuses — test data / variable names / value shapes belong in data.md.",
+      "expectations": [
+        "Does not add any test data rows to the file",
+        "Explains that database-schema.md does not hold values",
+        "Redirects to data.md"
+      ]
+    },
+    {
+      "id": 8,
+      "group": "cannot_edit",
+      "prompt": "In database-schema.md, add a section for the request/response payload of the POST /users API endpoint.",
+      "expected_output": "Refuses — request/response payloads belong in gateway-contract.md.",
+      "expectations": [
+        "Does not add any API payload section",
+        "Explains that request/response payloads belong in gateway-contract.md",
+        "Redirects to gateway-contract.md"
+      ]
+    },
+    {
+      "id": 9,
+      "group": "cannot_edit",
+      "prompt": "Our workflow stage detected that the email column in the users table in production is varchar(320) but database-schema.md says varchar(255). Please fix it to match production.",
+      "expected_output": "Does not make the direct fix — escalates to self-report per Role & Boundary, because the file is read-only to all workflow stages.",
+      "expectations": [
+        "Does not modify the column type directly",
+        "Explains that database-schema.md is read-only to all workflow stages",
+        "States that this conflict must go to self-report",
+        "Does not apply an in-place fix from a stage"
+      ]
+    },
+    {
+      "id": 10,
+      "group": "cannot_edit",
+      "prompt": "In database-schema.md, add a description to each table header explaining what it stores — e.g. ### users — 'Stores system user accounts'.",
+      "expected_output": "Refuses or redirects — the template has no table-level description field; description belongs at the datastore level only.",
+      "expectations": [
+        "Does not add a table-level description that is absent from the template",
+        "Explains that the template defines description at the datastore level only",
+        "If the user wants to adjust the datastore description, redirects to that field instead"
+      ]
+    },
+    {
+      "id": 11,
+      "group": "cannot_edit",
+      "prompt": "Merge the MySQL and PostgreSQL datastores in database-schema.md into a single section — their query patterns are similar.",
+      "expected_output": "Refuses — the format rule is 'Split by engine, not by feature'; each datastore must have its own section.",
+      "expectations": [
+        "Does not merge the two datastore sections",
+        "Explains the 'Split by engine, not by feature' rule",
+        "Recommends keeping separate sections per engine"
+      ]
+    },
+    {
+      "id": 12,
+      "group": "cannot_edit",
+      "prompt": "Add the path `01-Testdata/db/` to the seeding line of every datastore in database-schema.md to make things clearer.",
+      "expected_output": "Refuses — the `01-Testdata/db/` path is owned by the workflow ## Layout section, not database-schema.md.",
+      "expectations": [
+        "Does not add the 01-Testdata/db/ path to any seeding line",
+        "Explains that this path belongs to the workflow Layout section",
+        "Tells the user to update Layout instead"
+      ]
+    },
+    {
+      "id": 13,
+      "group": "edge_case",
+      "prompt": "We just added Elasticsearch as a datastore but we're not sure what it's for. Please fill in its description by inferring from the collection names.",
+      "expected_output": "Does not guess the description — asks the user instead, per 'If you can't tell what a datastore is for, ask the user — don't guess its purpose'.",
+      "expectations": [
+        "Does not infer or guess the Elasticsearch description",
+        "Asks the user what Elasticsearch is used for in this project",
+        "Does not write a TBD guess"
+      ]
+    },
+    {
+      "id": 14,
+      "group": "edge_case",
+      "prompt": "We're in light scan mode — please also fill in all the column details for every table in database-schema.md.",
+      "expected_output": "Clarifies that light scan mode covers datastores and table names only — columns require full scan mode.",
+      "expectations": [
+        "Does not fill column details in light scan mode",
+        "Explains the difference between light and full scan mode",
+        "Asks whether the user wants to switch to full scan mode"
+      ]
+    },
+    {
+      "id": 15,
+      "group": "edge_case",
+      "prompt": "Several columns in database-schema.md are marked TBD for type. Please fill them in by inferring from the column names.",
+      "expected_output": "Does not guess — keeps TBD per 'Don't guess — leave a cell TBD rather than invent a value'.",
+      "expectations": [
+        "Does not replace TBD with guessed values",
+        "Explains that the skill requires keeping TBD when the value is unknown",
+        "Recommends verifying against the schema source (migrations / ORM models) first"
+      ]
+    }
+  ]
+}

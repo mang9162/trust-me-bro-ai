@@ -20,7 +20,7 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
    - `context/data.md` — which catalogued variables this scenario uses.
    - `context/gateway-directory.md` — the downstream gateways this scenario's flow calls (purpose / condition).
    - `tech-stack/gateway-contract.md` — how to shape each stub (predicate key params / response path).
-   - `tech-stack/database-schema.md` (§ Seeding Mechanics) — which entities can be seeded and how.
+   - `tech-stack/database-schema.md` — the valid tables/columns to seed + each datastore's `seeding` line (how to seed it).
    Also read the scenario's own `scenario.html` steps — they are the source of the `value` / `expect` data.
 
 2. **Write `Datatest.md`** — one `## Section` per context group, each a table with columns `| name | value | expect | status | notes |`:
@@ -31,7 +31,7 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
    Use values unique to this scenario wherever reuse would collide (fresh `videoId` / `postId` / `pageId`) so stub predicates don't clash with sibling scenarios.
    **If a value is missing, or you are unsure which catalogued entry to use — ask the user. Never invent a name or guess a value.**
 
-3. **Write the DB seeds** — only when an integration path actually looks the entity up. Shape, engines, and rules: `database-schema.md` § Seeding Mechanics; location: per the workflow `## Layout`. Stage JSON inside the scenario folder only.
+3. **Write the DB seeds** — only when an integration path actually looks the entity up. Valid columns/types + the datastore's `seeding` (mechanism/caveat): `database-schema.md`; location: per the workflow `## Layout`. Stage JSON inside the scenario folder only.
    **If the entity or its shape isn't covered there, or you're unsure — ask the user. Don't guess.**
 
 4. **Write the stubs** — one per downstream call, embedding values from `Datatest.md`. Shape each per `gateway-contract.md`; choose which calls from `gateway-directory.md` + the scenario flow; path & filename per the workflow `## Layout`.
@@ -56,7 +56,7 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
 - cross-ref: `trust-me-bro-ai/context/data.md` — central dictionary; pick catalogued variable names from here (read-only — never write back).
 - cross-ref: `trust-me-bro-ai/context/gateway-directory.md` — which downstream gateways the flow calls (purpose / condition).
 - cross-ref: `trust-me-bro-ai/tech-stack/gateway-contract.md` — stub predicate key params + response path shape.
-- cross-ref: `trust-me-bro-ai/tech-stack/database-schema.md` (§ Seeding Mechanics) — which entities to seed and how.
+- cross-ref: `trust-me-bro-ai/tech-stack/database-schema.md` — valid columns/types for seed rows + each datastore's `seeding` (how to seed).
 - bridge: `trust-me-bro-ai/skills/workflow/SKILL.md` (`## Layout`) — owns every `01-Testdata/` path and the stub `<SCENARIO>-<purpose>.json` naming; this skill names files only and defers the paths there.
 
 ## Trigger Skill

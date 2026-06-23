@@ -136,71 +136,73 @@ flowchart LR
   data -.->|"19 · ref: table.column"| dbschema
   data -.->|"20 · ref: Gateway.method.response"| gwcontract
   gwdir <-.->|"21 · entry name match"| gwcontract
-  dbschema <-.->|"22 · seed pairing"| gwcontract
 
   %% ===== 1 (cont): LIGHT-BLUE DASHED = cross-ref =====
-  s4 -.->|"23 · ref: code conventions"| codestd
-  s4 -.->|"24 · ref: test conventions"| testguide
+  s4 -.->|"22 · ref: code conventions"| codestd
+  s4 -.->|"23 · ref: test conventions"| testguide
 
-  s1 -.->|"25 · ref: scenario naming"| domain
-  s1 -.->|"26 · ref: error codes<br/>must match exactly"| errcodes
-  s2 -.->|"27 · ref: gateway purpose/condition"| gwdir
-  s2 -.->|"28 · ref: mock key params/path"| gwcontract
-  s2 -.->|"29 · ref: central dictionary"| data
-  s2 -.->|"30 · ref: seeding mechanics"| dbschema
+  s1 -.->|"24 · ref: scenario naming"| domain
+  s1 -.->|"25 · ref: error codes<br/>must match exactly"| errcodes
+  s2 -.->|"26 · ref: gateway purpose/condition"| gwdir
+  s2 -.->|"27 · ref: mock key params/path"| gwcontract
+  s2 -.->|"28 · ref: central dictionary"| data
+  s2 -.->|"29 · ref: seeding mechanics"| dbschema
 
   %% ===== 2: RED DASHED = trigger/notify another component about something =====
-  s1 -.->|"31 · write/update scenario.html<br/>(header-card, progress 1/6, E2E-flow, placeholders)"| gr
-  s2 -.->|"32 · update report"| gr
-  s3 -.->|"33 · update report"| gr
-  s4 -.->|"34 · update report"| gr
-  s5 -.->|"35 · update report"| gr
-  s6 -.->|"36 · update report"| gr
-  s1 -.->|"37 · report issue (Issue #16)"| selfReport
-  s2 -.->|"38 · report issue (Issue #16)"| selfReport
-  s3 -.->|"39 · report issue (Issue #16)"| selfReport
-  s4 -.->|"40 · report issue (Issue #16)"| selfReport
-  s5 -.->|"41 · report issue (Issue #16)"| selfReport
-  s6 -.->|"42 · report issue (Issue #16)"| selfReport
+  s1 -.->|"30 · write/update scenario.html<br/>(header-card, progress 1/6, E2E-flow, placeholders)"| gr
+  s2 -.->|"31 · update report"| gr
+  s3 -.->|"32 · update report"| gr
+  s4 -.->|"33 · update report"| gr
+  s5 -.->|"34 · update report"| gr
+  s6 -.->|"35 · update report"| gr
+  s1 -.->|"36 · report issue (Issue #16)"| selfReport
+  s2 -.->|"37 · report issue (Issue #16)"| selfReport
+  s3 -.->|"38 · report issue (Issue #16)"| selfReport
+  s4 -.->|"39 · report issue (Issue #16)"| selfReport
+  s5 -.->|"40 · report issue (Issue #16)"| selfReport
+  s6 -.->|"41 · report issue (Issue #16)"| selfReport
 
   %% ===== 3: SOLID GREEN = write (Issue #16, self-learn internal) =====
-  selfReport -->|"43 · write entry<br/>(classify tier)"| tierJson
-  selfImprove -->|"44 · move entry<br/>(chosenOption/appliedDate)"| logJson
+  selfReport -->|"42 · write entry<br/>(classify tier)"| tierJson
+  selfImprove -->|"43 · move entry<br/>(chosenOption/appliedDate)"| logJson
 
   %% ===== 1d: LIGHT-BLUE DASHED = cross-ref (self-learn internal reads) =====
-  selfImprove -.->|"45 · read entry,<br/>execute fix"| tierJson
-  feedback -.->|"46 · read (no state,<br/>no sync)"| tierJson
-  feedback -.->|"47 · read"| logJson
+  selfImprove -.->|"44 · read entry,<br/>execute fix"| tierJson
+  feedback -.->|"45 · read (no state,<br/>no sync)"| tierJson
+  feedback -.->|"46 · read"| logJson
 
   %% ===== 1e: LIGHT-BLUE DASHED / BLACK DASHED = Control Skill (C0) =====
-  fmg <-.->|"48 · References/Trigger Skill/Writes To <-> edges (exact match)"| fileMap
-  skillFiles -.->|"49 · read before creating/editing any skill"| fmg
+  fmg <-.->|"47 · References/Trigger Skill/Writes To <-> edges (exact match)"| fileMap
+  skillFiles -.->|"48 · read before creating/editing any skill"| fmg
 
   %% ===== 1c (cont): BLACK DASHED = bridge =====
-  s1 -.->|"50 · scenario folder path:<br/>&lt;NN&gt;-&lt;FULL_SCENARIO_NAME&gt; (## Layout)"| wf
+  s1 -.->|"49 · scenario folder path:<br/>&lt;NN&gt;-&lt;FULL_SCENARIO_NAME&gt; (## Layout)"| wf
 
   %% ===== 1d (cont): LIGHT-BLUE DASHED = cross-ref (self-report reads before writing to dedup) =====
-  selfReport -.->|"51 · read to dedup<br/>before writing"| tierJson
+  selfReport -.->|"50 · read to dedup<br/>before writing"| tierJson
 
   %% ===== 2 (cont): RED DASHED = trigger (self-report -> self-improve, conditional) =====
-  selfReport -.->|"52 · trigger (Auto-improve = on)<br/>pass id + tier file"| selfImprove
+  selfReport -.->|"51 · trigger (Auto-improve = on)<br/>pass id + tier file"| selfImprove
 
   %% ===== 1c (cont): BLACK DASHED = bridge (s2 Layout) =====
-  s2 -.->|"53 · 01-Testdata paths + stub naming (## Layout)"| wf
+  s2 -.->|"52 · 01-Testdata paths + stub naming (## Layout)"| wf
 
   %% ===== initialize (component #5) =====
-  init -.->|"54 · read Target + format"| initFmt
-  init ==>|"55 · bootstrap / update (write)"| C2
-  init ==>|"56 · bootstrap / update (write)"| C3
-  init -.->|"57 · report setup concerns"| selfReport
+  init -.->|"53 · read Target + format"| initFmt
+  init ==>|"54 · bootstrap / update (write)"| C2
+  init ==>|"55 · bootstrap / update (write)"| C3
+  init -.->|"56 · report setup concerns"| selfReport
+
+  %% ===== 1c (cont): BLACK DASHED = bridge (gateway-contract -> error-codes) =====
+  gwcontract -.->|"57 · ref: inbound error_code<br/>must match registry"| errcodes
 
   class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt hardf
   class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson softf
 
-  linkStyle 13,14,15,16,17,18,23,24,25,27,28,29,30,45,46,47,49,51,54 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
-  linkStyle 19,20,21,22,26,48,50,53 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
-  linkStyle 31,32,33,34,35,36,37,38,39,40,41,42,52,57 stroke:#dc2626,stroke-width:2px,color:#dc2626
-  linkStyle 43,44,55,56 stroke:#16a34a,stroke-width:2px,color:#16a34a
+  linkStyle 13,14,15,16,17,18,22,23,24,26,27,28,29,44,45,46,48,50,53 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
+  linkStyle 19,20,21,25,47,49,52,57 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
+  linkStyle 30,31,32,33,34,35,36,37,38,39,40,41,51,56 stroke:#dc2626,stroke-width:2px,color:#dc2626
+  linkStyle 42,43,54,55 stroke:#16a34a,stroke-width:2px,color:#16a34a
   </div>
 
   <h2>Node Colors</h2>

@@ -49,7 +49,7 @@ Template — fill each entry like this (swap fields per the line's protocol, see
 
 ## References
 - bridge: `context/gateway-directory.md` — the same `bridge` id must match an entry there (the catalog / WHAT side).
-- bridge: `error-codes.md` — each inbound error's `error_code` must match an entry in the registry.
+- bridge: `context/error-codes.md` — each inbound error's `error_code` must match an entry in the registry.
 
 ## Role & Boundary (Read Before Editing)
 This file holds each line's request/response shapes (success + errors) and how it's mocked/tested, paired to `gateway-directory.md` by `bridge` id. It does NOT catalog which lines exist or their purpose (that's `gateway-directory.md`).
