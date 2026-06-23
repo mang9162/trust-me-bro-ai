@@ -50,7 +50,7 @@
     Component &rarr; file &rarr; live cross-refs. This diagram is the single source of truth for which files/skills
     are connected, how (cross-ref / bridge / trigger / write), and therefore what each skill's
     <code>## References</code> / <code>## Trigger Skill</code> / <code>## Writes To</code> sections must contain.
-    See <code>skill-format-guide.md</code> for the section format and connection-type definitions.
+    See <code>create-skill/SKILL.md</code> for the section format and connection-type definitions.
   </p>
 
   <div class="mermaid">
@@ -60,8 +60,8 @@ flowchart LR
 
   subgraph C0["0 · Control Skill (read before creating/editing ANY skill)"]
     direction TB
-    fmg["skill-format-guide.md"]
-    fileMap["file-map.html<br/>(this diagram)"]
+    fmg["create-skill/SKILL.md"]
+    fileMap["create-skill/file-map.html<br/>(this diagram)"]
   end
 
   subgraph C1["1 · Workflow Control SKILL"]
@@ -195,17 +195,28 @@ flowchart LR
   %% ===== 1c (cont): BLACK DASHED = bridge (gateway-contract -> error-codes) =====
   gwcontract -.->|"56 · ref: inbound error_code<br/>must match registry"| errcodes
 
+  %% ===== s3 create-task content refs (57-65): bridges (57-60,65) + cross-refs (61-64) =====
+  s3 -.->|"57 · ref: Inbound endpoint + flow completeness"| gwdir
+  s3 -.->|"58 · ref: api-test request/response shape"| gwcontract
+  s3 -.->|"59 · ref: entity/column (seed/interface)"| dbschema
+  s3 -.->|"60 · ref: error_code registry + base-response"| errcodes
+  s3 -.->|"61 · ref: project structure"| techstack
+  s3 -.->|"62 · ref: test conventions/structure"| testguide
+  s3 -.->|"63 · ref: code conventions"| codestd
+  s3 -.->|"64 · ref: functional-design card format"| gr
+  s3 -.->|"65 · 01-Setup/02-Backlog/03-Api-test paths (## Layout)"| wf
+
   class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt hardf
   class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson softf
 
-  linkStyle 13,14,15,16,17,21,22,23,25,26,27,28,43,44,45,47,49,52 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
-  linkStyle 18,19,20,24,46,48,51,56 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
+  linkStyle 13,14,15,16,17,21,22,23,25,26,27,28,43,44,45,47,49,52,61,62,63,64 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
+  linkStyle 18,19,20,24,46,48,51,56,57,58,59,60,65 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
   linkStyle 29,30,31,32,33,34,35,36,37,38,39,40,50,55 stroke:#dc2626,stroke-width:2px,color:#dc2626
   linkStyle 41,42,53,54 stroke:#16a34a,stroke-width:2px,color:#16a34a
   </div>
 
   <h2>Node Colors</h2>
-  <div class="legend-item"><span class="swatch hardf"></span> <b>hard component</b> — workflow control (<code>wf</code>, Stage-1..6), <code>generate-report</code>, self-learn skill machinery (<code>self-report/SKILL.md</code>, <code>self-improve/SKILL.md</code>, <code>feed-back.html</code>), and the Control Skill (<code>skill-format-guide.md</code>, <code>file-map.html</code>). Edited rarely; invoked/read constantly.</div>
+  <div class="legend-item"><span class="swatch hardf"></span> <b>hard component</b> — workflow control (<code>wf</code>, Stage-1..6), <code>generate-report</code>, self-learn skill machinery (<code>self-report/SKILL.md</code>, <code>self-improve/SKILL.md</code>, <code>feed-back.html</code>), and the Control Skill (<code>create-skill/SKILL.md</code>, <code>file-map.html</code>). Edited rarely; invoked/read constantly.</div>
   <div class="legend-item"><span class="swatch softf"></span> <b>soft component</b> — <code>context/</code> + <code>tech-stack/</code> content files, plus <code>{small,medium,heavy}-learn.js</code> and <code>log.js</code> (project-specific self-learn data, written frequently by skill machinery). Includes files that don't exist yet at fresh install (e.g. <code>error-codes.md</code>, root <code>AGENTS.md</code>). Edited/updated often, per-project.</div>
   <p class="note">This matches the hard/soft component split in <code>self-learn/self-report/SKILL.md</code>'s Tier definitions — use that file as the source of truth if a node's classification is unclear.</p>
 
@@ -224,9 +235,9 @@ flowchart LR
     <li>Red dashed (trigger) &rarr; one line each under <code>## Trigger Skill</code> — do not also add a <code>## References</code> line for the same target</li>
     <li>Solid green (write) &rarr; one line each under <code>## Writes To</code></li>
   </ul>
-  <p>See <code>skill-format-guide.md</code> for the exact section formats and the full connection-type checklist.</p>
+  <p>See <code>create-skill/SKILL.md</code> for the exact section formats and the full connection-type checklist.</p>
 
-  <h2>Keeping This Diagram in Sync (bridge with skill-format-guide.md)</h2>
+  <h2>Keeping This Diagram in Sync (bridge with create-skill/SKILL.md)</h2>
   <p>
     This diagram's <b>connection</b> edges (cross-ref / bridge / trigger / write) and every skill's <code>## References</code> / <code>## Trigger Skill</code> / <code>## Writes To</code> sections are a
     <b>bridge</b> pair — they must match exactly, in both directions:

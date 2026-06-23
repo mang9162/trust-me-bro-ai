@@ -1,3 +1,8 @@
+---
+name: create-skill
+description: The rules and format for creating or editing any skill in this kit — how to declare cross-file connections (## References / ## Trigger Skill / ## Writes To / ## Role & Boundary) and the connection types (cross-ref / bridge / trigger / write). Read before creating or editing a skill. Pairs with file-map.html (in this folder).
+---
+
 # Skill Format Guide
 
 ## Purpose

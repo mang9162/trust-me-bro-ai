@@ -1,5 +1,5 @@
 {
-  "skill_name": "skill-format-guide",
+  "skill_name": "create-skill",
   "group": "skill-edit",
   "evals": [
     {
@@ -45,7 +45,7 @@
     },
     {
       "id": 5,
-      "prompt": "I want skill-format-guide to also record which skill owns what, so I don't have to go to workflow/SKILL.md.",
+      "prompt": "I want create-skill to also record which skill owns what, so I don't have to go to workflow/SKILL.md.",
       "expected_output": "not allowed — the Responsibility map belongs to workflow/SKILL.md, not this skill",
       "expectations": [
         "skill refuses",
@@ -54,7 +54,7 @@
     },
     {
       "id": 6,
-      "prompt": "I want skill-format-guide to keep a list of all skills currently in the project.",
+      "prompt": "I want create-skill to keep a list of all skills currently in the project.",
       "expected_output": "not allowed — skill inventory is not within this skill's scope",
       "expectations": [
         "skill refuses",
@@ -64,7 +64,7 @@
     },
     {
       "id": 7,
-      "prompt": "I want skill-format-guide to also track which files connect to which, so everything is in one place.",
+      "prompt": "I want create-skill to also track which files connect to which, so everything is in one place.",
       "expected_output": "not allowed — concrete connection tracking belongs to file-map.html",
       "expectations": [
         "skill refuses",
@@ -74,7 +74,7 @@
     },
     {
       "id": 8,
-      "prompt": "I want skill-format-guide to specify whether each skill is required to have unit tests.",
+      "prompt": "I want create-skill to specify whether each skill is required to have unit tests.",
       "expected_output": "not allowed — testing requirements are not within this skill's scope",
       "expectations": [
         "skill refuses",
