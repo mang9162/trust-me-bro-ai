@@ -1,0 +1,77 @@
+{
+  "skill_name": "domain-reference",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We just added a new user type 'Auditor' to the system — they can view all transactions but can't approve or reject anything. Add this role to domain-reference.md.",
+      "expected_output": "New role row added to the Roles table with correct description and expectation",
+      "files": [],
+      "expectations": [
+        "Roles table has a new row for Auditor",
+        "What they do: view transactions (read-only, no approve/reject)",
+        "What they expect: accurate and complete transaction visibility",
+        "Existing roles are not modified"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Requirements keep using the words 'Settlement', 'Clearing', and 'Reconciliation' but they aren't in Core Terms yet. Settlement means the final fund transfer between accounts after a transaction is approved. Clearing is the validation step before settlement. Reconciliation is the end-of-day check that all records match. Add them.",
+      "expected_output": "Three new rows added to Core Terms with domain-specific definitions",
+      "files": [],
+      "expectations": [
+        "Core Terms table has Settlement, Clearing, and Reconciliation",
+        "Definitions match the domain-specific meanings given, not generic dictionary definitions",
+        "Existing terms are not modified",
+        "Terms are usable as a glossary for anyone reading requirements"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The team decided to change the Scenario Naming convention. Instead of FEATURE_SUB_FEATURE_RESULT_TYPE we now use: MODULE-ACTOR-ACTION-OUTCOME (e.g. payment-buyer-checkout-success). Update domain-reference.md.",
+      "expected_output": "Scenario Naming section rewritten to reflect the new convention with explanation of each part",
+      "files": [],
+      "expectations": [
+        "Pattern updated to MODULE-ACTOR-ACTION-OUTCOME",
+        "Each part (MODULE, ACTOR, ACTION, OUTCOME) is defined",
+        "An example is included (e.g. payment-buyer-checkout-success)",
+        "Old convention is replaced, not left ambiguously alongside the new one"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Our domain has regulatory constraints that affect many scenarios. I want to add a new section called 'Regulatory Context' to domain-reference.md listing the compliance rules we operate under (PCI-DSS for card data, PDPA for personal data). Is that allowed?",
+      "expected_output": "Yes — new section added. Role & Boundary explicitly says 'extend it freely as the domain grows'",
+      "files": [],
+      "expectations": [
+        "New Regulatory Context section is added",
+        "Lists PCI-DSS and PDPA with brief domain-relevant descriptions",
+        "Existing sections are untouched",
+        "References or acknowledges that Role & Boundary permits adding new sections"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The Domain Overview says 'What it is' is TBD — I don't really know how to describe the project. Can you just write something based on the module names you see?",
+      "expected_output": "Refuses to guess — asks the user to describe the project rather than inventing a description",
+      "files": [],
+      "expectations": [
+        "Does not invent a domain overview",
+        "References the 'don't guess' rule — leave TBD rather than invent",
+        "Asks the user to describe what the project does",
+        "TBD remains until the user provides real input"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I want to add the full request/response payload for POST /users into domain-reference.md under the 'Buyer' role row, so we can see what data a Buyer sends when registering.",
+      "expected_output": "Refuses — API payload shapes belong in gateway-contract.md, not in the domain reference",
+      "files": [],
+      "expectations": [
+        "Does not add request/response payload to domain-reference.md",
+        "Explains that this file holds domain overview, roles, and vocabulary — not API contracts",
+        "Suggests gateway-contract.md as the correct location",
+        "Acknowledges the user's intent without being dismissive"
+      ]
+    }
+  ]
+}
