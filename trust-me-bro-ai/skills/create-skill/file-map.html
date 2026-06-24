@@ -70,7 +70,8 @@ flowchart LR
     s1["Stage-1<br/>get-requirement"]
     s2["Stage-2<br/>create-test-data"]
     s3["Stage-3<br/>create-task"]
-    s4["Stage-4<br/>TDD executors<br/>(loop-dispatch)"]
+    s4["Stage-4<br/>execute-tdd<br/>(loop-dispatch)"]
+    defaultTdd["execute-tdd/default-tdd<br/>(default engineer skill)"]
     s5["Stage-5<br/>api-test"]
     s6["Stage-6<br/>acceptance-review"]
     skillFiles["skills/**/SKILL.md<br/>(self — reviewed out-of-band)"]
@@ -119,10 +120,21 @@ flowchart LR
     selfImprove["self-improve/SKILL.md"]
   end
 
+  subgraph C7["7 · Work Output (one instance per scenario)"]
+    direction TB
+    scenarioHtml["scenario.html"]
+    testdata["01-Testdata/<br/>Datatest.md · db/ · stubs/"]
+    setupBacklog["02-Task/<br/>01-Setup/ + 02-Backlog/<br/>(execute-tdd queue)"]
+    apiTestT["02-Task/03-Api-test/"]
+  end
+
   agents["AGENTS.md (root)<br/>stub"]
 
-  init["5 · initialize<br/>(first-run bootstrap / re-sync)"]
-  initFmt["initialize/{context,tech-stack}/<br/>*-format.md (templates)"]
+  subgraph C5["5 · initialize"]
+    direction TB
+    init["initialize<br/>(first-run bootstrap / re-sync)"]
+    initFmt["initialize/{context,tech-stack}/<br/>*-format.md (templates)"]
+  end
 
   %% ===== 1: LIGHT-BLUE DASHED = cross-ref (one-way read, no key to match) =====
   agents -.->|"13"| techstack
@@ -137,8 +149,8 @@ flowchart LR
   gwdir <-.->|"20 · entry name match"| gwcontract
 
   %% ===== 1 (cont): LIGHT-BLUE DASHED = cross-ref =====
-  s4 -.->|"21 · ref: code conventions"| codestd
-  s4 -.->|"22 · ref: test conventions"| testguide
+  defaultTdd -.->|"21 · ref: code conventions"| codestd
+  defaultTdd -.->|"22 · ref: test conventions"| testguide
 
   s1 -.->|"23 · ref: scenario naming"| domain
   s1 -.->|"24 · ref: error codes<br/>must match exactly"| errcodes
@@ -206,13 +218,19 @@ flowchart LR
   s3 -.->|"64 · ref: functional-design card format"| gr
   s3 -.->|"65 · 01-Setup/02-Backlog/03-Api-test paths (## Layout)"| wf
 
-  class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt hardf
-  class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson softf
+  %% ===== Stage-4 execute-tdd (66-69): trigger dispatch + bridge layout + write status + cross-ref task spec =====
+  s4 -.->|"66 · trigger: dispatch task + skill"| defaultTdd
+  s4 -.->|"67 · 01-Setup/02-Backlog paths + gating (## Layout/## Stages)"| wf
+  s4 -->|"68 · write: task status<br/>(pending&rarr;in_progress&rarr;done/failed)"| setupBacklog
+  defaultTdd -.->|"69 · ref: task spec (contract/cases/acceptance)"| setupBacklog
 
-  linkStyle 13,14,15,16,17,21,22,23,25,26,27,28,43,44,45,47,49,52,61,62,63,64 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
-  linkStyle 18,19,20,24,46,48,51,56,57,58,59,60,65 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
-  linkStyle 29,30,31,32,33,34,35,36,37,38,39,40,50,55 stroke:#dc2626,stroke-width:2px,color:#dc2626
-  linkStyle 41,42,53,54 stroke:#16a34a,stroke-width:2px,color:#16a34a
+  class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd hardf
+  class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson,scenarioHtml,testdata,setupBacklog,apiTestT softf
+
+  linkStyle 13,14,15,16,17,21,22,23,25,26,27,28,43,44,45,47,49,52,61,62,63,64,69 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
+  linkStyle 18,19,20,24,46,48,51,56,57,58,59,60,65,67 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
+  linkStyle 29,30,31,32,33,34,35,36,37,38,39,40,50,55,66 stroke:#dc2626,stroke-width:2px,color:#dc2626
+  linkStyle 41,42,53,54,68 stroke:#16a34a,stroke-width:2px,color:#16a34a
   </div>
 
   <h2>Node Colors</h2>
@@ -221,12 +239,12 @@ flowchart LR
   <p class="note">This matches the hard/soft component split in <code>self-learn/self-report/SKILL.md</code>'s Tier definitions — use that file as the source of truth if a node's classification is unclear.</p>
 
   <h2>How to Read the 5 Edge Types</h2>
-  <p>Every edge is labeled with its index number (0-57) so it can be referenced unambiguously in discussion.</p>
+  <p>Every edge is labeled with its index number (0-69) so it can be referenced unambiguously in discussion.</p>
   <div class="legend-item"><span class="line exec"></span> <b>Solid, numbered 0-12</b> — execution flow: the actual Stage dispatch sequence between <code>workflow</code> (<code>wf</code>) and Stage-1..6 (<code>s1</code>-<code>s6</code>). Numbers show real invoke/return order; <code>"reject -&gt; 1"</code> is the Stage 6 alt-path when a scenario is rejected.</div>
-  <div class="legend-item"><span class="line crossref"></span> <b>Light-blue dashed (13-18, 23-25, 27-30, 45-47, 49, 51, 54)</b> — <b>cross-ref</b>: one-way read. The source opens the target file for info (naming conventions, value lists, etc.). No key has to match.</div>
-  <div class="legend-item"><span class="line bridge"></span> <b>Black dashed (19-22, 26, 48, 50, 53)</b> — <b>bridge</b>: a key/value produced by the source must match an entry in the target exactly (the <code>ref</code> column convention, Issue #2). Breaks if either side changes without the other.</div>
-  <div class="legend-item"><span class="line trigger"></span> <b>Red dashed (31-42, 52, 57)</b> — <b>trigger/notify</b>: the source skill hands off to the target skill to do its own work (e.g. <code>s1</code>-<code>s6</code> &rarr; <code>generate-report</code> to update the report, or <code>s1</code>-<code>s6</code> &rarr; <code>self-report</code> when something self-learn-worthy is found). NOT a file reference — do not duplicate under References.</div>
-  <div class="legend-item"><span class="line write"></span> <b>Solid green (43-44, 55-56)</b> — <b>write</b>: the source skill writes directly into the target file as part of its own procedure (<code>self-report</code> &rarr; tier JS, <code>self-improve</code> &rarr; <code>log.js</code>).</div>
+  <div class="legend-item"><span class="line crossref"></span> <b>Light-blue dashed (13-18, 23-25, 27-30, 45-47, 49, 51, 54, 69)</b> — <b>cross-ref</b>: one-way read. The source opens the target file for info (naming conventions, value lists, etc.). No key has to match.</div>
+  <div class="legend-item"><span class="line bridge"></span> <b>Black dashed (19-22, 26, 48, 50, 53, 67)</b> — <b>bridge</b>: a key/value produced by the source must match an entry in the target exactly (the <code>ref</code> column convention, Issue #2). Breaks if either side changes without the other.</div>
+  <div class="legend-item"><span class="line trigger"></span> <b>Red dashed (31-42, 52, 57, 66)</b> — <b>trigger/notify</b>: the source skill hands off to the target skill to do its own work (e.g. <code>s1</code>-<code>s6</code> &rarr; <code>generate-report</code> to update the report, or <code>s1</code>-<code>s6</code> &rarr; <code>self-report</code> when something self-learn-worthy is found). NOT a file reference — do not duplicate under References.</div>
+  <div class="legend-item"><span class="line write"></span> <b>Solid green (43-44, 55-56, 68)</b> — <b>write</b>: the source skill writes directly into the target file as part of its own procedure (<code>self-report</code> &rarr; tier JS, <code>self-improve</code> &rarr; <code>log.js</code>, <code>execute-tdd</code> &rarr; task <code>status</code>).</div>
 
   <h2>How to Use This When Writing or Editing a Skill</h2>
   <p>For any skill's node in this diagram, look at every edge leaving (or, for bridge/write, touching) its node:</p>
@@ -251,6 +269,11 @@ flowchart LR
     C2/C3 (<code>data.md</code>, <code>gateway-directory.md</code>, <code>database-schema.md</code>, etc.) reflect THIS project's actual
     context/tech-stack files. A project bootstrapped fresh via <code>initialize</code> may end up with a different concrete set of files —
     update this diagram (via <code>self-learn</code>) whenever such files are added, renamed, or removed, so it always reflects reality.
+  </p>
+  <p class="note">
+    C7 (<b>Work Output</b>) is instantiated <b>once per scenario</b> — every scenario under
+    <code>work/Scenario/&lt;FEATURE&gt;/...</code> has its own <code>scenario.html</code> / <code>01-Testdata/</code> / <code>02-Task/</code>.
+    The diagram shows one representative instance; its layout is owned by <code>workflow/SKILL.md</code> <code>## Layout</code>.
   </p>
 
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>

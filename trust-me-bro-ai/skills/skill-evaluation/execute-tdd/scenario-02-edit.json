@@ -1,0 +1,148 @@
+{
+  "skill_name": "execute-tdd",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "tasks": {
+      "01-Setup": [
+        { "id": "00-env-setup", "type": "env-setup", "depends_on": [], "acceptance": "compiles" },
+        { "id": "01-create-order-request-iface", "type": "interface", "depends_on": ["00-env-setup"], "acceptance": "compiles" },
+        { "id": "02-create-order-response-iface", "type": "interface", "depends_on": ["00-env-setup"], "acceptance": "compiles" },
+        { "id": "03-menu-response-iface", "type": "interface", "depends_on": ["00-env-setup"], "acceptance": "compiles" },
+        { "id": "04-err-ord-pay4001", "type": "error_code", "depends_on": ["00-env-setup"], "acceptance": "compiles" }
+      ],
+      "02-Backlog": [
+        { "id": "05-find-restaurant-test", "type": "integration-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "06-find-restaurant-code", "type": "code", "depends_on": ["05-find-restaurant-test"], "acceptance": "green" },
+        { "id": "07-find-menu-items-test", "type": "integration-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "08-find-menu-items-code", "type": "code", "depends_on": ["07-find-menu-items-test"], "acceptance": "green" },
+        { "id": "09-filter-available-test", "type": "unit-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "10-filter-available-code", "type": "code", "depends_on": ["09-filter-available-test"], "acceptance": "green" },
+        { "id": "11-get-menu-success-test", "type": "component-test", "depends_on": ["06-find-restaurant-code", "08-find-menu-items-code", "10-filter-available-code"], "acceptance": "red" },
+        { "id": "12-get-menu-not-found-test", "type": "component-test", "depends_on": ["06-find-restaurant-code", "08-find-menu-items-code", "10-filter-available-code"], "acceptance": "red" },
+        { "id": "13-get-menu-code", "type": "code", "depends_on": ["11-get-menu-success-test", "12-get-menu-not-found-test"], "acceptance": "green" },
+        { "id": "14-validate-order-test", "type": "unit-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "15-validate-order-code", "type": "code", "depends_on": ["14-validate-order-test"], "acceptance": "green" },
+        { "id": "16-calc-total-test", "type": "unit-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "17-calc-total-code", "type": "code", "depends_on": ["16-calc-total-test"], "acceptance": "green" },
+        { "id": "18-charge-payment-test", "type": "integration-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "19-charge-payment-code", "type": "code", "depends_on": ["18-charge-payment-test"], "acceptance": "green" },
+        { "id": "20-save-order-test", "type": "integration-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "21-save-order-code", "type": "code", "depends_on": ["20-save-order-test"], "acceptance": "green" },
+        { "id": "22-create-order-test", "type": "component-test", "depends_on": ["15-validate-order-code", "17-calc-total-code", "19-charge-payment-code", "21-save-order-code"], "acceptance": "red" },
+        { "id": "23-create-order-code", "type": "code", "depends_on": ["22-create-order-test"], "acceptance": "green" }
+      ]
+    }
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Can edit: add a new Stop & pause condition",
+      "prompt": "We want to add a TIMEOUT condition to the Stop & pause table — if a single task takes longer than 10 minutes, halt the loop and ask the user. Add it to execute-tdd.",
+      "expectations": [
+        "A new row is added to the Stop & pause table for TIMEOUT",
+        "TIMEOUT has a clear 'when' condition (task exceeds time limit) and action (halt + ask user)",
+        "generate-report is triggered before reporting, consistent with other halt conditions",
+        "Existing conditions (DRAINED, DEADLOCK, BLOCKED, FAILURE, review gate) are not modified"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Can edit: change acceptance check logic",
+      "prompt": "Currently a red test with a compile error counts as a PASS. We want to distinguish between 'red because function missing' (expected) and 'red because test code itself has a syntax error' (unexpected). Update the accept step.",
+      "expectations": [
+        "Accept step (step 5) is refined to distinguish between expected-red and unexpected-red",
+        "Expected-red (function not found / import error) still counts as PASS",
+        "Unexpected-red (syntax error in the test itself) is treated as FAILURE",
+        "The distinction criteria are clear enough for the engineer to self-verify",
+        "Rest of the loop (pick, pre-flight, dispatch, close-out) is unchanged"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Can edit: add a type handler for integration-test",
+      "prompt": "Integration tests in this project always need a DB transaction wrapper and teardown. We want to add execute-tdd/integration-test/ as a type handler that enforces this. Update the dispatch logic.",
+      "expectations": [
+        "Dispatch step recognizes execute-tdd/integration-test/ as a type handler",
+        "Tasks with type integration-test (05, 07, 18, 20) are dispatched to the new handler",
+        "Tasks with no matching handler still fall back to default-tdd",
+        "The handler layers extra conventions on top — does not replace the core accept/close-out flow"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Can edit: change report refresh frequency",
+      "prompt": "Refreshing scenario.html only at halt/pause points isn't enough — the team wants a refresh every 5 tasks. Update execute-tdd.",
+      "expectations": [
+        "Close-out step (step 7) is updated to trigger generate-report every N tasks in addition to halt/pause",
+        "Halt/pause refresh still happens as before (not removed)",
+        "The skill acknowledges this adds overhead per the original note ('not on every task — too heavy')",
+        "generate-report is still the skill being triggered — execute-tdd doesn't own the report format"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Can edit: add retry logic before FAILURE",
+      "prompt": "Instead of immediately failing when result ≠ acceptance, we want execute-tdd to retry the task once before marking it failed. Add a retry step.",
+      "expectations": [
+        "Accept step (step 5) retries dispatch once if result ≠ acceptance",
+        "If retry also fails → FAILURE as before (status failed, halt, ask user)",
+        "Retry count is limited (exactly 1 retry, not infinite)",
+        "The retry is clearly documented as a loop change — not silently swallowed"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Cannot edit: modify a task's contract or cases",
+      "prompt": "While running 18-charge-payment-test, I notice the contract is wrong — the Stripe charge function should accept a currency parameter. Let me fix the contract in the task file from execute-tdd.",
+      "expectations": [
+        "Does NOT modify 18-charge-payment-test's contract directly",
+        "Task authoring (contract, cases, pseudocode) is owned by create-task, not execute-tdd",
+        "Recommends going back to create-task to update the task, or flagging via self-report",
+        "The loop can BLOCK on this if it prevents the task from being completed correctly"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Cannot edit: implement code directly",
+      "prompt": "06-find-restaurant-code is dispatched but the default-tdd engineer is slow. I'll just write the implementation directly in execute-tdd to speed things up.",
+      "expectations": [
+        "execute-tdd does NOT implement code — it is the dispatcher, not the engineer",
+        "Code writing is done by the engineer skill (default-tdd or a type handler)",
+        "execute-tdd only picks, pre-flights, dispatches, waits, and accepts",
+        "Bypassing the engineer breaks the skill boundary even if the code is correct"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Cannot edit: run 03-Api-test/ tasks",
+      "prompt": "All Setup and Backlog tasks are done (DRAINED). I want execute-tdd to keep going and run the 03-Api-test/ tasks too since the loop pattern is the same.",
+      "expectations": [
+        "execute-tdd does NOT process 03-Api-test/ tasks",
+        "03-Api-test/ is Stage 5 owned by the api-test skill — a different loop",
+        "DRAINED means execute-tdd is done — it reports Stage 4 complete and points to Stage 5",
+        "Even though the loop mechanics are similar, the boundary is per-stage"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Cannot edit: create new tasks mid-loop",
+      "prompt": "During the loop, 19-charge-payment-code fails because the Stripe stub needs a new endpoint. I want execute-tdd to create a new Setup task for the missing stub and add it to the queue.",
+      "expectations": [
+        "execute-tdd does NOT author new tasks — that is create-task's job",
+        "The missing stub is a BLOCKED or FAILURE condition — loop halts and asks user",
+        "User may choose to go back to create-task to add the missing Setup task",
+        "execute-tdd's self-report can note the gap, but cannot resolve it by creating tasks"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Cannot edit: change folder paths or stage gating",
+      "prompt": "I want to rename 01-Setup/ to 00-Prerequisites/ and change the rule so Backlog can start before all Setup tasks finish. Update execute-tdd.",
+      "expectations": [
+        "execute-tdd does NOT own folder paths — that is workflow ## Layout",
+        "execute-tdd does NOT own stage gating rules — that is workflow ## Stages",
+        "Suggests raising this with the workflow skill"
+      ]
+    }
+  ]
+}

@@ -1,52 +1,61 @@
 ---
 name: execute-tdd
-description: Stage-4 of workflow. The central TDD execution loop. Drains the Setup + Backlog tasks authored by create-task in dependency order; for each task it runs a pre-flight / dispatch / close-out checklist, hands the task to an engineer (one-context for now) using the handler skill that matches the task's type if one exists, otherwise the default TDD procedure, then accepts the result against the task's own acceptance (red / green / compiles). Does not implement code itself. Halts and asks the user on deadlock or failure; pauses when the queue is drained and hands off to Stage 5.
+description: Stage-4 of workflow. The central TDD execution loop. Drains the Setup + Backlog tasks authored by create-task in dependency order; for each task it runs a pre-flight / dispatch / close-out checklist, hands the task + a skill (the type handler at `execute-tdd/<task.type>/` if one exists, otherwise `execute-tdd/default-tdd`) to an engineer agent, then accepts the result against the task's own acceptance (red / green / compiles). Does not implement code itself. Halts and asks the user on a blocking gap (deadlock, failure, an assume that doesn't hold); refreshes the report and pauses when the queue is drained, then hands off to Stage 5.
 ---
 
 # Execute TDD
 
 ## Purpose
-Stage 4. Take the atomic tasks create-task authored into `01-Setup/` + `02-Backlog/` and actually run them through the TDD red→green loop, one task at a time in dependency order.
 
-This skill is the **central loop / dispatcher** — it does NOT implement code itself. It reads each task, hands it to an engineer to execute, and verifies the result against the task's own `acceptance`. The engineer writes the test/code from the task; the task carries everything needed (create-task's self-sufficiency bar).
+Stage 4. Take the atomic tasks create-task authored into `01-Setup/` + `02-Backlog/` and run them through the TDD red→green loop, one task at a time in dependency order.
 
-Scope is **Setup + Backlog only**. The api-test suite (`03-Api-test/`) is Stage 5 — a different loop (`api-test`).
+This skill is the **central loop / dispatcher** — it does NOT implement code itself. It reads each task, hands it (plus a skill) to an **engineer agent** to execute, and accepts the result against the task's own `acceptance`. The skill the agent follows is either a type-specific handler (`execute-tdd/<task.type>/`) or, by default, `execute-tdd/default-tdd` (the plain TDD procedure). The task carries everything the agent needs (create-task's self-sufficiency bar).
 
 ## Procedure
 
-### Scope
-Drains **01-Setup + 02-Backlog** only. **03-Api-test = Stage 5** (`api-test`) — not this loop.
-
 ### The loop
+
 Build the queue from the Setup + Backlog tasks, then repeat:
 
-**1. Pick the next task** — a `pending` task whose `depends_on` are all `done`, in folder order (Setup before Backlog) then `NN`.
-- No `pending` left → **DRAINED** → exit the loop → PAUSE → hand off to Stage 5.
-- `pending` remain but none is runnable (a `depends_on` is unmet, or a dependency is `failed`) → **DEADLOCK** → stop + **ask the user** (can't proceed, don't guess).
+**1. Pick the next task** — scan top→down (Setup before Backlog, then by `NN`) and take the **first** `pending` task whose `depends_on` are all `done`. Always the topmost runnable one.
+
+- No `pending` left → **DRAINED** (loop done — see Stop & pause).
+- `pending` remain but none is runnable (every one has an unmet or `failed` `depends_on`) → **DEADLOCK** (see Stop & pause).
 
 **2. Pre-flight checklist** — every task, regardless of type:
+
 - [ ] `depends_on` are all `done`
 - [ ] read the task in full (`contract` / `cases` / `pseudocode` / `targets` / `assume` / `command` / `acceptance`)
-- [ ] confirm `assume` holds — the pre-state is really there (e.g. `00-env-setup` seeded the data). **If it doesn't hold → stop + ask the user** (blocking; don't guess the missing pre-state)
+- [ ] confirm `assume` holds — the pre-state is really there (e.g. `00-env-setup` seeded the data). If it doesn't → **BLOCKED** (see Stop & pause); don't guess the missing pre-state
 - [ ] set `status` → `in_progress`
 
-**3. Dispatch checklist** — who runs it, with which skill:
-- [ ] engineer = **one-context** (always, for now — effort-based routing/parallel is deferred; see `roadmap.html` → "Multi-agent engineer dispatch")
-- [ ] is there a handler skill that matches `task.type`? (convention: a `SKILL.md` at `execute-tdd/<task.type>/`)
-  - **yes** → the engineer uses it (its type-specific format/conventions layer on top of the default TDD flow)
-  - **no** → **fallback** = the default TDD procedure below — the engineer writes the test/code straight from the task
-- [ ] hand the task (+ the chosen handler skill, if any) to the engineer
+**3. Dispatch** — pick the skill, then run it in the active mode.
 
-**4. Wait** for the engineer to finish.
+- [ ] **skill** = the handler at `execute-tdd/<task.type>/` if it exists (its type-specific format layers on top of the plain flow), otherwise `execute-tdd/default-tdd`
 
-**5. Accept the result** — compare the actual result against the task's **own `acceptance`** (the expected result it declares: red / green / compiles).
-- A test task is expected to be **RED** — a correctly-red test (e.g. a compile/import error because the function isn't written yet) is a **PASS**, not a failure. Do not "fix" it here; its paired code task turns it green.
+*Mode — one-context (current; always dispatch this way):*
+
+- [ ] one engineer agent, single context, follows the chosen skill on this one task
+- [ ] the agent writes the test/code, runs the task's `command`, and **self-verifies the result meets the task's `acceptance` before handing back** (test task: red-as-expected; code task: green)
+
+*Mode — multi-agent (future option, not active — see `roadmap.html` → "Multi-agent engineer dispatch"):*
+
+- [ ] route the task to an engineer agent by `effort` (e.g. a higher-capability model for high-effort tasks)
+- [ ] run independent tasks (no shared `depends_on`) in parallel
+- [ ] same contract — each agent self-verifies against `acceptance` before handing back
+
+**4. Wait** for the engineer agent to finish.
+
+**5. Accept the result** — re-check the agent's result against the task's **own `acceptance`** (the expected result it declares: red / green / compiles).
+
+- A test task is expected to be **RED** — a correctly-red test (e.g. a compile/import error because the function isn't written yet) is a **PASS**, not a failure. Don't "fix" it here; its paired code task turns it green.
 - matches `acceptance` → pass, continue.
-- does not match → **FAILURE** → set `status` → `failed`, stop + **ask the user** (downstream tasks depend on it; barrelling ahead just spreads the break).
+- doesn't match → **FAILURE** (see Stop & pause): set `status` → `failed`.
 
-**6. Per-task review gate** — only when the user asked to review each task: stop here and report `{ task, actual vs acceptance, files / diff touched }`, wait for approval, then resume. If the user did not ask → don't stop.
+**6. Per-task review gate** — only when the user asked to review each task: pause here and report `{ task, actual vs acceptance, files / diff touched }`, wait for approval, then resume. If the user didn't ask → don't stop.
 
 **7. Close-out checklist** — every task:
+
 - [ ] set `status` → `done`
 - [ ] record the run result (actual vs `acceptance` — green / red-as-expected / compiles)
 - [ ] update the central task / queue so the next pass (step 1) sees the latest status
@@ -54,72 +63,45 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 
 → back to step 1.
 
-### Default TDD procedure (fallback, when no handler skill matches the type)
-The engineer, given only the task, follows the task's `pseudocode`: for a test task, write the test exactly as the `cases` + `contract` specify and confirm it is red per `acceptance`; for a code task, implement the `contract` so the paired red test goes green; for a Setup task (interface / error_code / seed / stub / env-setup), produce the artifact the `contract` / `targets` describe and verify with `command`. No design decisions are left open — the task already carries them.
+### Skills the engineer agent follows — `default-tdd` + type handlers
 
-### Stop conditions
-| Condition | When | Action |
-|---|---|---|
-| **DRAINED** | no Setup/Backlog task left | exit loop → PAUSE → hand to Stage 5 |
-| **DEADLOCK** | tasks remain but none runnable (a `depends_on` unmet / a dependency `failed`) | stop + ask the user which task is blocked and why |
-| **FAILURE** | step 5: result ≠ the task's `acceptance` | mark `failed`, stop + ask the user |
-| **pre-flight fails** | step 2: an `assume` doesn't hold | stop + ask the user |
-| per-task review | user asked (step 6) | pause + report, resume on approval (not a terminate) |
+`execute-tdd` never writes code; an engineer agent does, following one of these skills. Two kinds:
 
-The core is "while a runnable task remains, run it." The extra rows are the cases where the loop **can't proceed but isn't done** — those halt with a question, never spin or guess.
+- **`execute-tdd/default-tdd`** — the always-present default. Given only the task, the agent follows the task's `pseudocode`: a **test task** → write the test exactly as `cases` + `contract` specify, run `command`, confirm red per `acceptance`; a **code task** → implement the `contract` so the paired red test goes green; a **Setup task** (interface / error_code / seed / stub / env-setup) → produce the artifact `contract` / `targets` describe and verify with `command`. No design decisions are left open — the task already carries them.
+- **`execute-tdd/<task.type>/`** — an optional, type-specific handler (e.g. `execute-tdd/integration-test/`). When present, it layers extra format/conventions for that type on top of the plain flow. Add one only when a type needs special handling (propose it via `self-report`).
+
+### Stop & pause
+
+Every halt/pause first refreshes the report (`generate-report` → `scenario.html`), then does the row's action. The core rule is *while a runnable task remains, run it* — these rows are the cases where the loop is **done** or **can't proceed**, so it never spins or guesses.
+
+| Outcome | When | Action (after `generate-report`) |
+| --- | --- | --- |
+| **DRAINED** | no Setup/Backlog task left (step 1) | tell the user Stage 4 is done (Setup + Backlog green); Stage 5 (`api-test`) is next. No task-by-task dump. |
+| **DEADLOCK** | tasks remain but none runnable — every `pending` has an unmet or `failed` `depends_on` (step 1) | ask the user which task is blocked and why; don't guess |
+| **BLOCKED** | an `assume` doesn't hold (step 2) | ask the user to supply/repair the missing pre-state; don't guess it |
+| **FAILURE** | result ≠ the task's `acceptance` (step 5) | set the task `failed`; ask the user — downstream depends on it, barrelling ahead spreads the break |
+| **review gate** | user asked to review per task (step 6) | report `{ task, actual vs acceptance, diff }`; resume on approval (a pause, not a stop) |
+
+Report refresh happens only at these points — **not on every task** (too heavy per iteration).
 
 ### `self-report` is improve, not fix
-`self-report` carries **non-blocking improvement** observations only — e.g. "this pattern keeps getting written by hand across tasks; make it a `code-standard`?" or "this type recurs and needs special handling; propose adding an `execute-tdd/<type>/` handler skill". **Blocking** conditions (deadlock, failure, an `assume` that doesn't hold) are NOT silently logged — they **stop the loop and ask the user** right away.
 
-### PAUSE
-- On **DRAINED**: trigger `generate-report` to refresh `scenario.html`, tell the user Stage 4 is done (Setup + Backlog green) and Stage 5 (`api-test`) is next. Don't print a task-by-task dump.
-- On **DEADLOCK / FAILURE**: trigger `generate-report`, then ask the user to resolve the blocked/failed task before continuing.
-- Report refresh happens at these pause points — **not on every task** (too heavy per iteration).
-
-## Examples
-Illustration of the standard depth — generic `products/stock` domain, not real data.
-
-**Dispatch decision (step 3)**
-```
-task 03-findItemsByRestaurant-integration-test  (type: integration-test)
-→ look for execute-tdd/integration-test/SKILL.md
-   • exists?  → engineer runs with that handler (extra integration-test format on top of TDD)
-   • missing? → fallback: default TDD procedure (engineer writes the test from the task's cases + contract)
-```
-
-**One node through the loop (a paired test → code, no handler skill present → fallback)**
-```
-1 pick  01-splitByStockDelta-unit-test  (deps [00-env-setup] done) ✓
-2 pre-flight  read task ✓ · assume "env ready, fn not implemented" holds ✓ · status → in_progress
-3 dispatch  one-context · no execute-tdd/unit-test/ handler → fallback TDD
-4 wait      engineer writes the unit test from `cases`, runs `npm run test:unit`
-5 accept    acceptance = RED (import error, fn missing) · actual = RED  → PASS (do NOT fix)
-6 review    user didn't ask per-task → no stop
-7 close     status → done · record "red-as-expected" · update queue
-
-1 pick  02-splitByStockDelta-code  (deps [01-...unit-test] done) ✓
-... 5 accept  acceptance = GREEN · actual = GREEN → PASS
-7 close  status → done → back to step 1
-```
-
-**Stop — failure (step 5)**
-```
-5 accept  acceptance = GREEN · actual = test still RED after code task
-→ FAILURE: status → failed · stop · ask the user (do not run the dependents)
-```
+`self-report` carries **non-blocking improvement** observations only — e.g. "this pattern keeps getting hand-written across tasks; promote it to a `code-standard`?" or "this type recurs and needs special handling; add an `execute-tdd/<type>/` handler?". **Blocking** outcomes (DEADLOCK / BLOCKED / FAILURE above) are never silently logged — they halt the loop and ask the user right away.
 
 ## References
-- bridge: create-task's `01-Setup/` + `02-Backlog/` task files — the queue this loop drains (each task carries its own `contract` / `cases` / `pseudocode` / `acceptance`).
-- cross-ref: `tech-stack/testing-guide.md` — test conventions the engineer follows when running each task.
-- cross-ref: `tech-stack/code-standards.md` — code conventions the engineer follows; also the home for `self-report` improvement suggestions (e.g. a recurring pattern promoted to a standard).
-- cross-ref: `roadmap.html` (repo root) — "Multi-agent engineer dispatch": effort-based routing / parallel execution is deferred; one-context for now (step 3).
+
 - bridge: `skills/workflow/SKILL.md` (`## Layout`, `## Stages`) — owns the Setup / Backlog / Api-test folder paths and the stage gating; Stage 5 (`api-test`) follows a DRAINED queue.
-- cross-ref: `skills/generate-report/SKILL.md` — refreshes `scenario.html` at the pause points.
 
 ## Trigger Skill
-- `execute-tdd/<task.type>` handler — the type-matching handler skill, when one exists (step 3); otherwise the default TDD fallback runs.
-- generate-report — refresh `scenario.html` at each PAUSE (drained / deadlock / failure / per-task review).
+
+- `execute-tdd/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `execute-tdd/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
+- generate-report — refresh `scenario.html` at every halt/pause (drained / deadlock / blocked / failure / review).
 - self-report — non-blocking **improvement** observations only (step 7); silent, aggregated. Blocking gaps ask the user instead.
 
+## Writes To
+
+- create-task's task files in `01-Setup/` / `02-Backlog/` — advances each task's `status` (`pending` → `in_progress` → `done` / `failed`) as the loop runs; doesn't touch any other field.
+
 ## Role & Boundary (Read Before Editing)
-This skill owns Stage 4: the **central TDD execution loop** over Setup + Backlog — pick the next task by dependency, run the pre-flight / dispatch / close-out checklist, dispatch to an engineer (one-context for now) via the `execute-tdd/<task.type>/` handler skill or the default TDD fallback, and accept each task by its own `acceptance` (red / green / compiles). It does NOT author tasks (`create-task`), does NOT implement code itself (the engineer does, guided entirely by the task), does NOT run api-tests (Stage 5 / `api-test`), does NOT stage test data / seeds / stubs (`create-test-data`), and does NOT define folder paths or stage gating (`workflow`). Blocking gaps (deadlock, failure, an `assume` that doesn't hold) stop the loop and ask the user; only non-blocking improvements go to `self-report`. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
+
+This skill owns Stage 4: the **central TDD execution loop** over Setup + Backlog — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`execute-tdd/<task.type>/` handler, else `execute-tdd/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / compiles). It does NOT author tasks (`create-task`), does NOT implement code itself (the engineer agent does, following the dispatched skill, guided entirely by the task), does NOT run api-tests (`03-Api-test/` is **Stage 5** / `api-test` — a different loop), does NOT stage test data / seeds / stubs (`create-test-data`), and does NOT define folder paths or stage gating (`workflow`). Task `status` uses create-task's set — `pending` / `in_progress` / `done` / `failed`; a task that fails acceptance is set `failed` and halts the loop. Blocking gaps (deadlock, failure, an `assume` that doesn't hold) stop the loop and ask the user; only non-blocking improvements go to `self-report`. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

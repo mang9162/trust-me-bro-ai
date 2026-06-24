@@ -33,5 +33,14 @@
     <dt>Touches</dt><dd>execute-tdd dispatch step (step&nbsp;3 — "read <code>effort</code> → choose engineer agent"). Modify around there.</dd>
   </dl>
 </div>
+<div class="item">
+  <h3>Autonomous decision-making (fewer human gates) <span class="status">Planned</span></h3>
+  <dl>
+    <dt>Now</dt><dd>Every blocking gap — deadlock, failure, an <code>assume</code> that doesn't hold — halts the loop and asks the human.</dd>
+    <dt>Later</dt><dd>A higher-capability model adjudicates routine decisions on its own; only genuinely important calls escalate to a human.</dd>
+    <dt>Why</dt><dd>With parallel / multi-agent execution the decision points multiply — gating every one on a human doesn't scale.</dd>
+    <dt>Touches</dt><dd>execute-tdd stop conditions (deadlock / failure / pre-flight <code>assume</code> check) and the per-task review gate.</dd>
+  </dl>
+</div>
 </body>
 </html>

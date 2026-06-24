@@ -1,0 +1,146 @@
+{
+  "skill_name": "execute-tdd",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "description": "User selects restaurant → views menu (GET /restaurants/:id/menu) → picks items → places order (POST /orders) → pays via Stripe → gets confirmation (GET /orders/:id).",
+    "tasks": {
+      "01-Setup": [
+        { "id": "00-env-setup", "type": "env-setup", "depends_on": [], "acceptance": "compiles" },
+        { "id": "01-create-order-request-iface", "type": "interface", "depends_on": ["00-env-setup"], "acceptance": "compiles" },
+        { "id": "02-create-order-response-iface", "type": "interface", "depends_on": ["00-env-setup"], "acceptance": "compiles" },
+        { "id": "03-menu-response-iface", "type": "interface", "depends_on": ["00-env-setup"], "acceptance": "compiles" },
+        { "id": "04-err-ord-pay4001", "type": "error_code", "depends_on": ["00-env-setup"], "acceptance": "compiles" }
+      ],
+      "02-Backlog": [
+        { "id": "05-find-restaurant-test", "type": "integration-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "06-find-restaurant-code", "type": "code", "depends_on": ["05-find-restaurant-test"], "acceptance": "green" },
+        { "id": "07-find-menu-items-test", "type": "integration-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "08-find-menu-items-code", "type": "code", "depends_on": ["07-find-menu-items-test"], "acceptance": "green" },
+        { "id": "09-filter-available-test", "type": "unit-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "10-filter-available-code", "type": "code", "depends_on": ["09-filter-available-test"], "acceptance": "green" },
+        { "id": "11-get-menu-success-test", "type": "component-test", "depends_on": ["06-find-restaurant-code", "08-find-menu-items-code", "10-filter-available-code"], "acceptance": "red" },
+        { "id": "12-get-menu-not-found-test", "type": "component-test", "depends_on": ["06-find-restaurant-code", "08-find-menu-items-code", "10-filter-available-code"], "acceptance": "red" },
+        { "id": "13-get-menu-code", "type": "code", "depends_on": ["11-get-menu-success-test", "12-get-menu-not-found-test"], "acceptance": "green" },
+        { "id": "14-validate-order-test", "type": "unit-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "15-validate-order-code", "type": "code", "depends_on": ["14-validate-order-test"], "acceptance": "green" },
+        { "id": "16-calc-total-test", "type": "unit-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "17-calc-total-code", "type": "code", "depends_on": ["16-calc-total-test"], "acceptance": "green" },
+        { "id": "18-charge-payment-test", "type": "integration-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "19-charge-payment-code", "type": "code", "depends_on": ["18-charge-payment-test"], "acceptance": "green" },
+        { "id": "20-save-order-test", "type": "integration-test", "depends_on": ["00-env-setup"], "acceptance": "red" },
+        { "id": "21-save-order-code", "type": "code", "depends_on": ["20-save-order-test"], "acceptance": "green" },
+        { "id": "22-create-order-test", "type": "component-test", "depends_on": ["15-validate-order-code", "17-calc-total-code", "19-charge-payment-code", "21-save-order-code"], "acceptance": "red" },
+        { "id": "23-create-order-code", "type": "code", "depends_on": ["22-create-order-test"], "acceptance": "green" }
+      ]
+    }
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Loop picks tasks in correct order",
+      "prompt": "Run the execute-tdd loop on the full task queue above. All tasks start as pending.",
+      "expectations": [
+        "00-env-setup is picked first — only task with no depends_on",
+        "01 through 04 (Setup) are picked next in any order — all depend only on 00-env-setup which is done",
+        "No Backlog task (05+) is picked until ALL Setup tasks (00–04) are done — Setup before Backlog, always",
+        "05-find-restaurant-test is NOT picked when only 00-env-setup is done — it must wait for 01, 02, 03, 04 to finish too",
+        "13-get-menu-code is not picked until both 11-get-menu-success-test and 12-get-menu-not-found-test are done",
+        "22-create-order-test is not picked until 15, 17, 19, 21 (all child code tasks) are done"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Pre-flight checks assume before dispatch",
+      "prompt": "07-find-menu-items-test has assume: 'env-setup seeded restaurant with menu items'. 00-env-setup is done. Run pre-flight on 07.",
+      "expectations": [
+        "depends_on [00-env-setup] is confirmed done",
+        "Pre-flight verifies the assume actually holds — menu items exist in test DB",
+        "If menu items are NOT in the DB (env-setup ran but seed was incomplete) → BLOCKED, loop halts, asks user",
+        "If assume holds → status set to in_progress, dispatch proceeds",
+        "Task's contract, cases, pseudocode, command, acceptance are all read before dispatch"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "RED test is a PASS",
+      "prompt": "05-find-restaurant-test is dispatched. The engineer writes the test and runs command. It fails with an import error because the find-restaurant function doesn't exist. acceptance = 'red'.",
+      "expectations": [
+        "Import error = test is red = matches acceptance 'red' → this is a PASS",
+        "05-find-restaurant-test status set to done",
+        "Loop does NOT attempt to fix the import error",
+        "Loop proceeds to pick 06-find-restaurant-code next (its depends_on 05 is now done)",
+        "06-find-restaurant-code will implement the function and turn the test green"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Code task turns red test green",
+      "prompt": "06-find-restaurant-code is dispatched. Its depends_on [05-find-restaurant-test] is done. acceptance = 'green'.",
+      "expectations": [
+        "Engineer implements the function per 06's contract and pseudocode",
+        "Running command now makes 05's test pass (green)",
+        "Result (green) matches acceptance (green) → 06 set to done",
+        "If the test is still red → result ≠ acceptance → FAILURE, not done"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "FAILURE halts the loop",
+      "prompt": "19-charge-payment-code is dispatched. After implementation, the test (18) is still red. acceptance = 'green'. Downstream: 22-create-order-test depends on 19.",
+      "expectations": [
+        "Result (red) ≠ acceptance (green) → FAILURE",
+        "19-charge-payment-code status set to failed",
+        "Loop halts — does NOT pick 20-save-order-test or any other task",
+        "generate-report triggered to refresh scenario.html",
+        "Asks user what to do — does not self-fix"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "DEADLOCK after user cannot resolve failure",
+      "prompt": "19-charge-payment-code failed and the loop halted (eval 5). The user cannot fix the issue and asks to see what tasks are still pending.",
+      "expectations": [
+        "The loop is halted — it does NOT resume and pick 20-save-order-test or any other task",
+        "FAILURE means stop and resolve, not skip and continue — 'barrelling ahead spreads the break'",
+        "22-create-order-test and 23-create-order-code depend on 19 (failed) → they can never become runnable",
+        "20-save-order-test and 21-save-order-code do not depend on 19, but the loop is halted — they are not picked either",
+        "This is reported as a DEADLOCK: pending tasks remain but the loop cannot proceed until the failure is resolved",
+        "generate-report is triggered; the user sees which tasks are stuck and why"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Dispatch selects correct engineer",
+      "prompt": "07-find-menu-items-test has type 'integration-test'. A handler exists at execute-tdd/integration-test/. 09-filter-available-test has type 'unit-test'. No handler exists for unit-test.",
+      "expectations": [
+        "07-find-menu-items-test dispatched to execute-tdd/integration-test/ handler",
+        "09-filter-available-test dispatched to execute-tdd/default-tdd",
+        "Both engineers self-verify result against the task's own acceptance before handing back",
+        "execute-tdd itself does not write any code in either case"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "DRAINED transitions to Stage 5",
+      "prompt": "All tasks 00 through 23 are done. No pending tasks remain in 01-Setup/ or 02-Backlog/.",
+      "expectations": [
+        "Loop recognizes no pending tasks → DRAINED",
+        "generate-report triggered to refresh scenario.html",
+        "Reports to user: Stage 4 complete, Stage 5 (api-test on 03-Api-test/) is next",
+        "Does NOT dump a task-by-task summary",
+        "Does NOT touch 03-Api-test/ tasks — that is a different stage"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "self-report vs BLOCKED distinction",
+      "prompt": "During the loop: (A) the engineer notices 05, 07, 18, 20 all hand-write the same DB connection setup. (B) 11-get-menu-success-test's assume says 'child functions are implemented' but 10-filter-available-code is still pending.",
+      "expectations": [
+        "(A) recurring DB pattern → self-report as improvement suggestion (e.g. promote to code-standard or shared helper)",
+        "(A) does NOT halt the loop — self-report is silent and aggregated",
+        "(B) assume doesn't hold → BLOCKED, loop halts immediately and asks user",
+        "(B) does NOT go to self-report — blocking gaps are never silently logged"
+      ]
+    }
+  ]
+}
