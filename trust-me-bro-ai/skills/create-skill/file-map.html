@@ -42,6 +42,9 @@
     border-left: 3px solid var(--border);
     padding-left: 10px;
   }
+  .focus-dim { opacity: 0.08 !important; transition: opacity 0.15s ease; }
+  .mermaid g.node { cursor: pointer; }
+  .focus-hint { font-size: 0.82rem; color: var(--muted); margin: 0 0 14px; }
 </style>
 </head>
 <body>
@@ -52,6 +55,7 @@
     <code>## References</code> / <code>## Trigger Skill</code> / <code>## Writes To</code> sections must contain.
     See <code>create-skill/SKILL.md</code> for the section format and connection-type definitions.
   </p>
+  <p class="focus-hint">💡 Click any box to spotlight it and only the edges/boxes it connects to; click empty space to show everything again.</p>
 
   <div class="mermaid">
 flowchart LR
@@ -277,6 +281,47 @@ flowchart LR
   </p>
 
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { htmlLabels: true } });</script>
+  <script>
+    mermaid.initialize({ startOnLoad: false, theme: 'neutral', flowchart: { htmlLabels: true } });
+    (async () => {
+      await mermaid.run();
+      const svg = document.querySelector('.mermaid svg');
+      if (!svg) return;
+      const nodes  = [...svg.querySelectorAll('g.node')];
+      const paths  = [...svg.querySelectorAll('path.flowchart-link')];
+      const labels = [...svg.querySelectorAll('g.edgeLabel')];
+      const nameOf = g => g.id.replace(/^flowchart-/, '').replace(/-\d+$/, '');
+      const ends   = p => {
+        const c = p.getAttribute('class') || '';
+        return [ (c.match(/\bLS-(\S+)/) || [])[1], (c.match(/\bLE-(\S+)/) || [])[1] ];
+      };
+      let active = null;
+      const clear = () => {
+        [...nodes, ...paths, ...labels].forEach(el => el.classList.remove('focus-dim'));
+        active = null;
+      };
+      const focus = name => {
+        const keep = new Set([name]);
+        paths.forEach((p, i) => {
+          const [s, e] = ends(p);
+          const rel = (s === name || e === name);
+          p.classList.toggle('focus-dim', !rel);
+          if (labels[i]) labels[i].classList.toggle('focus-dim', !rel);
+          if (rel) { keep.add(s); keep.add(e); }
+        });
+        nodes.forEach(n => n.classList.toggle('focus-dim', !keep.has(nameOf(n))));
+        active = name;
+      };
+      nodes.forEach(n => {
+        n.style.cursor = 'pointer';
+        n.addEventListener('click', ev => {
+          ev.stopPropagation();
+          const nm = nameOf(n);
+          (active === nm) ? clear() : focus(nm);
+        });
+      });
+      svg.addEventListener('click', clear);
+    })();
+  </script>
 </body>
 </html>
