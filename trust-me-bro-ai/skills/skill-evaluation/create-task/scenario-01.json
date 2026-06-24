@@ -1,0 +1,104 @@
+{
+  "skill_name": "create-task",
+  "context": "Scenario: USER_ORDER_FOOD_SUCCESS_1 — User opens app → selects restaurant → views menu (GET /restaurants/:id/menu) → picks items → places order (POST /orders) → pays via Stripe → gets confirmation (GET /orders/:id). Domain: food delivery. Payment via external Stripe gateway (outbound — needs stub, not api-test).",
+  "evals": [
+    {
+      "id": 1,
+      "title": "Functional design tree structure",
+      "prompt": "Given scenario USER_ORDER_FOOD_SUCCESS_1 with 2 inbound API calls (GET /restaurants/:id/menu and POST /orders), build the functional design tree.",
+      "expectations": [
+        "Tree has exactly 2 root nodes — one per inbound API endpoint in the scenario",
+        "Each root node is component level (it orchestrates children)",
+        "Every leaf function that directly hits DB or external gateway is integration — never unit",
+        "Every leaf function that does pure logic with no I/O is unit — never integration",
+        "No function is assigned more than one test level",
+        "Tree is ordered bottom-up — leaf nodes appear before their parent"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "env-setup is always first and self-contained",
+      "prompt": "Generate the task list for USER_ORDER_FOOD_SUCCESS_1. What does 00-env-setup look like?",
+      "expectations": [
+        "00-env-setup is the very first task in 01-Setup/",
+        "It seeds scenario-specific data with concrete values from Datatest.md — not placeholder names",
+        "It includes a stub for the external payment gateway (Stripe is outbound)",
+        "It does NOT reference or depend on data from another scenario",
+        "Every other task across all folders has 00-env-setup in its depends_on"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Setup tasks are one-per-unit",
+      "prompt": "The scenario needs interfaces for the order request, order response, and menu response. Also needs an error code for payment failure. Generate Setup tasks.",
+      "expectations": [
+        "Each interface is its own separate task — not bundled with other interfaces",
+        "The error code is its own separate task — not bundled with interfaces",
+        "Total Setup tasks (excluding env-setup) equals the number of distinct interfaces + distinct error codes",
+        "Each interface task's contract carries the full field-level shape — not just the type name",
+        "Each error code task references the error-codes.md registry entry"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Backlog TDD pairing — test before code, node by node",
+      "prompt": "Generate Backlog tasks for the menu retrieval branch of the functional design tree (the GET /restaurants/:id/menu side).",
+      "expectations": [
+        "For each node in the branch: its test task(s) appear immediately before its code task — not separated by other nodes' tasks",
+        "Each code task's depends_on references only its own test task(s) — not tests from other nodes",
+        "Leaf nodes (repositories, pure logic) are done before their parent (controller/orchestrator)",
+        "WRONG pattern: all test tasks for every node grouped first, then all code tasks grouped after",
+        "The topmost node's code task depends_on its own test(s) and may also depend_on child code tasks"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Alternative/error cases are separate tasks with own NN",
+      "prompt": "The menu retrieval function has 3 cases: (1) success — returns available items, (2) restaurant not found — returns 404, (3) restaurant exists but menu is empty — returns empty array. Generate the test tasks.",
+      "expectations": [
+        "3 separate test tasks — one per case",
+        "Each has its own unique sequential NN number — no letter suffixes (a, b, c)",
+        "The code task depends_on all 3 test task ids",
+        "All 3 tests stay in 02-Backlog/ of this scenario — no new scenario created for the error cases",
+        "Each task's cases.given and cases.assert use values that distinguish the case (e.g. different IDs for found vs not-found)"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Api-test chain ordering and run command",
+      "prompt": "E2E flow: step 1 GET /restaurants/:id/menu → step 2 POST /orders → step 3 GET /orders/:id. Generate Api-test tasks.",
+      "expectations": [
+        "Exactly 3 api-test tasks in 03-Api-test/, one per request in E2E order",
+        "depends_on forms a sequential chain: task 2 depends_on task 1, task 3 depends_on task 2",
+        "Only the LAST api-test task has the run command populated — the others have no command",
+        "Each task's contract references the request/response shape from gateway-contract.md — not invented"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Task self-sufficiency — carried content not just names",
+      "prompt": "Show the full task JSON for an integration test that queries the DB for menu items by restaurant ID.",
+      "expectations": [
+        "contract carries the full function signature AND the shapes of any referenced types — not just type names (e.g. if return type is an array of items, the item shape's fields are spelled out)",
+        "cases has at least one given/assert with concrete values from Datatest.md — not 'some restaurant ID'",
+        "pseudocode has arrange → act → assert steps with no open design decisions left",
+        "targets has a concrete file path following testing-guide conventions — not a generic path",
+        "assume states what env-setup has already seeded — specific enough that the agent knows what data exists",
+        "acceptance states the test is expected to be red (function not yet implemented)"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Cross-check catches missing endpoint",
+      "prompt": "The E2E flow needs GET /restaurants/:id/menu, POST /orders, and GET /orders/:id. But gateway-directory.md Inbound only lists POST /orders and GET /orders/:id. Generate Api-test tasks.",
+      "expectations": [
+        "Detects that one endpoint in the E2E flow is missing from gateway-directory.md Inbound",
+        "Does NOT silently create an api-test task for the unregistered endpoint",
+        "Does NOT invent the endpoint registration itself",
+        "Presents the 3 possibilities from the skill spec: incomplete functional design / unregistered line / outbound gateway",
+        "Asks the user to resolve before continuing",
+        "Adds the finding to self-report"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "skill_name": "create-task",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The functional design tree is missing a function. The scenario USER_ORDER_FOOD_SUCCESS_1 requires fetching the restaurant's operating hours before placing an order, but there's no RestaurantRepository.getOperatingHours() in the tree. Add it as a child of OrderService.createOrder() with test level integration (it hits DB).",
+      "expected_output": "Function added to the call tree under createOrder with integration level; a new test+code task pair appears in Backlog",
+      "files": [],
+      "expectations": [
+        "RestaurantRepository.getOperatingHours() added to functional design tree under OrderService.createOrder()",
+        "Test level is integration (DB access)",
+        "New test task + code task pair added to 02-Backlog with correct depends_on",
+        "Existing tasks renumbered or dependency chain updated to accommodate the new node",
+        "No code is implemented — only task files are authored"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Task 06-calculate-total-test.json has effort 'low' but it actually needs to test 3 discount rules (percentage, fixed amount, free delivery) with multiple edge cases. Change effort to 'medium' and add the missing test cases.",
+      "expected_output": "Effort updated to medium; cases array expanded with all 3 discount scenarios using real Datatest values",
+      "files": [],
+      "expectations": [
+        "effort field changed from low to medium",
+        "cases array has test cases for percentage discount, fixed amount discount, and free delivery",
+        "Each case has concrete given/assert with real values from Datatest.md",
+        "Each alternative case is its own separate task — not bundled into one",
+        "pseudocode updated to reflect the new cases"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The team reviewed the functional design and decided OrderValidator.validate() should be component level instead of unit, because it calls an external address verification service. Update the test level.",
+      "expected_output": "Test level changed from unit to integration or component with updated task type and mock setup",
+      "files": [],
+      "expectations": [
+        "OrderValidator.validate() test level updated in the functional design tree",
+        "Corresponding test task type updated (no longer unit — now reflects external call)",
+        "Task's contract/pseudocode updated to include the external service mock",
+        "No double-stacking of test levels — exactly one level assigned"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I want to reorder the Api-test chain. Currently it's POST /orders then GET /orders/:id. I need to add GET /restaurants/:id/menu before POST /orders because the user needs to see the menu first. Insert it at position 01.",
+      "expected_output": "New api-test task inserted at 01; existing tasks renumbered; depends_on chain updated; only the last task carries the run command",
+      "files": [],
+      "expectations": [
+        "New api-test task 01-get-menu-api.json added for GET /restaurants/:id/menu",
+        "Former 01 and 02 renumbered to 02 and 03",
+        "depends_on chain flows: 01 → 02 → 03",
+        "Only the last task (03-get-order-api) carries the run command",
+        "Contract references gateway-contract.md for GET /restaurants/:id/menu shape"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The scenario has an error case where payment fails (card declined). I want to add it as a separate task in the Backlog, not spin up a new scenario. The test should mock PaymentGateway.charge() returning a decline error.",
+      "expected_output": "New test task added to 02-Backlog for the payment-declined case as a separate task with its own NN",
+      "files": [],
+      "expectations": [
+        "New test task in 02-Backlog with its own running NN (not a letter suffix like 08a)",
+        "Task type reflects the correct test level for the node (integration)",
+        "cases.given mocks PaymentGateway.charge() returning decline",
+        "cases.assert checks the correct error code from error-codes.md registry",
+        "Does NOT create a new scenario — stays in this scenario's backlog"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I noticed the code for OrderService.calculateTotal() is straightforward, so I'll just implement it directly in the task file to save time. Can you update 07-calculate-total-code.json to include the actual implementation code?",
+      "expected_output": "Refuses — create-task only plans tasks, it does not implement code. That is execute-tdd's job.",
+      "files": [],
+      "expectations": [
+        "Does not write implementation code into the task file",
+        "Explains that create-task is planning only — it does not implement",
+        "Points to execute-tdd as the skill that runs and implements tasks",
+        "The task's pseudocode and contract remain as guidance, not as runnable code"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "The env-setup task needs more seed data — I want to add a payment stub for Stripe. Can you write the actual mountebank stub config and stage it into the test environment?",
+      "expected_output": "Refuses the staging part — create-task can reference stub shapes from create-test-data but does not stage/run them",
+      "files": [],
+      "expectations": [
+        "Can update the env-setup task to reference the Stripe stub shape",
+        "Does NOT write the actual mountebank config or run any staging",
+        "Points to create-test-data as the skill that stages test data and stubs",
+        "The task's uses.stubs field may reference the stub, but doesn't contain its full config"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "I want to change the folder structure — instead of 01-Setup, 02-Backlog, 03-Api-test, let's use setup/, tests/, e2e/ as folder names.",
+      "expected_output": "Refuses — folder paths are owned by workflow ## Layout, not by create-task",
+      "files": [],
+      "expectations": [
+        "Does not rename the folder structure",
+        "Explains that folder paths are owned by workflow ## Layout",
+        "Suggests raising this with the workflow skill if the team wants to change it",
+        "create-task only decides which group a task belongs to, not the folder path"
+      ]
+    }
+  ]
+}
