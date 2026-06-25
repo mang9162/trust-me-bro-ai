@@ -142,99 +142,96 @@ flowchart LR
 
   %% ===== 1: LIGHT-BLUE DASHED = cross-ref (one-way read, no key to match) =====
   agents -.->|"13"| techstack
-  techstack -.->|"14"| codestd
-  techstack -.->|"15"| testguide
-  techstack -.->|"16"| dbschema
-  techstack -.->|"17"| gwcontract
+  techstack -.->|"14 · ref: stub/mock + test-file layout"| testguide
 
   %% ===== 1c: BLACK DASHED = bridge (key/value must match between 2 files — convention "ref = bridge", Issue #2) =====
-  data -.->|"18 · ref: table.column"| dbschema
-  data -.->|"19 · ref: Gateway.method.response"| gwcontract
-  gwdir <-.->|"20 · entry name match"| gwcontract
+  data -.->|"15 · ref: table.column"| dbschema
+  data -.->|"16 · ref: Gateway.method.response"| gwcontract
+  gwdir <-.->|"17 · entry name match"| gwcontract
 
   %% ===== 1 (cont): LIGHT-BLUE DASHED = cross-ref =====
-  defaultTdd -.->|"21 · ref: code conventions"| codestd
-  defaultTdd -.->|"22 · ref: test conventions"| testguide
+  defaultTdd -.->|"18 · ref: code conventions"| codestd
+  defaultTdd -.->|"19 · ref: test conventions"| testguide
 
-  s1 -.->|"23 · ref: scenario naming"| domain
-  s1 -.->|"24 · ref: error codes<br/>must match exactly"| errcodes
-  s2 -.->|"25 · ref: gateway purpose/condition"| gwdir
-  s2 -.->|"26 · ref: mock key params/path"| gwcontract
-  s2 -.->|"27 · ref: central dictionary"| data
-  s2 -.->|"28 · ref: seeding mechanics"| dbschema
+  s1 -.->|"20 · ref: scenario naming"| domain
+  s1 -.->|"21 · ref: error codes<br/>must match exactly"| errcodes
+  s2 -.->|"22 · ref: gateway purpose/condition"| gwdir
+  s2 -.->|"23 · ref: mock key params/path"| gwcontract
+  s2 -.->|"24 · ref: central dictionary"| data
+  s2 -.->|"25 · ref: seeding mechanics"| dbschema
 
   %% ===== 2: RED DASHED = trigger/notify another component about something =====
-  s1 -.->|"29 · write/update scenario.html<br/>(header-card, progress 1/6, E2E-flow, placeholders)"| gr
-  s2 -.->|"30 · update report"| gr
-  s3 -.->|"31 · update report"| gr
-  s4 -.->|"32 · update report"| gr
-  s5 -.->|"33 · update report"| gr
-  s6 -.->|"34 · update report"| gr
-  s1 -.->|"35 · report issue (Issue #16)"| selfReport
-  s2 -.->|"36 · report issue (Issue #16)"| selfReport
-  s3 -.->|"37 · report issue (Issue #16)"| selfReport
-  s4 -.->|"38 · report issue (Issue #16)"| selfReport
-  s5 -.->|"39 · report issue (Issue #16)"| selfReport
-  s6 -.->|"40 · report issue (Issue #16)"| selfReport
+  s1 -.->|"26 · write/update scenario.html<br/>(header-card, progress 1/6, E2E-flow, placeholders)"| gr
+  s2 -.->|"27 · update report"| gr
+  s3 -.->|"28 · update report"| gr
+  s4 -.->|"29 · update report"| gr
+  s5 -.->|"30 · update report"| gr
+  s6 -.->|"31 · update report"| gr
+  s1 -.->|"32 · report issue (Issue #16)"| selfReport
+  s2 -.->|"33 · report issue (Issue #16)"| selfReport
+  s3 -.->|"34 · report issue (Issue #16)"| selfReport
+  s4 -.->|"35 · report issue (Issue #16)"| selfReport
+  s5 -.->|"36 · report issue (Issue #16)"| selfReport
+  s6 -.->|"37 · report issue (Issue #16)"| selfReport
 
   %% ===== 3: SOLID GREEN = write (Issue #16, self-learn internal) =====
-  selfReport -->|"41 · write entry<br/>(classify tier)"| tierJson
-  selfImprove -->|"42 · move entry<br/>(chosenOption/appliedDate)"| logJson
+  selfReport -->|"38 · write entry<br/>(classify tier)"| tierJson
+  selfImprove -->|"39 · move entry<br/>(chosenOption/appliedDate)"| logJson
 
   %% ===== 1d: LIGHT-BLUE DASHED = cross-ref (self-learn internal reads) =====
-  selfImprove -.->|"43 · read entry,<br/>execute fix"| tierJson
-  feedback -.->|"44 · read (no state,<br/>no sync)"| tierJson
-  feedback -.->|"45 · read"| logJson
+  selfImprove -.->|"40 · read entry,<br/>execute fix"| tierJson
+  feedback -.->|"41 · read (no state,<br/>no sync)"| tierJson
+  feedback -.->|"42 · read"| logJson
 
   %% ===== 1e: LIGHT-BLUE DASHED / BLACK DASHED = Control Skill (C0) =====
-  fmg <-.->|"46 · References/Trigger Skill/Writes To <-> edges (exact match)"| fileMap
-  skillFiles -.->|"47 · read before creating/editing any skill"| fmg
+  fmg <-.->|"43 · References/Trigger Skill/Writes To <-> edges (exact match)"| fileMap
+  skillFiles -.->|"44 · read before creating/editing any skill"| fmg
 
   %% ===== 1c (cont): BLACK DASHED = bridge =====
-  s1 -.->|"48 · scenario folder path:<br/>&lt;NN&gt;-&lt;FULL_SCENARIO_NAME&gt; (## Layout)"| wf
+  s1 -.->|"45 · scenario folder path:<br/>&lt;NN&gt;-&lt;FULL_SCENARIO_NAME&gt; (## Layout)"| wf
 
   %% ===== 1d (cont): LIGHT-BLUE DASHED = cross-ref (self-report reads before writing to dedup) =====
-  selfReport -.->|"49 · read to dedup<br/>before writing"| tierJson
+  selfReport -.->|"46 · read to dedup<br/>before writing"| tierJson
 
   %% ===== 2 (cont): RED DASHED = trigger (self-report -> self-improve, conditional) =====
-  selfReport -.->|"50 · trigger (Auto-improve = on)<br/>pass id + tier file"| selfImprove
+  selfReport -.->|"47 · trigger (Auto-improve = on)<br/>pass id + tier file"| selfImprove
 
   %% ===== 1c (cont): BLACK DASHED = bridge (s2 Layout) =====
-  s2 -.->|"51 · 01-Testdata paths + stub naming (## Layout)"| wf
+  s2 -.->|"48 · 01-Testdata paths + stub naming (## Layout)"| wf
 
   %% ===== initialize (component #5) =====
-  init -.->|"52 · read Target + format"| initFmt
-  init ==>|"53 · bootstrap / update (write)"| C2
-  init ==>|"54 · bootstrap / update (write)"| C3
-  init -.->|"55 · report setup concerns"| selfReport
+  init -.->|"49 · read Target + format"| initFmt
+  init ==>|"50 · bootstrap / update (write)"| C2
+  init ==>|"51 · bootstrap / update (write)"| C3
+  init -.->|"52 · report setup concerns"| selfReport
 
   %% ===== 1c (cont): BLACK DASHED = bridge (gateway-contract -> error-codes) =====
-  gwcontract -.->|"56 · ref: inbound error_code<br/>must match registry"| errcodes
+  gwcontract -.->|"53 · ref: inbound error_code<br/>must match registry"| errcodes
 
-  %% ===== s3 create-task content refs (57-65): bridges (57-60,65) + cross-refs (61-64) =====
-  s3 -.->|"57 · ref: Inbound endpoint + flow completeness"| gwdir
-  s3 -.->|"58 · ref: api-test request/response shape"| gwcontract
-  s3 -.->|"59 · ref: entity/column (seed/interface)"| dbschema
-  s3 -.->|"60 · ref: error_code registry + base-response"| errcodes
-  s3 -.->|"61 · ref: project structure"| techstack
-  s3 -.->|"62 · ref: test conventions/structure"| testguide
-  s3 -.->|"63 · ref: code conventions"| codestd
-  s3 -.->|"64 · ref: functional-design card format"| gr
-  s3 -.->|"65 · 01-Setup/02-Backlog/03-Api-test paths (## Layout)"| wf
+  %% ===== s3 create-task content refs (54-62): bridges (54-57,62) + cross-refs (58-61) =====
+  s3 -.->|"54 · ref: Inbound endpoint + flow completeness"| gwdir
+  s3 -.->|"55 · ref: api-test request/response shape"| gwcontract
+  s3 -.->|"56 · ref: entity/column (seed/interface)"| dbschema
+  s3 -.->|"57 · ref: error_code registry + base-response"| errcodes
+  s3 -.->|"58 · ref: project structure"| techstack
+  s3 -.->|"59 · ref: test conventions/structure"| testguide
+  s3 -.->|"60 · ref: code conventions"| codestd
+  s3 -.->|"61 · ref: functional-design card format"| gr
+  s3 -.->|"62 · 01-Setup/02-Backlog/03-Api-test paths (## Layout)"| wf
 
-  %% ===== Stage-4 execute-tdd (66-69): trigger dispatch + bridge layout + write status + cross-ref task spec =====
-  s4 -.->|"66 · trigger: dispatch task + skill"| defaultTdd
-  s4 -.->|"67 · 01-Setup/02-Backlog paths + gating (## Layout/## Stages)"| wf
-  s4 -->|"68 · write: task status<br/>(pending&rarr;in_progress&rarr;done/failed)"| setupBacklog
-  defaultTdd -.->|"69 · ref: task spec (contract/cases/acceptance)"| setupBacklog
+  %% ===== Stage-4 execute-tdd (63-66): trigger dispatch + bridge layout + write status + cross-ref task spec =====
+  s4 -.->|"63 · trigger: dispatch task + skill"| defaultTdd
+  s4 -.->|"64 · 01-Setup/02-Backlog paths + gating (## Layout/## Stages)"| wf
+  s4 -->|"65 · write: task status<br/>(pending&rarr;in_progress&rarr;done/failed)"| setupBacklog
+  defaultTdd -.->|"66 · ref: task spec (contract/cases/acceptance)"| setupBacklog
 
   class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd hardf
   class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson,scenarioHtml,testdata,setupBacklog,apiTestT softf
 
-  linkStyle 13,14,15,16,17,21,22,23,25,26,27,28,43,44,45,47,49,52,61,62,63,64,69 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
-  linkStyle 18,19,20,24,46,48,51,56,57,58,59,60,65,67 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
-  linkStyle 29,30,31,32,33,34,35,36,37,38,39,40,50,55,66 stroke:#dc2626,stroke-width:2px,color:#dc2626
-  linkStyle 41,42,53,54,68 stroke:#16a34a,stroke-width:2px,color:#16a34a
+  linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
+  linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
+  linkStyle 26,27,28,29,30,31,32,33,34,35,36,37,47,52,63 stroke:#dc2626,stroke-width:2px,color:#dc2626
+  linkStyle 38,39,50,51,65 stroke:#16a34a,stroke-width:2px,color:#16a34a
   </div>
 
   <h2>Node Colors</h2>
