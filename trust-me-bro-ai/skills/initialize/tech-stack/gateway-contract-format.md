@@ -23,7 +23,7 @@ For each line in `gateway-directory.md` (by its `bridge` id), read the code (req
 - **Write payloads as JSON:** `request` = the method on one line then the body JSON; `success` = the status on one line then the body JSON.
 - **`errors` is a list** (a line may have several). Each: `<status> <NAME> → <error_code>` then the body. Map to the `error_code` in `error-codes.md` when the line is ours (inbound); an external system's code may have no local map.
 - **`mock`:**
-  - Outbound — HTTP (incl. queue publish): stub. `match` = the request keys the stub predicate matches on; `stub` = the stub file path; `returns` = the `success`/`error` above (chosen per scenario). The stub file's structure (mountebank JSON template) and folder layout live in `tech-stack.md` (Infrastructure) — one place, not repeated here. WS: a mock WS server pushes the `events` above (not a mountebank HTTP stub).
+  - Outbound — HTTP (incl. queue publish): stub. `match` = the request keys the stub predicate matches on; `stub` = the stub file path; `returns` = the `success`/`error` above (chosen per scenario). The stub file's structure and folder layout live in `testing-guide.md` (Stub / Mock + Test Structure) — one place, not repeated here. WS: a mock WS server pushes the `events` above (not a mountebank HTTP stub).
   - Inbound — api-test, no stub: send `request` to the real API and assert `success`/`errors` (WS: connect a real client and assert the `events` stream). If a sibling service in this same repo calls this line, the call is real too — it's just this same Inbound entry, no stub (internal).
 
 ## Inbound   (lines we expose — exercised by api-test)

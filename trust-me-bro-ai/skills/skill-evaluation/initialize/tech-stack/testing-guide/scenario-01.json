@@ -1,0 +1,144 @@
+{
+  "skill_name": "testing-guide",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "project": "Food delivery platform — back service (NestJS + Jest + Mountebank for stubs), front service (React + Vitest + Playwright for e2e)"
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Scan produces test structure tree from repo",
+      "prompt": "Scan the repo and fill the Test Structure section. The repo has tests beside source files for unit, a __tests__/ folder for integration, a test/component/ folder for component tests, and a test/api-test/ folder for api-tests. Stubs live in test/stubs/.",
+      "expectations": [
+        "Test Structure section has a folder tree showing all 4 test locations + the stub directory",
+        "Each key directory has a one-line description of what it holds",
+        "Tree reflects what was actually found in the repo — not a generic template",
+        "No directories are invented that weren't described in the scan"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Test levels are grouped per service with correct fields",
+      "prompt": "Fill Test Levels for the back service. It runs unit (Jest, beside source as *.unit.spec.ts), integration (Jest, __tests__/integration/*.integration.spec.ts, hits real DB), and component (Jest, test/component/*.component.spec.ts, mocks collaborators).",
+      "expectations": [
+        "A ### back block wraps all levels — even though there's only one service described",
+        "3 level blocks: #### unit, #### integration, #### component",
+        "Each level has: definition, tool, command, path, layout, rules — no field skipped",
+        "unit definition says pure / no I/O; integration says real DB; component says mocks collaborators",
+        "File path and naming patterns match what was described, not a generic guess",
+        "No #### api-test block — it wasn't described for this service in this prompt"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Stub/Mock section captures technology details",
+      "prompt": "The back service uses Mountebank for HTTP stubs (outbound to Stripe payment gateway). Stub files are JSON with { predicates, responses } shape, named <service>-stub.json. Fill the Stub/Mock section.",
+      "expectations": [
+        "A ### back block wraps the technology",
+        "#### mountebank block with: used for, approach, shape, filename",
+        "used for: HTTP outbound (Stripe payment gateway)",
+        "shape: { predicates, responses }",
+        "filename: <service>-stub.json pattern",
+        "approach describes how Mountebank intercepts (HTTP stub server matched by request predicates)"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Light scan mode produces less detail than full",
+      "prompt": "Do a light scan of the back service's test setup. It has unit, integration, and component levels. Unit uses Jest, integration uses Jest, component uses Jest.",
+      "expectations": [
+        "Test Structure tree is present",
+        "Each level lists the tool (Jest for all 3)",
+        "command, path, layout, rules are either absent or marked TBD — light mode doesn't fill them",
+        "No values are invented to fill gaps — TBD is used instead"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Can edit: add a new test level to a service",
+      "prompt": "The back service now has api-tests using Newman, run with 'npm run test:api', files in test/api-test/*.api.spec.ts. Add this level to testing-guide.md.",
+      "expectations": [
+        "A new #### api-test block is added under ### back",
+        "All fields filled: definition, tool (Newman), command, path, layout, rules",
+        "Existing levels (unit, integration, component) are not modified",
+        "api-test definition reflects what this level covers (real services started, only outside-project deps mocked)"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Can edit: add a second stub technology to a service",
+      "prompt": "The back service now also uses a mock WebSocket server for real-time order status push notifications, in addition to Mountebank for HTTP. Mock config lives in test/stubs/ws/*.ws-mock.json. Add it.",
+      "expectations": [
+        "A new #### block for the WS mock technology is added under ### back",
+        "used for: WebSocket push (order status notifications)",
+        "Existing #### mountebank block is not modified",
+        "filename pattern matches what was described"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Can edit: add a new section for test-related conventions not covered by existing sections",
+      "prompt": "The project has shared test fixtures in test/fixtures/ and a CI gate that requires 80% coverage before merge. These don't fit in Test Levels or Stub/Mock. Add them to testing-guide.md.",
+      "expectations": [
+        "New section(s) added (e.g. Shared Fixtures, CI Test Gating) under their own headings",
+        "Content describes what was provided — fixtures location, 80% coverage gate",
+        "Existing sections (Test Structure, Test Levels, Stub/Mock) are not modified",
+        "Role & Boundary permits this: 'add it here under its own heading'"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Can edit: change a level's tool and command",
+      "prompt": "The back service is migrating from Jest to Vitest for unit tests. Update the tool to Vitest and command to 'vitest run --project unit'.",
+      "expectations": [
+        "#### unit block under ### back: tool changed to Vitest, command updated",
+        "Other fields (definition, path, layout, rules) remain unchanged unless the migration affects them",
+        "Other levels (integration, component) are not modified — they still use Jest"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Cannot edit: add code conventions or implementation rules",
+      "prompt": "I want to add a rule in testing-guide.md that says 'all service classes must use dependency injection and follow the repository pattern'. Add it under the back service's component level rules.",
+      "expectations": [
+        "Does NOT add this rule to testing-guide.md",
+        "This is a code convention / implementation rule, not a test convention",
+        "Points to code-standards.md as the correct location",
+        "Test-level rules should be about how to write/run tests, not how to structure production code"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Cannot edit: add request/response payload shapes",
+      "prompt": "I want to document the expected POST /orders request body shape in the api-test section so testers know what to send.",
+      "expectations": [
+        "Does NOT add payload shapes to testing-guide.md",
+        "Request/response payload shapes belong in gateway-contract.md",
+        "testing-guide.md only covers how to run and structure tests, not what data they send",
+        "Acknowledges the intent (helpful for testers) but boundary is clear"
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Cannot edit: add or change services/build commands",
+      "prompt": "The project added a new 'notification' microservice. I want to add it as a new ### notification section in testing-guide.md with its build and run commands.",
+      "expectations": [
+        "CAN add ### notification with its test levels — that is a test convention",
+        "CANNOT add build/run commands for the notification service — those belong in tech-stack.md",
+        "Test-level commands (e.g. 'jest --selectProjects unit') are fine — they run tests, not the service",
+        "Distinguishes between 'command that runs tests' (belongs here) and 'command that builds/starts the service' (belongs in tech-stack.md)"
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Cannot guess: unknown test tool left as TBD",
+      "prompt": "Scan found integration tests in __tests__/integration/ but the test runner config is missing. What tool does it use?",
+      "expectations": [
+        "tool field is set to TBD — not guessed from file extensions or conventions",
+        "Asks the user what tool is used rather than assuming Jest/Vitest/etc",
+        "Other fields that CAN be determined from the files (path, naming) are still filled",
+        "Follows the 'don't guess' rule explicitly"
+      ]
+    }
+  ]
+}
