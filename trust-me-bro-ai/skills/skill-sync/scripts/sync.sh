@@ -2,8 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
-SHARED_DIR="$REPO_ROOT/docs/ai/shared"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+SHARED_DIR="$REPO_ROOT/trust-me-bro-ai/skills"
 CODEX_INDEX="$REPO_ROOT/.agents/skills/index"
 CLAUDE_INDEX="$REPO_ROOT/.claude/skills/index"
 
@@ -61,7 +61,7 @@ description: Master index of all shared team skills. Use when starting any task 
 $(echo -e "$SKILL_LIST")
 ## How to use
 When a task matches a skill above, read the file at its path and follow the instructions there.
-Run \$skill-sync after adding or removing skills in docs/ai/shared/."
+Run \$skill-sync after adding or removing skills in trust-me-bro-ai/skills/."
 
 echo "$INDEX_CONTENT" > "$CODEX_INDEX/SKILL.md"
 echo "$INDEX_CONTENT" > "$CLAUDE_INDEX/SKILL.md"
