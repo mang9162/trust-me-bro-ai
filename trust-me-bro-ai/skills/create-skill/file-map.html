@@ -234,10 +234,13 @@ flowchart LR
   s6 -.->|"70 · ref: task statuses + api-test results + E2E flow (Summarize)"| scenarioHtml
   s6 -.->|"71 · ref: pending entries headline + count (Retrospective)"| tierJson
 
+  %% ===== Stage-4 candidate detection (72): cross-ref code-standards before reporting a candidate =====
+  s4 -.->|"72 · ref: code-standard rules (is the pattern already a rule?)"| codestd
+
   class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd hardf
   class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson,scenarioHtml,testdata,setupBacklog,apiTestT softf
 
-  linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66,69,70,71 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
+  linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66,69,70,71,72 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
   linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64,67 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
   linkStyle 26,27,28,29,30,31,32,33,34,35,36,37,47,52,63 stroke:#dc2626,stroke-width:2px,color:#dc2626
   linkStyle 38,39,50,51,65,68 stroke:#16a34a,stroke-width:2px,color:#16a34a
@@ -249,7 +252,7 @@ flowchart LR
   <p class="note">This matches the hard/soft component split in <code>self-learn/self-report/SKILL.md</code>'s Tier definitions — use that file as the source of truth if a node's classification is unclear.</p>
 
   <h2>How to Read the 5 Edge Types</h2>
-  <p>Every edge is labeled with its index number (0-71) so it can be referenced unambiguously in discussion.</p>
+  <p>Every edge is labeled with its index number (0-72) so it can be referenced unambiguously in discussion.</p>
   <div class="legend-item"><span class="line exec"></span> <b>Solid, numbered 0-12</b> — execution flow: the actual Stage dispatch sequence between <code>workflow</code> (<code>wf</code>) and Stage-1..6 (<code>s1</code>-<code>s6</code>). Numbers show real invoke/return order; <code>"reject -&gt; 1"</code> is the Stage 6 alt-path when a scenario is rejected.</div>
   <div class="legend-item"><span class="line crossref"></span> <b>Light-blue dashed (13-18, 23-25, 27-30, 45-47, 49, 51, 54, 69)</b> — <b>cross-ref</b>: one-way read. The source opens the target file for info (naming conventions, value lists, etc.). No key has to match.</div>
   <div class="legend-item"><span class="line bridge"></span> <b>Black dashed (19-22, 26, 48, 50, 53, 67)</b> — <b>bridge</b>: a key/value produced by the source must match an entry in the target exactly (the <code>ref</code> column convention, Issue #2). Breaks if either side changes without the other.</div>

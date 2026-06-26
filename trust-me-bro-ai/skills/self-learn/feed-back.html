@@ -141,6 +141,22 @@
   .custom-fix input:focus { border-color: #0ea5e9; }
   .log-fields { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
   code { background: #f1f5f9; border-radius: 3px; padding: 1px 4px; font-size: 0.85em; }
+
+  .controls { display: flex; gap: 8px; margin-bottom: 16px; }
+  .controls select, .controls input {
+    font-size: 0.82rem; padding: 6px 10px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: #fff; color: var(--text); outline: none;
+  }
+  .controls input { flex: 1; }
+  .controls select:focus, .controls input:focus { border-color: #0ea5e9; }
+  .entry.candidate { border-left: 3px solid #7c3aed; }
+  .kind-badge {
+    font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    margin-left: 8px; padding: 1px 7px; border-radius: 999px;
+    background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd;
+  }
+  .score-badge { color: #6d28d9; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -157,6 +173,15 @@
     <button class="tab-btn"        data-tier="log"    onclick="switchTab('log')">Log    <span class="count-badge" id="count-log">0</span></button>
   </div>
 
+  <div class="controls">
+    <select id="filter-kind" onchange="renderCurrent()">
+      <option value="all">All kinds</option>
+      <option value="problem">Problems</option>
+      <option value="candidate">Candidates</option>
+    </select>
+    <input id="search-box" type="text" placeholder="Search title or problem..." oninput="renderCurrent()" />
+  </div>
+
   <div id="panel-small"  class="tab-panel active"></div>
   <div id="panel-medium" class="tab-panel"></div>
   <div id="panel-heavy"  class="tab-panel"></div>
@@ -164,8 +189,12 @@
 
   <script>
     function switchTab(tier) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tier === tier));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tier));
+      currentTab = tier;
+      document.getElementById('filter-kind').value = 'all';
+      document.getElementById('search-box').value = '';
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.tier === tier); });
+      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.toggle('active', p.id === 'panel-' + tier); });
+      renderCurrent();
     }
 
     function el(tag, attrs, children) {
@@ -217,10 +246,17 @@
     }
 
     function renderEntry(entry, file, readOnly) {
-      var card = el('div', { 'class': 'entry' });
+      var isCandidate = entry.kind === 'candidate';
+      var card = el('div', { 'class': 'entry' + (isCandidate ? ' candidate' : '') });
+      var title = [el('span', { text: entry.title || entry.id })];
+      if (isCandidate) title.push(el('span', { 'class': 'kind-badge', text: 'candidate' }));
+      var meta = [el('span', { text: 'id: ' + entry.id + ' · first seen: ' + entry.firstSeen + ' · by: ' + entry.reportedBy + ' · status: ' + entry.status })];
+      if (isCandidate) {
+        meta.push(el('span', { 'class': 'score-badge', text: ' · spread ' + (entry.spread || 0) }));
+      }
       card.appendChild(el('div', { 'class': 'entry-header' }, [
-        el('div', { 'class': 'entry-title', text: entry.title || entry.id }),
-        el('div', { 'class': 'entry-meta', text: 'id: ' + entry.id + ' · first seen: ' + entry.firstSeen + ' · by: ' + entry.reportedBy + ' · status: ' + entry.status }),
+        el('div', { 'class': 'entry-title' }, title),
+        el('div', { 'class': 'entry-meta' }, meta),
       ]));
       card.appendChild(el('div', { 'class': 'entry-problem', text: entry.problem || '' }));
       var occ = el('div', { 'class': 'occurrences' });
@@ -234,6 +270,12 @@
       card.appendChild(renderFixOptions(entry, file));
       if (readOnly) {
         card.appendChild(el('div', { 'class': 'log-fields', text: 'chosen option: ' + entry.chosenOption + ' · applied: ' + entry.appliedDate }));
+      } else if (isCandidate) {
+        var rbtn = el('button', { 'class': 'copy-btn', text: 'Copy reject prompt' });
+        rbtn.addEventListener('click', function() {
+          copyPrompt(rbtn, 'self-improve: entry=' + entry.id + ' (' + file + '), reject — delete, do not apply');
+        });
+        card.appendChild(el('div', { 'class': 'custom-fix' }, [rbtn]));
       } else {
         var wrap = el('div', { 'class': 'custom-fix' });
         var input = el('input', { type: 'text', placeholder: 'Describe a custom fix...' });
@@ -249,20 +291,33 @@
       return card;
     }
 
-    function renderPanel(tier, file, entries, readOnly) {
-      var panel = document.getElementById('panel-' + tier);
-      document.getElementById('count-' + tier).textContent = entries.length;
-      if (!entries.length) {
-        panel.appendChild(el('div', { 'class': 'empty', text: 'No entries.' }));
-      } else {
-        entries.forEach(function(e) { panel.appendChild(renderEntry(e, file, readOnly)); });
-      }
+    var DATA = {
+      small:  { file: 'small-learn.js',  entries: typeof SMALL_LEARN  !== 'undefined' ? SMALL_LEARN  : [], readOnly: false },
+      medium: { file: 'medium-learn.js', entries: typeof MEDIUM_LEARN !== 'undefined' ? MEDIUM_LEARN : [], readOnly: false },
+      heavy:  { file: 'heavy-learn.js',  entries: typeof HEAVY_LEARN  !== 'undefined' ? HEAVY_LEARN  : [], readOnly: false },
+      log:    { file: 'log.js',          entries: typeof LOG_DATA     !== 'undefined' ? LOG_DATA     : [], readOnly: true }
+    };
+    var currentTab = 'small';
+
+    function matchesFilter(e) {
+      var kind = document.getElementById('filter-kind').value;
+      if (kind === 'problem'   && e.kind === 'candidate') return false;
+      if (kind === 'candidate' && e.kind !== 'candidate') return false;
+      var q = document.getElementById('search-box').value.trim().toLowerCase();
+      if (q && ((e.title || '') + ' ' + (e.problem || '')).toLowerCase().indexOf(q) === -1) return false;
+      return true;
     }
 
-    renderPanel('small',  'small-learn.js',  typeof SMALL_LEARN  !== 'undefined' ? SMALL_LEARN  : []);
-    renderPanel('medium', 'medium-learn.js', typeof MEDIUM_LEARN !== 'undefined' ? MEDIUM_LEARN : []);
-    renderPanel('heavy',  'heavy-learn.js',  typeof HEAVY_LEARN  !== 'undefined' ? HEAVY_LEARN  : []);
-    renderPanel('log',    'log.js',          typeof LOG_DATA     !== 'undefined' ? LOG_DATA     : [], true);
+    function renderCurrent() {
+      var d = DATA[currentTab], panel = document.getElementById('panel-' + currentTab);
+      panel.innerHTML = '';
+      var shown = d.entries.filter(matchesFilter);
+      if (!shown.length) panel.appendChild(el('div', { 'class': 'empty', text: 'No entries.' }));
+      else shown.forEach(function(e) { panel.appendChild(renderEntry(e, d.file, d.readOnly)); });
+    }
+
+    Object.keys(DATA).forEach(function(t) { document.getElementById('count-' + t).textContent = DATA[t].entries.length; });
+    renderCurrent();
   </script>
 </body>
 </html>

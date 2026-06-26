@@ -51,6 +51,7 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 - A test task is expected to be **RED** — a correctly-red test (e.g. a compile/import error because the function isn't written yet) is a **PASS**, not a failure. Don't "fix" it here; its paired code task turns it green.
 - matches `acceptance` → pass, continue.
 - doesn't match → **FAILURE** (see Stop & pause): set `status` → `failed`.
+- while accepting, look over the code/test the engineer wrote — not just the run result. If a coding pattern recurs and is **not** already a rule in `code-standards.md`, count its `spread` (how many places it appears in the code now); it feeds the candidate in step 7.
 
 **6. Per-task review gate** — only when the user asked to review each task: pause here and report `{ task, actual vs acceptance, files / diff touched }`, wait for approval, then resume. If the user didn't ask → don't stop.
 
@@ -59,7 +60,7 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 - [ ] set `status` → `done`
 - [ ] record the run result (actual vs `acceptance` — green / red-as-expected / compiles)
 - [ ] update the central task / queue so the next pass (step 1) sees the latest status
-- [ ] anything worth **improving** (not blocking) → aggregate to `self-report`
+- [ ] anything worth **improving** (not blocking) → `self-report`: a recurring pattern from step 5 that isn't a rule yet goes as a `candidate` (with its `spread`); other issues go as a `problem`
 
 → back to step 1.
 
@@ -91,12 +92,13 @@ Report refresh happens only at these points — **not on every task** (too heavy
 ## References
 
 - bridge: `skills/workflow/SKILL.md` (`## Layout`, `## Stages`) — owns the Setup / Backlog / Api-test folder paths and the stage gating; Stage 5 (`api-test`) follows a DRAINED queue.
+- cross-ref: `tech-stack/code-standards.md` — checked while accepting (step 5) to see whether a recurring pattern is already a rule, before reporting it as a `candidate`.
 
 ## Trigger Skill
 
 - `execute-tdd/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `execute-tdd/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
 - generate-report — refresh `scenario.html` at every halt/pause (drained / deadlock / blocked / failure / review).
-- self-report — non-blocking **improvement** observations only (step 7); silent, aggregated. Blocking gaps ask the user instead.
+- self-report — non-blocking **improvement** observations (step 7): a recurring code pattern as a `candidate`, other issues as a `problem`. Silent, aggregated; blocking gaps ask the user instead.
 
 ## Writes To
 
