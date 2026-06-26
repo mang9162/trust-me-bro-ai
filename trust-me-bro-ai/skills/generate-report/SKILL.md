@@ -1,6 +1,6 @@
 ---
 name: generate-report
-description: Regenerate scenario.html inside the scenario folder (under work/). Reads the scenario-meta JSON block from the existing scenario.html, Datatest.md, and all task JSON files. Produces an interactive HTML with a 5-stage progress indicator, a scrollable E2E flow, a Functional Design tree, collapsible Test Data and Tasks sections, and expandable task cards. Re-run after any stage to refresh.
+description: Regenerate scenario.html inside the scenario folder (under work/). Reads the scenario-meta JSON block from the existing scenario.html, Datatest.md, and all task JSON files. Produces an interactive HTML with a 6-stage progress indicator, a scrollable E2E flow, a Functional Design tree, collapsible Test Data and Tasks sections, expandable task cards, and an Acceptance History log. Re-run after any stage to refresh.
 ---
 
 # Generate Report
@@ -17,7 +17,7 @@ description: Regenerate scenario.html inside the scenario folder (under work/). 
 
 | Source | What to extract |
 |--------|----------------|
-| `scenario.html` → `<script id="scenario-meta">` block | `scenario`, `category`, `description`, `steps[]` |
+| `scenario.html` → `<script id="scenario-meta">` block | `scenario`, `category`, `description`, `steps[]`, `accepted`, `acceptanceHistory[]` |
 | `scenario.html` → functional-design section (if present) | preserve as-is; do NOT regenerate — it is authored by `create-task` |
 | `01-Testdata/Datatest.md` | All markdown tables → variable name + value + notes |
 | `02-Task/01-Setup/*.json` | env-setup tasks |
@@ -37,6 +37,7 @@ Determine each stage's status by checking what exists:
 | 3 | Create Task | `02-Task/` has at least one `.json` file |
 | 4 | Execute Backlog | all `02-Backlog/*.json` have `"status": "done"` |
 | 5 | Api Test | all `03-Api-test/*.json` have `"status": "done"` |
+| 6 | Acceptance Review | `scenario-meta.accepted === true` |
 
 If a stage's files don't exist → `todo`. If files exist but not all done → `active`. If all done → `done`.  
 The first `active` or the first stage after the last `done` is the current stage.
@@ -261,6 +262,8 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
 .status-done-badge{background:#dcfce7;color:#166534}
 .status-progress-badge{background:#fef9c3;color:#854d0e}
 
+.ah-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid #e2e8f0}
+.cat-reject{background:#fee2e2;color:#991b1b}
 .empty-note{color:#94a3b8;font-size:0.83rem;font-style:italic}
 </style>
 </head>
@@ -279,7 +282,7 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
     <div class="section-title">Progress</div>
     <div class="stage-track">
 
-      <!-- Repeat this block for each of the 5 stages.                         -->
+      <!-- Repeat this block for each of the 6 stages.                         -->
       <!-- Add class s-done / s-active / s-todo to .stage-wrap per detection.  -->
       <!-- Add class conn-done / conn-todo to .stage-connector between stages.  -->
 
@@ -310,6 +313,12 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
       <div class="stage-wrap s-todo">
         <div class="stage-circle">5</div>
         <div class="stage-label">Api Test</div>
+      </div>
+      <div class="stage-connector conn-todo"></div>
+
+      <div class="stage-wrap s-todo">
+        <div class="stage-circle">6</div>
+        <div class="stage-label">Acceptance Review</div>
       </div>
 
     </div>
@@ -481,6 +490,22 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
 
   </div>
 
+  <!-- ⑦ ACCEPTANCE HISTORY — from scenario-meta.acceptanceHistory[] -->
+  <div class="card">
+    <div class="section-title">Acceptance History</div>
+
+    <!-- If acceptanceHistory[] is empty → render ONLY this note (nothing below). -->
+    <p class="empty-note">No acceptance rounds yet — Stage 6 not reached.</p>
+
+    <!-- Otherwise drop the note and repeat one .ah-row per entry, oldest → newest. -->
+    <!-- badge: result "accepted" → class cat-success ; "rejected" → class cat-reject -->
+    <div class="ah-row">
+      <span class="category cat-<!-- FILL: success | reject -->" style="flex-shrink:0;margin-bottom:0">Round <!-- FILL: round --> · <!-- FILL: accepted | rejected --></span>
+      <p class="desc" style="margin:0"><!-- FILL: feedback --></p>
+    </div>
+
+  </div>
+
 </div><!-- /container -->
 
 <script id="scenario-meta" type="application/json">
@@ -488,7 +513,9 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
   "scenario": "<!-- FILL: scenario name -->",
   "category": "<!-- FILL: Success | Alternative -->",
   "description": "<!-- FILL: one-line summary -->",
-  "steps": ["<!-- FILL: step 1 -->", "<!-- FILL: step 2 -->"]
+  "steps": ["<!-- FILL: step 1 -->", "<!-- FILL: step 2 -->"],
+  "accepted": <!-- FILL: true once an accepted round exists, else false -->,
+  "acceptanceHistory": [<!-- FILL: { "round": N, "result": "accepted | rejected", "feedback": "..." } per round, oldest → newest; [] if none -->]
 }
 </script>
 <script>
@@ -609,8 +636,9 @@ Before saving `scenario.html`, verify:
 - [ ] `.category` class suffix is `success` or `alternative` (lowercase)
 - [ ] `.desc` filled
 - [ ] `<script id="scenario-meta">` block filled with correct JSON
-- [ ] All 5 stage circles have correct `s-done / s-active / s-todo` class
+- [ ] All 6 stage circles have correct `s-done / s-active / s-todo` class (Stage 6 = `done` when `scenario-meta.accepted === true`)
 - [ ] All connectors have `conn-done / conn-todo` class
+- [ ] Acceptance History: one `.ah-row` per `acceptanceHistory[]` entry (badge `cat-success` if accepted / `cat-reject` if rejected), or `empty-note` if none
 - [ ] One `.flow-box` per step with correct `data-step` and text
 - [ ] No `flow-arrow` after the last step
 - [ ] Functional Design section: `.fn-item` blocks copied verbatim from previous HTML (JS adds `draggable`, `×` delete, and drop-zone listeners at runtime); placeholder `<p class="empty-note">` if Stage < 3; each `.fn-node` has `onclick="activateFn(this,[...])"`, a `⠿` handle span, fn-name span, optional test-level tag; root nodes have class `fn-root`; every `.fn-item` has a sibling `.fn-children` div (even when empty)

@@ -1,0 +1,111 @@
+{
+  "skill_name": "acceptance-review",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "description": "Stage 5 (api-test) finished. 3 api-test tasks all done. E2E flow: GET /restaurants/:id/menu → POST /orders → GET /orders/:id. Setup: 5 tasks done. Backlog: 19 tasks done. self-learn has 3 pending entries from earlier stages.",
+    "tasks_summary": {
+      "01-Setup": "5/5 done",
+      "02-Backlog": "19/19 done",
+      "03-Api-test": "3/3 done, all pass"
+    },
+    "self_learn_pending": [
+      "DB connection pattern repeated across 4 integration tests",
+      "Auth header setup duplicated in every api-test",
+      "OrderValidator could be extracted to a shared util"
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Summarize is short and scannable",
+      "prompt": "Stage 5 is done. All tasks passed. Summarize the scenario for the user.",
+      "expectations": [
+        "Shows task statuses across Setup / Backlog / Api-test (e.g. 5/5, 19/19, 3/3 done)",
+        "Shows api-test result per assert (all pass)",
+        "Recaps the E2E flow steps (get menu → create order → get confirmation)",
+        "Short and scannable — does NOT dump every individual task",
+        "Surfaces anything that failed — in this case nothing, so a clean summary"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Summarize surfaces failures when they exist",
+      "prompt": "Stage 5 is done but 02-create-order-api failed (POST /orders returned 500). 01 passed, 03 was not run. Summarize.",
+      "expectations": [
+        "Summary clearly shows 02-create-order-api failed and why (500 response)",
+        "Shows 01 passed, 03 was not run (depends on failed 02)",
+        "Backlog/Setup status still shown (all done)",
+        "The failure is surfaced for the user to decide on — no analysis or fix proposed"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "PAUSE — agent asks and waits, never decides",
+      "prompt": "Summary is shown. Ask for acceptance.",
+      "expectations": [
+        "Agent asks the user directly: accept or reject (or similar phrasing)",
+        "Agent does NOT decide accept or reject on its own",
+        "Agent does NOT say 'since all tests passed, I'll accept it'",
+        "Agent waits for the user's explicit answer before proceeding",
+        "A technical pass (all green) is not automatically acceptance — user decides"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Retrospective runs on accept — lists self-learn headlines",
+      "prompt": "User says 'accept'. Run the retrospective before resolving.",
+      "expectations": [
+        "Retrospective runs BEFORE the accept is resolved — not skipped because it's accepted",
+        "Lists the 3 self-learn entries as headlines with count (e.g. '3 improvement observations')",
+        "Does NOT show full detail of each entry — headlines only",
+        "Asks the user for closing feedback (process feedback, not functional)",
+        "Does NOT promote or review entries into code-standards.md — that's feed-back.html"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Retrospective runs on reject too",
+      "prompt": "User says 'reject — the order total calculation doesn't apply the free delivery coupon'. Run the retrospective.",
+      "expectations": [
+        "Retrospective runs even though the scenario is rejected",
+        "Same format: self-learn headlines + ask for closing feedback",
+        "The reject reason (coupon issue) is functional feedback — separate from closing process feedback",
+        "Both types of feedback are captured but handled differently"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Resolve accept — scenario is done",
+      "prompt": "User accepted. Closing feedback: 'the process went smoothly'. Resolve.",
+      "expectations": [
+        "Triggers generate-report to mark scenario accepted and append 'Accepted' round to Acceptance History",
+        "Does NOT write scenario.html directly — generate-report does",
+        "Closing feedback is sent to self-report as a new occurrence",
+        "The scenario's workflow is done — no more stages"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Resolve reject — loops back to Stage 1",
+      "prompt": "User rejected: 'the order total should include free delivery for orders above 500 THB — this wasn't in the original requirement'. Resolve.",
+      "expectations": [
+        "Triggers generate-report to append a new Acceptance Round N with the user's feedback",
+        "Hands the feedback back to Stage 1 — the new requirement is additive (from → to), not a rewrite",
+        "This stage resets to pending for the next round",
+        "Does NOT analyse the feedback or write a fix task itself",
+        "The existing scenario folder continues — no new scenario created"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Closing feedback goes to self-report, not to code-standards",
+      "prompt": "During retrospective, user says: 'the integration tests took too long — consider parallelizing'. Resolve.",
+      "expectations": [
+        "This feedback is sent to self-report as a new occurrence",
+        "Does NOT promote it into code-standards.md or testing-guide.md directly",
+        "Promotion happens later in the self-learn review (feed-back.html) — outside this workflow",
+        "Unresolved self-report entries stay as-is for a later round"
+      ]
+    }
+  ]
+}

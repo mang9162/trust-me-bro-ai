@@ -1,0 +1,128 @@
+{
+  "skill_name": "acceptance-review",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "tasks_summary": {
+      "01-Setup": "5/5 done",
+      "02-Backlog": "19/19 done",
+      "03-Api-test": "3/3 done, all pass"
+    },
+    "self_learn_pending": [
+      "DB connection pattern repeated across 4 integration tests",
+      "Auth header setup duplicated in every api-test",
+      "OrderValidator could be extracted to a shared util"
+    ]
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Can edit: change summarize format",
+      "prompt": "Instead of listing task counts, we want the summary to show a pass/fail traffic light per stage (Setup ✅, Backlog ✅, Api-test ✅). Update the Summarize step.",
+      "expectations": [
+        "Summarize step updated to use traffic light format",
+        "Still includes E2E flow recap and api-test results per assert",
+        "The summary remains short and scannable — format changed, purpose unchanged",
+        "PAUSE step and retrospective are not affected"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Can edit: add extra questions to retrospective",
+      "prompt": "We want the retrospective to also ask 'Was the task breakdown granular enough?' and 'Were there any unnecessary tasks?' in addition to closing feedback.",
+      "expectations": [
+        "Retrospective step updated with the 2 additional questions",
+        "Original closing feedback question is still asked",
+        "self-learn headlines are still listed before questions",
+        "User responses are captured — functional responses go to self-report"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Can edit: change how reject feedback is structured",
+      "prompt": "When rejecting, we want the user's feedback to be split into 'what's wrong' and 'what the expected behavior should be' instead of free text. Update the reject flow.",
+      "expectations": [
+        "Reject collects structured feedback: what's wrong + expected behavior",
+        "Both parts are passed to generate-report for the Acceptance Round entry",
+        "Both parts are handed to Stage 1 for the additive loop-back",
+        "Accept flow is unchanged"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Can edit: add a confidence score to the summary",
+      "prompt": "We want the summary to include a confidence indicator based on how many tasks had issues during execution (failures retried, blocked conditions hit). Add it.",
+      "expectations": [
+        "Summary includes a confidence indicator derived from execution history",
+        "The indicator is informational — it does NOT influence accept/reject (user still decides)",
+        "Data comes from reading scenario.html task statuses — not invented",
+        "PAUSE still asks the user to decide — the score doesn't auto-accept or auto-reject"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Cannot edit: write scenario.html directly",
+      "prompt": "After the user accepts, I want acceptance-review to write the 'Accepted' flag directly into scenario.html instead of triggering generate-report.",
+      "expectations": [
+        "Does NOT write scenario.html directly",
+        "generate-report owns scenario.html — acceptance-review only triggers it",
+        "The accepted flag, Acceptance History, and Summarize view all go through generate-report",
+        "This boundary exists even though it would be faster to write directly"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Cannot edit: auto-accept when all tests pass",
+      "prompt": "All tasks done, all api-tests green — there's no reason to bother the user. Let acceptance-review auto-accept and skip the PAUSE.",
+      "expectations": [
+        "Does NOT auto-accept — the agent never decides accept/reject",
+        "A technical pass (all green) is not the same as user acceptance",
+        "PAUSE is mandatory — the user always gets to decide",
+        "This is the core principle: 'the user decides, never the agent'"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Cannot edit: analyse failure and write a fix",
+      "prompt": "02-create-order-api failed because the total calculation is wrong. Let acceptance-review figure out the bug is in OrderService.calculateTotal() and create a fix task.",
+      "expectations": [
+        "Does NOT analyse the failure or identify the root cause",
+        "Does NOT create a fix task — task authoring is create-task's job",
+        "The failure is surfaced in the summary for the user to see",
+        "If user rejects, the feedback goes to Stage 1 for an additive loop-back — not a direct fix"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Cannot edit: re-run api-test or earlier stages",
+      "prompt": "The user says 'the api-test might have been flaky — can you re-run it before I decide?' Let acceptance-review re-run Stage 5.",
+      "expectations": [
+        "Does NOT re-run api-test or any earlier stage",
+        "acceptance-review reviews output only — it doesn't execute",
+        "Suggests the user go back to Stage 5 (api-test) to re-run",
+        "This stage reads scenario.html for results — it doesn't produce them"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Cannot edit: promote self-learn entries into code-standards",
+      "prompt": "The retrospective listed 3 self-learn entries. The user says 'yes, promote the DB connection pattern into Programming Practices right now'. Let acceptance-review do it.",
+      "expectations": [
+        "Does NOT promote entries into code-standards.md",
+        "Promotion happens in the self-learn review (feed-back.html) — outside this workflow",
+        "Here they are only listed as retrospective headlines + count",
+        "Unresolved entries stay in self-learn for the later review round"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Cannot edit: own the loop-back routing or folder conventions",
+      "prompt": "User rejected. I want acceptance-review to decide which stage to loop back to (maybe Stage 3 instead of Stage 1) and rename the scenario folder to include '-round2'.",
+      "expectations": [
+        "Does NOT decide which stage to loop back to — always hands to Stage 1",
+        "Does NOT rename folders — folder/NN conventions are owned by workflow",
+        "acceptance-review only supplies the reject feedback",
+        "workflow (Stage 6 routing) handles where the loop-back goes and how the folder continues"
+      ]
+    }
+  ]
+}
