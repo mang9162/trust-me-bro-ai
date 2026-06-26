@@ -14,7 +14,7 @@ Read the repo's own tests and stub setup — the test folder(s), a few real test
 2. **Per service, per test level** — for each service (from tech-stack.md), for each level it runs (unit / integration / component / api-test), capture its tool, the command that runs it, file path + naming, in-file layout, and rules.
 3. **Stub / Mock** — per service, for each stub/mock technology it uses, how it intercepts, the shape of a stub file, and the filename pattern.
 
-Fill per scan mode: light = the tree + each service's levels & their tools; full = also commands + paths/naming + layout + rules + each stub technology.
+Whatever the scan mode, fill as much as you can — every field of every level; a half-filled file breaks the stages that read it.
 Don't guess — leave a value `TBD` or ask the user rather than invent one.
 
 ## Format

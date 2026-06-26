@@ -61,7 +61,7 @@ Every task is a JSON file that meets the **self-sufficiency bar**: a fresh small
 - `id` — `<NN>-<slug>-<type>`; `NN` runs per folder (the slug keeps the full id unique)
 - `type` · `folder` · `status` (`pending` / `in_progress` / `done` / `failed`) · `title` — author tasks as `pending`; execute-tdd advances the rest (`failed` = the task ran but didn't meet its `acceptance`)
 - `purpose` — what this task achieves + why, and the scenario it sits under (scope: handle only in-scenario inputs)
-- `targets` — `[{ path, mode: create|modify, at }]` — `create` = write new code/test, `modify` = change/refactor existing. For a test task, `at` = its place in the project's test structure (the test path), per `testing-guide`.
+- `targets` — `[{ path, mode: create|modify, at }]` — `create` = write new code/test, `modify` = change/refactor existing. For a test task, `at` = its place within the test file's structure — from `testing-guide` `## Test Levels`: the `### <service>` that owns it (the inbound's service for an api-test, the code node's service otherwise), then that test level's `#### <level>` `layout`.
 - `depends_on` — task ids (ordering only) · `assume` — the pre-state it may rely on, in plain words
 - `command` — exact command to run/verify · `acceptance` — done criteria + expected result of `command` (red / green / compiles)
 - `effort` (`low`/`med`/`high`, sized below) · `notes`

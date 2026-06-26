@@ -1,0 +1,54 @@
+{
+  "skill_name": "code-standards",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "project": "Food delivery platform — back service: NestJS + TypeScript, ESLint (Airbnb preset), Prettier, strict mode. Front service: React + TypeScript + Vitest."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Scan fills Naming Conventions from real code",
+      "prompt": "Scan the back service codebase. Variables use camelCase, classes use PascalCase, files use kebab-case, constants use UPPER_SNAKE, inbound API fields use snake_case, internal code uses camelCase.",
+      "expectations": [
+        "Naming Conventions table has rows for variable, class/type, file, constant, inbound API field",
+        "Each row has the correct casing and an example from the repo",
+        "Inbound API field row is the casing RULE (snake_case) — not actual field names or shapes",
+        "No rows are invented for kinds not observed in the code"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Scan fills Formatting from formatter config",
+      "prompt": "The repo has a .prettierrc with: printWidth 100, tabWidth 2, singleQuote true, trailingComma 'all', semi true. Fill the Formatting section.",
+      "expectations": [
+        "source of truth: Prettier (.prettierrc)",
+        "indent: 2 spaces, line length: 100",
+        "other: single quotes, semicolons, trailing comma all",
+        "Values come from the config file — not assumed from defaults"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Programming Practices captured from recurring patterns",
+      "prompt": "Scanning the back service: every service method wraps calls in try/catch and rethrows as AppException with the original error. Every repository method logs '<ClassName>.<methodName>: <message>' on failure. Every controller validates input with class-validator decorators before processing.",
+      "expectations": [
+        "3 practice blocks: error handling, logging, validation (or similar names)",
+        "Error handling: rule says wrap in try/catch + rethrow as AppException, applies to service methods",
+        "Logging: rule says log format '<ClassName>.<methodName>: <message>', applies to repository methods",
+        "Validation: rule says use class-validator decorators, applies to controllers",
+        "Each block has rule, why, applies to"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Hard Rules come from user, not from scanning",
+      "prompt": "Scan the codebase for hard rules.",
+      "expectations": [
+        "Does NOT invent hard rules from scanning the code — hard rules are not scannable",
+        "Asks the user for must/never rules",
+        "Hard Rules section is empty or TBD until the user provides input",
+        "Programming Practices (scannable patterns) are filled separately — they are not hard rules"
+      ]
+    }
+  ]
+}

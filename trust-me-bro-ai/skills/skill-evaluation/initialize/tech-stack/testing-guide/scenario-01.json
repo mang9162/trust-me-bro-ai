@@ -44,13 +44,13 @@
     },
     {
       "id": 4,
-      "title": "Light scan mode produces less detail than full",
-      "prompt": "Do a light scan of the back service's test setup. It has unit, integration, and component levels. Unit uses Jest, integration uses Jest, component uses Jest.",
+      "title": "Scan always fills as much as possible regardless of mode",
+      "prompt": "Scan the back service's test setup. The repo has Jest config with selectProjects, test files beside source as *.unit.spec.ts, integration tests in __tests__/integration/, and component tests in test/component/. Each file uses describe/it pattern.",
       "expectations": [
-        "Test Structure tree is present",
-        "Each level lists the tool (Jest for all 3)",
-        "command, path, layout, rules are either absent or marked TBD — light mode doesn't fill them",
-        "No values are invented to fill gaps — TBD is used instead"
+        "Every field that can be determined from the repo is filled — tool, command, path, layout, rules",
+        "Fields that genuinely cannot be determined are TBD — not left empty just because the mode is 'light'",
+        "The skill does not use scan mode as an excuse to skip fields it could have filled",
+        "If command is visible in Jest config (e.g. selectProjects), it is captured — not left TBD"
       ]
     },
     {

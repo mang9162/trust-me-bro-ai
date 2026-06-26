@@ -1,0 +1,94 @@
+{
+  "skill_name": "code-standards",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "project": "Food delivery platform — back service: NestJS + TypeScript, ESLint (Airbnb preset), Prettier, strict mode. Front service: React + TypeScript + Vitest."
+  },
+  "evals": [
+    {
+      "id": 5,
+      "title": "Can edit: add a new Programming Practice",
+      "prompt": "The team confirmed a new practice: every database transaction must use a transaction manager wrapper — never call raw BEGIN/COMMIT. Add it to code-standards.md.",
+      "expectations": [
+        "New ### transaction (or similar) block added under Programming Practices",
+        "rule: use transaction manager wrapper, never raw BEGIN/COMMIT",
+        "why and applies to are filled",
+        "Existing practices (error handling, logging, validation) are not modified"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Can edit: add a Hard Rule from user",
+      "prompt": "The user says: 'NEVER run eslint --fix or prettier --write on existing files — only check, never auto-fix. Also NEVER edit .env or commit secrets.'",
+      "expectations": [
+        "Two bullets added to Hard Rules section",
+        "NEVER auto-fix existing files (eslint --fix / prettier --write)",
+        "NEVER edit .env or commit secrets",
+        "Each bullet has the reason (why)",
+        "These come from the user — not invented by scanning"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Can edit: update Tools & Automation",
+      "prompt": "The project added Biome as a replacement for ESLint + Prettier. Update Tools & Automation. The check command is 'biome check .'.",
+      "expectations": [
+        "ESLint and Prettier rows replaced or updated to reflect Biome",
+        "New row: tool Biome, enforces Programming Practices + Formatting, command 'biome check .'",
+        "tsc row (if present) is unchanged — Biome doesn't replace type checking"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Can edit: add Style Guide for a new language",
+      "prompt": "The project added a Python service that follows PEP 8, enforced by Ruff. Add it to Style Guides.",
+      "expectations": [
+        "New row in Style Guides: language Python, style guide PEP 8, reference includes Ruff or PEP 8 URL",
+        "Existing rows (TypeScript / Airbnb) are not modified"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Cannot edit: add test conventions or test-file naming",
+      "prompt": "I want to add a rule in code-standards.md that test files must be named *.spec.ts and placed beside their source files.",
+      "expectations": [
+        "Does NOT add test-file naming to code-standards.md",
+        "Test file naming and placement is a test convention → belongs in testing-guide.md",
+        "code-standards.md covers how to write production code, not how to name test files"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Cannot edit: add actual API field names or shapes",
+      "prompt": "I want to add a naming convention row that says 'POST /orders request uses fields: restaurant_id, menu_item_ids, quantities'. Add it to Naming Conventions.",
+      "expectations": [
+        "Does NOT add actual field names to code-standards.md",
+        "Naming Conventions holds the CASING RULE (e.g. inbound = snake_case) — not specific field names",
+        "Actual request/response field names and shapes belong in gateway-contract.md",
+        "A row like 'inbound API field: snake_case' is fine — listing specific fields is not"
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Cannot edit: add build/run commands",
+      "prompt": "I want to add 'npm run build' and 'npm run start:dev' to the Tools & Automation table so developers know how to build the project.",
+      "expectations": [
+        "Does NOT add build/run commands to Tools & Automation",
+        "Tools & Automation holds STANDARDS-CHECK commands only (lint, format, type-check)",
+        "General build/run/test commands belong in tech-stack.md",
+        "Distinguishes: 'npm run lint' → belongs here, 'npm run build' → tech-stack.md"
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Cannot edit: promote a pattern from a workflow stage directly",
+      "prompt": "During execute-tdd (Stage 4), the engineer notices every integration test repeats the same DB connection pattern. It wants to promote this directly into Programming Practices.",
+      "expectations": [
+        "Does NOT add the pattern to Programming Practices directly from a workflow stage",
+        "code-standards.md is read-only to every workflow stage",
+        "New or conflicting convention goes to self-report first",
+        "Promotion into Programming Practices happens only via self-learn review, after user confirms"
+      ]
+    }
+  ]
+}
