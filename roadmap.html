@@ -62,5 +62,15 @@
     <dt>Touches</dt><dd>acceptance-review procedure — a new step 1 ahead of Summarize. DoD checklist content still to be defined.</dd>
   </dl>
 </div>
+
+<h2>New skill — update-library (dependency maintenance)</h2>
+<div class="item">
+  <h3>Standalone dependency / library update workflow <span class="status">Planned</span></h3>
+  <dl>
+    <dt>Now</dt><dd>No skill for this — updating a project's dependencies is done by hand, outside the workflow, with no playbook or test-gated safety net.</dd>
+    <dt>Later</dt><dd>A standalone update-library skill: scan for outdated dependencies → bump versions → work through any breaking changes → re-run the project's tests to verify nothing regressed → report what changed. A maintenance workflow, separate from the 6-stage feature workflow.</dd>
+    <dt>Touches</dt><dd>New standalone skill (not a workflow stage). Reads <code>tech-stack.md</code> for the package manifest + test command; reuses the test/verify pass the way execute-tdd / api-test run and check tests.</dd>
+  </dl>
+</div>
 </body>
 </html>
