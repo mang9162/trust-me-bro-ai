@@ -1,0 +1,105 @@
+{
+  "skill_name": "api-test",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "description": "User selects restaurant → views menu (GET /restaurants/:id/menu) → places order (POST /orders) → gets confirmation (GET /orders/:id). Stage 4 (execute-tdd) is done. All Setup + Backlog tasks are done.",
+    "tasks": {
+      "03-Api-test": [
+        { "id": "01-get-menu-api", "type": "api-test", "depends_on": ["00-env-setup"], "targets": { "path": "test/api-test/order-flow.api.ts", "at": "GET /restaurants/:id/menu" }, "command": null, "acceptance": "pass" },
+        { "id": "02-create-order-api", "type": "api-test", "depends_on": ["01-get-menu-api"], "targets": { "path": "test/api-test/order-flow.api.ts", "at": "POST /orders" }, "command": null, "acceptance": "pass" },
+        { "id": "03-get-order-api", "type": "api-test", "depends_on": ["02-create-order-api"], "targets": { "path": "test/api-test/order-flow.api.ts", "at": "GET /orders/:id" }, "command": "npm run test:api", "acceptance": "pass" }
+      ]
+    }
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Loop picks api-test tasks in chain order",
+      "prompt": "All 3 api-test tasks are pending. Run the loop.",
+      "expectations": [
+        "01-get-menu-api is picked first — depends_on [00-env-setup] which is done from Stage 4",
+        "02-create-order-api is NOT picked until 01 is done — it depends_on [01-get-menu-api]",
+        "03-get-order-api is NOT picked until 02 is done — chain must be sequential",
+        "Order is always 01 → 02 → 03, never parallel, never skipping ahead"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Agent authors the file itself — no dispatch",
+      "prompt": "01-get-menu-api is picked. Author the api-test request.",
+      "expectations": [
+        "The agent writes the request directly into the file at targets.at — no dispatch to an engineer skill",
+        "The request is authored from the task's contract + cases — not invented",
+        "Reading gateway-contract.md for the GET /restaurants/:id/menu response shape is allowed",
+        "The authored file is at the task's targets.path"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Tasks without command skip the Run step",
+      "prompt": "01-get-menu-api is authored. Its command is null. What happens next?",
+      "expectations": [
+        "Run step (step 4) is skipped — the task has no command",
+        "Accept step still checks against acceptance — but since nothing ran, acceptance is about the authored file being correct",
+        "Task proceeds to close-out and is set to done",
+        "The loop picks 02-create-order-api next"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Only the last task runs the whole chain",
+      "prompt": "03-get-order-api is authored. Its command is 'npm run test:api'. Run it.",
+      "expectations": [
+        "03 is the only task with a command — it runs the entire api-test chain (01 + 02 + 03 together)",
+        "The command runs all 3 authored requests, not just the third",
+        "Result is checked against 03's acceptance",
+        "If all pass → 03 is done → no pending left → DRAINED"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "FAILURE on the last task means the chain failed",
+      "prompt": "03-get-order-api runs 'npm run test:api'. The POST /orders request (authored in 02) returns a 500 instead of 201. Result ≠ acceptance.",
+      "expectations": [
+        "03-get-order-api is set to failed — it carries the command that revealed the failure",
+        "Loop halts and asks the user — does not retry or self-fix",
+        "generate-report triggered before reporting to user",
+        "The failure could be in any of the 3 requests — the user needs to investigate which one"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "BLOCKED when assume doesn't hold",
+      "prompt": "01-get-menu-api has assume: 'env-setup seeded restaurant and menu data, services are running'. But the test database was reset after Stage 4 and the seed data is gone.",
+      "expectations": [
+        "Pre-flight detects assume doesn't hold — seed data missing",
+        "BLOCKED — loop halts, asks user to supply/repair the pre-state",
+        "Does NOT re-run env-setup itself — that's not api-test's job",
+        "generate-report triggered before reporting"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "DRAINED transitions to Stage 6",
+      "prompt": "All 3 api-test tasks are done. No pending tasks remain in 03-Api-test/.",
+      "expectations": [
+        "Loop recognizes no pending tasks → DRAINED",
+        "generate-report triggered to refresh scenario.html",
+        "Reports Stage 5 done — pauses for Stage 6 (acceptance-review)",
+        "Does NOT dump a task-by-task summary",
+        "Does NOT start acceptance-review itself — it pauses and hands off"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "self-report for repeated patterns, not blocking issues",
+      "prompt": "While authoring tasks, the agent notices every api-test re-authors the same auth header setup. Also, 02-create-order-api's contract references a field that doesn't exist in gateway-contract.md.",
+      "expectations": [
+        "Repeated auth header pattern → self-report as improvement (e.g. extract shared auth setup)",
+        "Missing field in contract → this is a blocking gap, NOT self-report",
+        "The missing field halts the loop (BLOCKED or asks user) — not silently logged",
+        "self-report is silent and aggregated — blocking gaps are immediate"
+      ]
+    }
+  ]
+}

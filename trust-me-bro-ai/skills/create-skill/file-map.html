@@ -225,13 +225,18 @@ flowchart LR
   s4 -->|"65 · write: task status<br/>(pending&rarr;in_progress&rarr;done/failed)"| setupBacklog
   defaultTdd -.->|"66 · ref: task spec (contract/cases/acceptance)"| setupBacklog
 
+  %% ===== Stage-5 api-test (67-69): bridge layout/gating + write status + cross-ref contract shape =====
+  s5 -.->|"67 · 03-Api-test paths + gating (## Layout/## Stages)"| wf
+  s5 -->|"68 · write: task status<br/>(pending&rarr;in_progress&rarr;done/failed)"| apiTestT
+  s5 -.->|"69 · ref: line request/response shape<br/>(author/verify cases asserts)"| gwcontract
+
   class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd hardf
   class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson,scenarioHtml,testdata,setupBacklog,apiTestT softf
 
-  linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
-  linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
+  linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66,69 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
+  linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64,67 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
   linkStyle 26,27,28,29,30,31,32,33,34,35,36,37,47,52,63 stroke:#dc2626,stroke-width:2px,color:#dc2626
-  linkStyle 38,39,50,51,65 stroke:#16a34a,stroke-width:2px,color:#16a34a
+  linkStyle 38,39,50,51,65,68 stroke:#16a34a,stroke-width:2px,color:#16a34a
   </div>
 
   <h2>Node Colors</h2>

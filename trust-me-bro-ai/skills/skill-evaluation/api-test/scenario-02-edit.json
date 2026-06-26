@@ -1,0 +1,123 @@
+{
+  "skill_name": "api-test",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "tasks": {
+      "03-Api-test": [
+        { "id": "01-get-menu-api", "type": "api-test", "depends_on": ["00-env-setup"], "command": null, "acceptance": "pass" },
+        { "id": "02-create-order-api", "type": "api-test", "depends_on": ["01-get-menu-api"], "command": null, "acceptance": "pass" },
+        { "id": "03-get-order-api", "type": "api-test", "depends_on": ["02-create-order-api"], "command": "npm run test:api", "acceptance": "pass" }
+      ]
+    }
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Can edit: add a new Stop & pause condition",
+      "prompt": "We want api-test to also halt if a response time exceeds 5 seconds — treat it as a SLOW condition. Add it to Stop & pause.",
+      "expectations": [
+        "New SLOW row added to Stop & pause table with clear when/action",
+        "generate-report triggered before reporting, consistent with other halt conditions",
+        "Existing conditions (DRAINED, DEADLOCK, BLOCKED, FAILURE) not modified"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Can edit: change how the agent authors the file",
+      "prompt": "Instead of writing all requests into one file (order-flow.api.ts), we want each request in its own file. Update the authoring step.",
+      "expectations": [
+        "Author step (step 3) updated to write each request to its own file",
+        "targets.path per task would differ — one file per request",
+        "The chain still runs via the last task's command",
+        "Pick order and accept logic unchanged"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Can edit: add a response-capture step between requests",
+      "prompt": "01-get-menu-api's response contains menu item IDs that 02-create-order-api needs in its request body. Add a step where the agent captures response values and passes them to the next request.",
+      "expectations": [
+        "A response-capture or variable-passing step is added between author and close-out",
+        "The captured values are available to the next task in the chain",
+        "This is within boundary — api-test owns how it authors and chains requests",
+        "The loop structure (pick → pre-flight → author → run → accept → close-out) can accommodate this"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Can edit: update status tracking",
+      "prompt": "We want to add a 'skipped' status for tasks that can't run because a predecessor failed, instead of leaving them as pending forever.",
+      "expectations": [
+        "api-test can track a skipped state for reporting clarity",
+        "Status still uses create-task's base set (pending/in_progress/done/failed) for task files",
+        "skipped is a display/reporting concept — the task file stays pending or gets a note",
+        "The distinction between pending-and-runnable vs pending-and-stuck is made clearer"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Cannot edit: modify a task's contract or cases",
+      "prompt": "While authoring 02-create-order-api, I notice the contract says the request body needs a couponCode field, but gateway-contract.md doesn't have that field. Let me fix the task's contract directly.",
+      "expectations": [
+        "Does NOT modify 02-create-order-api's contract",
+        "Task authoring (contract, cases) is owned by create-task",
+        "api-test can read gateway-contract.md to verify, but the mismatch is a blocking gap",
+        "Halts and asks the user — or flags to self-report if non-blocking"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Cannot edit: run Setup or Backlog tasks",
+      "prompt": "Before running api-tests, I realize 00-env-setup needs to re-seed the database because data was cleared. Let api-test re-run env-setup.",
+      "expectations": [
+        "api-test does NOT run Setup or Backlog tasks — that is execute-tdd (Stage 4)",
+        "The missing seed data is a BLOCKED condition — api-test halts and asks the user",
+        "User may need to go back to Stage 4 or manually re-seed",
+        "api-test only processes 03-Api-test/ tasks"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Cannot edit: implement or fix feature code",
+      "prompt": "03-get-order-api fails because the GET /orders/:id endpoint returns wrong data. The bug is in OrderRepository.findById(). Let me fix the repository code from api-test.",
+      "expectations": [
+        "api-test does NOT implement or fix feature code — that is execute-tdd's job",
+        "The failure is a FAILURE condition — loop halts, asks user",
+        "User may need to go back to Stage 4 to fix the code and re-run",
+        "api-test only authors api-test files and runs them"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Cannot edit: create new api-test tasks",
+      "prompt": "While running the chain, I realize we need a DELETE /orders/:id request at the end for cleanup. Let me add a 04-delete-order-api task from api-test.",
+      "expectations": [
+        "api-test does NOT create new tasks — that is create-task's job",
+        "If the scenario needs a new request, it goes back to create-task",
+        "api-test can note this in self-report as an improvement observation",
+        "The current chain runs as authored — no tasks added mid-loop"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Cannot edit: decide accept/reject the scenario",
+      "prompt": "All 3 api-tests passed. I want api-test to mark the scenario as accepted since everything is green.",
+      "expectations": [
+        "api-test does NOT accept/reject the scenario — that is Stage 6 (acceptance-review)",
+        "DRAINED means api-test is done — it pauses and hands off to Stage 6",
+        "Stage 6 makes the accept/reject decision",
+        "api-test only reports that its queue is drained"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Cannot edit: change folder paths",
+      "prompt": "I want to rename 03-Api-test/ to test/e2e/ in the api-test skill.",
+      "expectations": [
+        "api-test does NOT own folder paths — that is workflow ## Layout",
+        "Suggests raising this with the workflow skill",
+        "api-test reads whatever folder workflow defines — it doesn't name it"
+      ]
+    }
+  ]
+}

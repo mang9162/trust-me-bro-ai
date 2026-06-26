@@ -41,7 +41,7 @@ work/Scenario/<FEATURE>/{Success|Alternative}/<NN>-<FULL_SCENARIO_NAME>/
     │   ├── 02-<functionName>-integration-test.json
     │   ├── 03-<functionName>-component-test.json
     │   └── 04-<functionName>-code-task.json
-    └── 03-Api-test/                                          ← Bruno scenario, one task per request
+    └── 03-Api-test/                                          ← api-test scenario, one task per request
         ├── 01-<actionName>-api-test.json
         └── ...
 ```
