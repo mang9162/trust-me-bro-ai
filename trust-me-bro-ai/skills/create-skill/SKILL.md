@@ -1,6 +1,6 @@
 ---
 name: create-skill
-description: The rules and format for creating or editing any skill in this kit — how to declare cross-file connections (## References / ## Trigger Skill / ## Writes To / ## Role & Boundary) and the connection types (cross-ref / bridge / trigger / write). Read before creating or editing a skill. Pairs with file-map.html (in this folder).
+description: The rules and format for creating or editing any skill in this kit — how to write the body (lean, ordered, condition-driven) and declare cross-file connections (## References / ## Trigger Skill / ## Writes To / ## Role & Boundary). Read before creating or editing a skill. Pairs with file-map.html (in this folder).
 ---
 
 # Skill Format Guide
@@ -29,16 +29,8 @@ that:
   elsewhere. Then check the Responsibility map (workflow/SKILL.md) for where
   the change actually belongs.
 - **Adding, removing, or changing a `## References` / `## Trigger Skill` /
-  `## Writes To` line?** `file-map.html` is a **bridge** with these three
-  sections across every skill — every such line must correspond to a
-  *connection* edge (cross-ref / bridge / trigger / write) in that diagram,
-  and every connection edge must correspond to a line in some skill's
-  References / Trigger Skill / Writes To. (The solid numbered execution-flow
-  edges are different: they mirror the workflow orchestrator's dispatch
-  order, so their counterpart is the explicit Stages / routing **steps** in
-  `workflow/SKILL.md`, not a References / Trigger Skill / Writes To line.)
-  Read `file-map.html` first, make your change, then add/remove/relabel the
-  matching connection edge there so the two never drift apart.
+  `## Writes To` line?** Read `file-map.html` first (its bridge pair), make
+  your change, and sync the connection edges immediately so the two never drift.
 
 ## Skill File Structure
 A skill file's body ends with these sections, in this order (omit any that
@@ -53,6 +45,43 @@ Position exception: a skill whose entire purpose IS this boundary (e.g. a
 control-only orchestrator) opens with `## Role & Boundary (Read Before
 Editing)` as its FIRST section instead — same name, only the position
 changes.
+
+## Writing the Skill
+
+Keep the body lean and scannable — an agent reads it to act, not to study.
+The **Common** rules apply to every skill; then add the **Generic** or
+**Specific** rules depending on which kind you're writing.
+
+### Common — every skill
+- **Description routes, doesn't sell** — the frontmatter `description` is the
+  one line an agent reads to *pick* the skill; say what it IS, not its use
+  cases. Push "when" and "how" into the steps.
+- **Lean prose** — short, direct sentences; don't restate what a nearby
+  table, JSON example, or step already says.
+- **Ordered steps, no jumping** — one action per step, in run order; don't
+  fold several decisions into one sentence or hop back and forth.
+- **Table once it's dense** — when fields / cases / options pile up, switch
+  from prose to a table; easier to scan than a paragraph.
+- **Conditions sit in their step** — state a condition where it's handled,
+  not up front; the reader meets it exactly when it's relevant.
+- **Explicit boundaries** — say clearly what the skill IS responsible for,
+  in `## Role & Boundary`; if the list grows, break it into separate bullets.
+- **Deterministic fallbacks** — every skill *that runs work* defines a path
+  for when it fails (halt and ask, a `failed` status, a stop condition);
+  never leave failure undefined. A pure reference / format guide (no run
+  path) is exempt.
+
+### Generic — a skill many callers share (e.g. self-report, generate-report)
+- **Bind to data, not callers** — never name one caller or use case. Key the
+  skill on a *condition of the data* it receives (e.g. `kind: candidate`) so
+  it reads the same no matter who calls it.
+
+### Specific — a skill that owns one role / stage (e.g. a Stage-N skill)
+- **Name its place** — it has one real role, so the `description` states
+  which stage / step it is and what it follows or hands off to.
+- **Boundary spells the "does NOT"** — `## Role & Boundary` lists what it
+  owns *and* what belongs to neighbouring skills, then points to the
+  Responsibility map — to stop scope from creeping into another skill.
 
 ## Connection Types
 - cross-ref — one-way read. Open the target file to use info from it
@@ -100,13 +129,14 @@ file — position only, name doesn't change.
 - bridge: `file-map.html` — every `## References` / `## Trigger Skill` /
   `## Writes To` line in any skill must correspond to a connection edge in
   this diagram, and every connection edge must correspond to such a line.
-  (Execution-flow edges are mirrored by `workflow/SKILL.md`'s Stages /
-  routing steps instead — see "Before You Create or Edit a Skill" above.)
+  (Execution-flow edges are different — they're mirrored by
+  `workflow/SKILL.md`'s Stages / routing steps instead.)
 
 ## Role & Boundary (Read Before Editing)
-This guide issues the rules / format every skill uses to declare its
-cross-file connections — the `## References` / `## Trigger Skill` /
-`## Writes To` / `## Role & Boundary` sections and the connection-type
-vocabulary (cross-ref / bridge / trigger / write). Edit this file only to
-change those shared rules. It does NOT track which concrete files connect
-(that is `file-map.html`, its bridge pair) or which skill does what.
+This guide issues the rules / format every skill uses — how to write its
+body (lean, ordered, condition-driven) and how to declare its cross-file
+connections (the `## References` / `## Trigger Skill` / `## Writes To` /
+`## Role & Boundary` sections and the connection-type vocabulary). Edit this
+file only to change those shared rules. It does NOT track which concrete
+files connect (that is `file-map.html`, its bridge pair) or which skill does
+what.
