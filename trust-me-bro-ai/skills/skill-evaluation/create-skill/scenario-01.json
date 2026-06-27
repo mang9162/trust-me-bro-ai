@@ -74,12 +74,13 @@
     },
     {
       "id": 8,
-      "prompt": "I want create-skill to specify whether each skill is required to have unit tests.",
-      "expected_output": "not allowed — testing requirements are not within this skill's scope",
+      "prompt": "I want create-skill to specify how each skill is checked by its own eval (skill-evaluation) after editing.",
+      "expected_output": "allowed — a skill's own eval is part of the after-edit verification this skill owns",
       "expectations": [
-        "skill refuses",
-        "skill explains that this skill only owns the format for cross-file connection declarations",
-        "skill does not add testing requirements to this file"
+        "skill confirms this is allowed",
+        "skill identifies ## After You Create or Edit a Skill as the section to update",
+        "skill distinguishes a skill's own eval (skill-evaluation) from whether the produced project's code needs tests (testing-guide.md / tech-stack.md)",
+        "skill does not redirect elsewhere"
       ]
     },
     {

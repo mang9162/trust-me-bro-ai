@@ -72,5 +72,32 @@
     <dt>Touches</dt><dd>New standalone skill (not a workflow stage). Reads <code>tech-stack.md</code> for the package manifest + test command; reuses the test/verify pass the way execute-tdd / api-test run and check tests.</dd>
   </dl>
 </div>
+
+<h2>create-skill — skill-eval fidelity levels</h2>
+<div class="item">
+  <h3>Graduated test levels for the after-edit run <span class="status">Planned</span></h3>
+  <dl>
+    <dt>Now</dt><dd>The after-edit checklist runs a single <b>vibe test</b> — this same session is both actor and judge in the same session. Cheap on tokens and good at judging whether the skill is <em>well-written</em>, but the pass/fail itself is biased (it tends to pass regardless).</dd>
+    <dt>Later</dt><dd>Offer the run a choice of levels, each higher one trading more tokens for less bias / more real behaviour:
+      <ol>
+        <li><b>Separate session</b> — same model &amp; reasoning, actor=judge, but a fresh session (drops the same-session bias).</li>
+        <li><b>Different model</b> — different model/reasoning, separate session, one skill at a time. Concerns: each needs its own harness wiring + a low/high boundary; and a skill that reads other reference files (e.g. "read template A, then create a file from it") gives skewed results when tested alone, because the ref files were never supplied.</li>
+        <li><b>+ ref files (1 depth)</b> — supply the referenced files one level deep to fix level 2's blind spot; token cost jumps sharply.</li>
+        <li><b>Mock-up / real repo</b> — run the skill for real against a repo to check actual behaviour. Open question: how many tokens is enough? Not feasible yet (resources).</li>
+      </ol>
+    </dd>
+    <dt>Touches</dt><dd>create-skill <code>## After You Create or Edit a Skill</code> step 3 (Run and report) — currently fixed at the vibe level; this adds a level selector. Also the <code>skill-eval/</code> harness for the separate-session / different-model / ref-file / real-repo runners.</dd>
+  </dl>
+</div>
+
+<h2>Decision records (ADR)</h2>
+<div class="item">
+  <h3>Keep an ADR log of decisions already made <span class="status">Planned</span></h3>
+  <dl>
+    <dt>Now</dt><dd>Decisions live as ad-hoc "Decision:" notes on the local design board (<code>.tmp/design-skill.html</code>, gitignored) — not committed, easy to lose, and hard to look up when a question turns out to have been settled already.</dd>
+    <dt>Later</dt><dd>Keep a committed ADR (Architecture Decision Record) log — one short entry per decision (context / decision / why / status) — so a settled question has a durable record instead of being re-litigated. Can supersede the board's scattered Decision notes.</dd>
+    <dt>Touches</dt><dd>New committed location; the board's existing Decision notes are the source to migrate. Format + where it lives still to be defined.</dd>
+  </dl>
+</div>
 </body>
 </html>
