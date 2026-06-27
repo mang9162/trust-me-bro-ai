@@ -10,7 +10,7 @@ Generate a PR title and description for the current branch. Output the result as
 ## Base branch
 
 - If the user specifies a base branch (e.g. `/create-pr develop`), use that.
-- If no base branch is specified, **ask the user which branch to compare against before doing anything else.** Default suggestion: `master`. Wait for confirmation before proceeding.
+- If no base branch is specified, **ask the user which branch to compare against before doing anything else.** Default suggestion: the repository's primary branch (`main` or `master`, whichever this repo uses — don't assume a fixed name). Wait for confirmation before proceeding.
 
 ## Steps
 
@@ -21,14 +21,14 @@ Generate a PR title and description for the current branch. Output the result as
    - `git diff <base>...HEAD --stat` — changed files overview
    - `git diff <base>...HEAD` — full diff for understanding what changed
 
-2. Analyze the diff to identify:
+3. Analyze the diff to identify:
    - **Problems**: what issue, gap, or requirement drove this work. Be specific and lean — one or two sentences max per point. No filler.
    - **Solutions**: what was built or fixed and how it addresses the problem. Match the level of the problem statement.
    - **Changes**: a tight bullet list of concrete code-level changes (files added/modified/deleted, functions changed, config updated, etc.).
 
-3. Draft a PR **title**: imperative mood, ≤72 chars, no period. E.g. `Add recipient ID to order payload`.
+4. Draft a PR **title**: imperative mood, ≤72 chars, no period. E.g. `Add recipient ID to order payload`.
 
-4. Output the title and body as plain text the user can copy-paste directly into GitHub. Use this exact template:
+5. Output the title and body as plain text the user can copy-paste directly into GitHub. Use this exact template:
 
 ```
 Title: <title here>
@@ -61,3 +61,11 @@ Title: <title here>
 - Do not add sections beyond the three in the template.
 - Do not include a "Test plan" or checklist unless the user asks.
 - Do not explain what you did after outputting the PR — just output the block.
+
+## Role & Boundary (Read Before Editing)
+This skill turns the current branch's diff (against a user-confirmed base
+branch) into a PR title and a Problems / Solutions / Changes description,
+output as copy-paste text — and runs `gh pr create` only if the user
+explicitly asks. It owns that PR-text format and the style rules above. It
+does NOT pick the base branch on its own (it always asks and waits) and does
+NOT create the PR by default.
