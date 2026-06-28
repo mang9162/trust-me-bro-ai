@@ -25,7 +25,7 @@ Read every field the task carries — `contract`, `cases`, `pseudocode`, `target
 
 One task = one artifact. Produce only what this task is — nothing of a neighbouring task.
 
-- **test task** (`unit-test` / `integration-test` / `component-test`) — write the test at `targets`, following `cases` (the `given` / `assert` with their real values) + `contract` + `pseudocode`, per `testing-guide`. Honour the level: `unit` = no I/O, pure; `integration` = real DB / Redis / gateway; `component` = mock collaborators, no supertest. **Do NOT implement the function under test** — that is the paired code task.
+- **test task** (`unit-test` / `integration-test` / `component-test`) — write the test at `targets`, following `cases` (the `given` / `assert` with their real values) + `contract` + `pseudocode`, at the task's level per `testing-guide` `## Test Levels`. **Do NOT implement the function under test** — that is the paired code task.
 - **code task** (`code` / `code-task`) — implement the function at `targets` per `contract` + `pseudocode`, to satisfy the paired red test. **Do NOT rewrite the test.**
 - **interface** — write the interface / type at `targets` per `contract`.
 - **error_code** — add the registry entry per `contract` (error-codes registry + base-response shape).
@@ -61,7 +61,7 @@ Don't set `status`, refresh the report, pick the next task, or ask the user — 
 - cross-ref: the dispatched task (from create-task's `01-Setup/` / `02-Backlog/`) — the sole work spec; carries `contract` / `cases` / `pseudocode` / `targets` / `command` / `acceptance`.
 - cross-ref: `tech-stack/testing-guide.md` — test conventions + the structure a test task's `targets` path follows.
 - cross-ref: `tech-stack/code-standards.md` — code conventions / hard rules a code task follows.
-- cross-ref: `https://martinfowler.com/articles/practical-test-pyramid.html` — the unit / integration / component level a test task honours.
+- cross-ref (no file-map edge): `https://martinfowler.com/articles/practical-test-pyramid.html` — the unit / integration / component level a test task honours.
 
 ## Role & Boundary (Read Before Editing)
 
