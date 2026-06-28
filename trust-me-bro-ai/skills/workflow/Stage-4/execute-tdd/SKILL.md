@@ -51,7 +51,7 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 - A test task is expected to be **RED** — a correctly-red test (e.g. a compile/import error because the function isn't written yet) is a **PASS**, not a failure. Don't "fix" it here; its paired code task turns it green.
 - matches `acceptance` → pass, continue.
 - doesn't match → **FAILURE** (see Stop & pause): set `status` → `failed`.
-- while accepting, look over the code/test the engineer wrote — not just the run result. If a coding pattern recurs and is **not** already a rule in `code-standards.md`, count its `spread` (how many places it appears in the code now); it feeds the candidate in step 7.
+- while accepting, look over the code/test the engineer wrote — not just the run result. If a coding pattern recurs and is **not** already a rule in `code-standards.md`, note the location where the pattern appears in this task; it feeds the candidate in step 7 — self-report adds it to the candidate's accumulating `places` list (deduped) and scores from `places.length`. execute-tdd reports the location, never a score.
 
 **6. Per-task review gate** — only when the user asked to review each task: pause here and report `{ task, actual vs acceptance, files / diff touched }`, wait for approval, then resume. If the user didn't ask → don't stop.
 
@@ -60,7 +60,7 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 - [ ] set `status` → `done`
 - [ ] record the run result (actual vs `acceptance` — green / red-as-expected / compiles)
 - [ ] update the central task / queue so the next pass (step 1) sees the latest status
-- [ ] anything worth **improving** (not blocking) → `self-report`: a recurring pattern from step 5 that isn't a rule yet goes as a `candidate` (with its `spread`); other issues go as a `problem`
+- [ ] anything worth **improving** (not blocking) → `self-report`: a recurring pattern from step 5 that isn't a rule yet goes as a `candidate` (with its `places` list); other issues go as a `problem`
 
 → back to step 1.
 

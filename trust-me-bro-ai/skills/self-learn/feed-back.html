@@ -252,7 +252,7 @@
       if (isCandidate) title.push(el('span', { 'class': 'kind-badge', text: 'candidate' }));
       var meta = [el('span', { text: 'id: ' + entry.id + ' · first seen: ' + entry.firstSeen + ' · by: ' + entry.reportedBy + ' · status: ' + entry.status })];
       if (isCandidate) {
-        meta.push(el('span', { 'class': 'score-badge', text: ' · spread ' + (entry.spread || 0) }));
+        meta.push(el('span', { 'class': 'score-badge', text: ' · point ' + (entry.point || 0) + ' · ' + ((entry.places || []).length) + ' places' }));
       }
       card.appendChild(el('div', { 'class': 'entry-header' }, [
         el('div', { 'class': 'entry-title' }, title),
@@ -311,7 +311,7 @@
     function renderCurrent() {
       var d = DATA[currentTab], panel = document.getElementById('panel-' + currentTab);
       panel.innerHTML = '';
-      var shown = d.entries.filter(matchesFilter);
+      var shown = d.entries.filter(matchesFilter).sort(function(a, b) { return (b.point || 0) - (a.point || 0); });
       if (!shown.length) panel.appendChild(el('div', { 'class': 'empty', text: 'No entries.' }));
       else shown.forEach(function(e) { panel.appendChild(renderEntry(e, d.file, d.readOnly)); });
     }

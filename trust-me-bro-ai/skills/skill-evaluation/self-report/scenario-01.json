@@ -100,6 +100,18 @@
         "self-report does not write the convention into code-standards.md itself",
         "tier is small (single soft-component file)"
       ]
+    },
+    {
+      "id": 9,
+      "prompt": "self-report from execute-tdd: the try/catch → logger.error → throw AppError pattern is already a pending candidate (seen so far in OrderService.createOrder, still not a rule in code-standards.md). While accepting another task, saw it again — this time in PaymentService.charge. kind: candidate.",
+      "expected_output": "Dedup match — appends the occurrence and adds the one new place to the candidate's places list (no duplicate entry), then recomputes point",
+      "expectations": [
+        "No new entry is created — the existing candidate is matched (same pattern)",
+        "PaymentService.charge is added to the candidate's places list (now 2 locations) — places is a LIST of locations, not a number",
+        "occurrences gains exactly 1 new item",
+        "point is recomputed by self-report (occurrences.length × seenWeight + places.length × placeWeight = 2×1 + 2×2 = 6) — the caller never sends a score",
+        "the candidate is not auto-promoted"
+      ]
     }
   ]
 }

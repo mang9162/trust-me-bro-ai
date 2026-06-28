@@ -33,6 +33,7 @@ description: Executes a chosen fix for one self-learn entry — from a feed-back
 ## Writes To
 - `log.js` — append the completed entry (with `chosenOption` + `appliedDate`).
 - `<tier>-learn.js` — remove the entry once it's moved to `log.js` (applied), or outright on `reject`.
+- (no file-map edge) the fixOption's target files (`fixOptions[].files`) — the content the chosen fix writes, wherever it applies (e.g. `code-standards.md` for a promoted candidate, a `context/` or `tech-stack/` file for a problem).
 
 ## Role & Boundary (Read Before Editing)
 
