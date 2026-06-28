@@ -80,7 +80,7 @@ The processes/containers that make up the running system — one bullet per serv
 
 ## References
 
-- bridge: `testing-guide.md` — owns the stub/mock mechanism (stub-file template + folder layout) and where test files live. tech-stack only names the services and how to run them; for anything stub- or test-placement-related, go there.
+- cross-ref: `testing-guide.md` — owns the stub/mock mechanism (stub-file template + folder layout) and where test files live. tech-stack only names the services and how to run them; for anything stub- or test-placement-related, go there.
 
 ## Role & Boundary (Read Before Editing)
 
