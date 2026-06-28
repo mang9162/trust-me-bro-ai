@@ -63,8 +63,11 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
 - self-report — when something needed isn't catalogued or contradicts the dictionary (new variable / conflict / missing gateway or entity); silent, aggregated once in step 5.
 - generate-report — refresh `scenario.html` after staging, per step 6.
 
+## Writes To
+- `01-Testdata/` — `Datatest.md`, DB seeds (`db/`), and stubs (`stubs/`) for this scenario.
+
 ## Role & Boundary (Read Before Editing)
 
 This skill's responsibility is limited to STAGING this scenario's test data — the concrete values (`Datatest.md`), the DB seeds, and the stubs for the downstream calls the scenario makes (paths owned by the workflow `## Layout`).
 
-It reads the shared reference files (`data.md`, `gateway-directory.md`, `gateway-contract.md`, `database-schema.md`) but never edits them — gaps go to `self-report`. It does not write assertions (Stage 5 / api-test), does not move stubs into the live mock environment (Stage 4 / env-setup), and does not design tasks (Stage 3 / create-task). For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
+It reads the shared reference files (`data.md`, `gateway-directory.md`, `gateway-contract.md`, `database-schema.md`) but never edits them — gaps go to `self-report`. It does not write assertions (api-test), does not move stubs into the live mock environment (execute-tdd / env-setup task), and does not design tasks (create-task). For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

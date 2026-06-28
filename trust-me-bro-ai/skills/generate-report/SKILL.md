@@ -6,23 +6,22 @@ description: Regenerate scenario.html inside the scenario folder (under work/). 
 # Generate Report
 
 ## When to invoke
-- After any workflow stage pause, to give the team a human-readable view.
-- On demand: "generate report" or "update report".
-- Automatically after Stage 3 (create-task).
+Triggered to (re)render `scenario.html` for a scenario folder — it acts on whatever the folder currently holds, no matter which skill triggered it:
+- after a stage has updated the scenario folder, to refresh the human-readable view.
+- on demand: "generate report" / "update report".
 
 ## Output
-`work/Scenario/<FEATURE>/{Success|Alternative}/<NN>-<SCENARIO>/scenario.html` — self-contained, no external dependencies, opens directly in a browser.
+`scenario.html` inside the scenario folder (path owned by the workflow `## Layout` — see `## References`) — self-contained, no external dependencies, opens directly in a browser.
 
 ## Inputs to read
+Read the scenario folder per the workflow `## Layout` — it owns the folder structure and file paths (see `## References`). From the files it defines, extract:
 
 | Source | What to extract |
 |--------|----------------|
 | `scenario.html` → `<script id="scenario-meta">` block | `scenario`, `category`, `description`, `steps[]`, `accepted`, `acceptanceHistory[]` |
 | `scenario.html` → functional-design section (if present) | preserve as-is; do NOT regenerate — it is authored by `create-task` |
-| `01-Testdata/Datatest.md` | All markdown tables → variable name + value + notes |
-| `02-Task/01-Setup/*.json` | env-setup tasks |
-| `02-Task/02-Backlog/*.json` | unit/integration/component/code tasks |
-| `02-Task/03-Api-test/*.json` | api-test tasks |
+| Test-data table file (`Datatest.md`) | all markdown tables → variable name + value + notes |
+| Task files (Setup / Backlog / Api-test groups) | each task **by its own `type` field** — render its tag/group from the task data, whatever the type (incl. project-custom ones) |
 
 If a source file does not exist yet, skip that section and add a grey "not yet created" placeholder.
 
@@ -39,7 +38,7 @@ Determine each stage's status by checking what exists:
 | 5 | Api Test | all `03-Api-test/*.json` have `"status": "done"` |
 | 6 | Acceptance Review | `scenario-meta.accepted === true` |
 
-If a stage's files don't exist → `todo`. If files exist but not all done → `active`. If all done → `done`.  
+If a stage's files don't exist → `todo`. If files exist but not all done → `active` (a `failed` task counts as not done, so the stage stays `active`). If all done → `done`.  
 The first `active` or the first stage after the last `done` is the current stage.
 
 ## Progress summary counts
@@ -49,7 +48,7 @@ Below the stage track, render a `progress-summary` row showing:
 - Backlog: X / N done
 - Api Test: X / N done
 
-Count tasks by their `"status"` field. Use a grey dot for pending, amber for in_progress, green for done.
+Count tasks by their `"status"` field. Colour each task's dot by status — grey `pending`, amber `in_progress`, green `done`, red `failed`; any unrecognized status falls back to grey. Don't hardcode the status set — read whatever the task JSON declares.
 
 ## Step → task linking
 
@@ -59,12 +58,10 @@ Count tasks by their `"status"` field. Use a grey dot for pending, amber for in_
 
 ## Datatest.md parsing
 
-The file contains multiple `## Section` headings, each followed by one markdown table. Parse every table row:
-- Column 1 → variable name (wrap in `<code>`)
-- Column 2 → value (wrap in `<code>` if it looks like an id/number, plain text otherwise)
-- Column 3 → notes (plain text)
-
-Skip separator rows (`|---|`).
+The file contains multiple `## Section` headings, each followed by one markdown table. The columns are owned by `create-test-data` (currently `name | value | expect | status | notes`) and may change — do NOT assume a fixed set. For each table:
+- Read its header row and emit one column per header, in the same order.
+- Wrap a cell that looks like an id/number in `<code>`; leave plain text otherwise.
+- Skip separator rows (`|---|`).
 
 ---
 
@@ -244,6 +241,7 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
 .dot-pending{background:#cbd5e1}
 .dot-in_progress{background:#f59e0b}
 .dot-done{background:#22c55e}
+.dot-failed{background:#ef4444}
 .task-body{flex:1;min-width:0}
 .task-id{font-size:0.67rem;color:#94a3b8;font-family:monospace;margin-bottom:2px}
 .task-title{font-size:0.84rem;font-weight:500;color:#1e293b;margin-bottom:6px;line-height:1.4}
@@ -261,6 +259,7 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
 .status-badge{background:#f1f5f9;color:#64748b}
 .status-done-badge{background:#dcfce7;color:#166534}
 .status-progress-badge{background:#fef9c3;color:#854d0e}
+.status-failed-badge{background:#fee2e2;color:#991b1b}
 
 .ah-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid #e2e8f0}
 .cat-reject{background:#fee2e2;color:#991b1b}
@@ -404,17 +403,16 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
     <div class="section-title" style="margin-bottom:12px">Test Data</div>
     <table class="data-table">
       <thead>
-        <tr><th>Variable</th><th>Value</th><th>Notes</th></tr>
+        <!-- FILL: one <th> per Datatest.md column header, in the file's order (do NOT hardcode — e.g. Name, Value, Expect, Status, Notes) -->
+        <tr><!-- <th>Header</th> per column --></tr>
       </thead>
       <tbody>
 
-        <!-- For each ## Section in Datatest.md, emit a section-row then data rows. -->
+        <!-- For each ## Section in Datatest.md, emit a section-row (colspan = column count) then one data row per table row. -->
 
-        <tr class="section-row"><td colspan="3"><!-- FILL: section heading --></td></tr>
+        <tr class="section-row"><td colspan="<!-- FILL: number of columns -->"><!-- FILL: section heading --></td></tr>
         <tr>
-          <td><code><!-- FILL: variable name --></code></td>
-          <td><code><!-- FILL: value --></code></td>
-          <td><!-- FILL: notes --></td>
+          <!-- FILL: one <td> per column, in header order; wrap id/number cells in <code> -->
         </tr>
 
         <!-- Repeat section-row + data rows for every section in Datatest.md -->
@@ -651,3 +649,12 @@ Before saving `scenario.html`, verify:
 - If `02-Task/` does not exist yet, render the Tasks section with `<p class="empty-note">Tasks not yet created.</p>`.
 - If `01-Testdata/Datatest.md` does not exist, render Test Data section with `<p class="empty-note">Test data not yet created.</p>`.
 - After generating, print the file path so the user can open it.
+
+## References
+- bridge: `trust-me-bro-ai/skills/workflow/SKILL.md` (`## Layout`) — owns the scenario folder structure and every path this skill reads from and writes `scenario.html` to; the output path and input file locations must match it exactly.
+
+## Writes To
+- `scenario.html` — the rendered report for this scenario (its main output).
+
+## Role & Boundary (Read Before Editing)
+generate-report owns rendering the per-scenario `scenario.html` from the data already in the scenario folder. It only READS those sources and re-renders the HTML — it never authors or changes their content: the `scenario-meta` block is owned by `get-requirement` / `acceptance-review`, the Functional Design tree by `create-task` (copied verbatim here), task `status` by `execute-tdd` / `api-test`, and test-data values by `create-test-data`. It does not decide where files live (workflow `## Layout`). Being generic, it renders whatever the folder holds regardless of which skill triggered it. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

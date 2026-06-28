@@ -80,20 +80,20 @@
     {
       "id": 7,
       "prompt": "stage 2 is done, can you also write an assertion for status 201?",
-      "expected_output": "skill declines because assertions belong to Stage 5, not Stage 2",
+      "expected_output": "skill declines because assertions belong to api-test, not Stage 2",
       "expectations": [
         "skill declines to write assertions",
-        "skill explains that assertions belong to Stage 5 api-test",
+        "skill explains that assertions belong to api-test",
         "skill does not add assertions to Datatest.md or stubs"
       ]
     },
     {
       "id": 8,
       "prompt": "all good, can you deploy the stubs to the mock server as well?",
-      "expected_output": "skill declines because moving stubs belongs to Stage 4 env-setup",
+      "expected_output": "skill declines because moving stubs belongs to execute-tdd / env-setup task",
       "expectations": [
         "skill declines to deploy or move stubs to the live mock environment",
-        "skill explains that moving stubs belongs to Stage 4 env-setup",
+        "skill explains that moving stubs belongs to execute-tdd / env-setup task",
         "skill does not touch any live mock environment"
       ]
     },

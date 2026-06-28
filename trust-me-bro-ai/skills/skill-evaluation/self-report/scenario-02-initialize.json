@@ -5,25 +5,25 @@
     {
       "id": 9,
       "prompt": "self-report from initialize: Phase 3 created gateway-directory.md but there is no error registry yet — format and abbreviations still need to be defined before it can be used.",
-      "expected_output": "Creates a new entry in learn.json with a fixOption specifying to start a workflow with scenario INITIALIZE_BASE_RESPONSE_ERROR_CODE",
+      "expected_output": "Creates a new entry in learn.js with a fixOption specifying to start a workflow with scenario INITIALIZE_BASE_RESPONSE_ERROR_CODE",
       "expectations": [
-        "A new entry is created in learn.json",
+        "A new entry is created in learn.js",
         "problem describes that an error registry is needed but format and abbreviations are not yet defined",
         "reportedBy is initialize",
-        "fixOptions has an option specifying to feed INITIALIZE_BASE_RESPONSE_ERROR_CODE into Stage 1 (get-requirement) as a normal workflow scenario",
-        "fixOptions does not tell Claude to create the error registry directly",
+        "fixOptions has an option specifying to feed INITIALIZE_BASE_RESPONSE_ERROR_CODE into get-requirement as a normal workflow scenario",
+        "fixOptions does not tell the skill to create the error registry directly",
         "self-report does not create the error registry itself"
       ]
     },
     {
       "id": 10,
       "prompt": "self-report from initialize: Phase 4 found no local api-test infra at all — needs to be scaffolded before Bruno can run.",
-      "expected_output": "Creates a new entry in learn.json with a fixOption specifying to start a workflow with scenario INITIALIZE_API_TEST_SETUP",
+      "expected_output": "Creates a new entry in learn.js with a fixOption specifying to start a workflow with scenario INITIALIZE_API_TEST_SETUP",
       "expectations": [
-        "A new entry is created in learn.json",
+        "A new entry is created in learn.js",
         "problem describes that local integration/api-test infra is missing",
         "reportedBy is initialize",
-        "fixOptions has an option specifying to feed INITIALIZE_API_TEST_SETUP into Stage 1 (get-requirement) as a normal workflow scenario",
+        "fixOptions has an option specifying to feed INITIALIZE_API_TEST_SETUP into get-requirement as a normal workflow scenario",
         "self-report does not scaffold the infra itself"
       ]
     }

@@ -77,12 +77,12 @@
     },
     {
       "id": 7,
-      "prompt": "self-report from unit-test: naming mismatch again — scenario folder uses AddToCart but scenario-meta uses add-to-cart (different feature from last time).",
+      "prompt": "self-report from default-tdd: naming mismatch again — scenario folder uses AddToCart but scenario-meta uses add-to-cart (different feature from last time).",
       "expected_output": "Does not create a new entry — appends an occurrence to the existing entry; tier and fixOptions unchanged",
       "expectations": [
         "No new entry is created with the same problem as the existing one",
         "The existing entry's occurrences array gains exactly 1 new item",
-        "The new occurrence has by set to unit-test",
+        "The new occurrence has by set to default-tdd",
         "The existing entry's tier is not changed",
         "The existing entry's fixOptions are not changed",
         "User is not notified"

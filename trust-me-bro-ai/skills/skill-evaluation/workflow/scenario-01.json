@@ -58,35 +58,16 @@
     {
       "id": 6,
       "prompt": "Can you just write the addToCart function for me?",
-      "expected_output": "workflow declines to implement it directly and routes to the correct Stage 4 skill",
+      "expected_output": "workflow declines to implement it directly; treats the request as a new requirement and routes to get-requirement (Stage 1)",
       "expectations": [
         "workflow does not write code or implement any function itself",
-        "workflow identifies implementation as belonging to Stage 4 (code-task skill)",
+        "workflow treats 'just write the function' as a new requirement that must start at Stage 1",
+        "workflow invokes or names get-requirement as the skill to run",
         "workflow explains that its own role is control-only"
       ]
     },
     {
       "id": 7,
-      "prompt": "There are still unit-test, integration-test, and code-task left — which one goes first?",
-      "expected_output": "workflow dispatches tasks one at a time by task.type — no parallel execution",
-      "expectations": [
-        "workflow states that Stage 4 dispatches per task.type",
-        "workflow does not perform any task type's procedure itself",
-        "workflow names unit-test, integration-test, and code-task skills in task order"
-      ]
-    },
-    {
-      "id": 8,
-      "prompt": "Can we run unit-test and code-task at the same time to speed things up?",
-      "expected_output": "workflow declines because parallel execution conflicts with its Role & Boundary",
-      "expectations": [
-        "workflow refuses to change routing logic that conflicts with its design",
-        "workflow explains that dispatch per task means one task at a time",
-        "workflow does not implement parallel execution logic"
-      ]
-    },
-    {
-      "id": 9,
       "prompt": "Add to Cart is done and accepted — let's do the remove-from-cart feature next.",
       "expected_output": "workflow starts a fresh cycle from Stage 1 for the new scenario",
       "expectations": [

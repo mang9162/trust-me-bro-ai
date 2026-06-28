@@ -45,31 +45,31 @@
     {
       "id": 5,
       "prompt": "I want create-test-data to write assertions into Datatest.md so we don't have to wait for Stage 5.",
-      "expected_output": "not allowed — assertions belong to Stage 5 api-test",
+      "expected_output": "not allowed — assertions belong to api-test",
       "expectations": [
         "skill refuses",
         "skill cites Role & Boundary stating assertions are not in Stage 2 scope",
-        "skill identifies assertions as belonging to Stage 5 api-test"
+        "skill identifies assertions as belonging to api-test"
       ]
     },
     {
       "id": 6,
       "prompt": "I want create-test-data to design the functional tree of functions to implement so we know it before Stage 3.",
-      "expected_output": "not allowed — functional/task design belongs to Stage 3 create-task",
+      "expected_output": "not allowed — functional/task design belongs to create-task",
       "expectations": [
         "skill refuses",
         "skill cites Role & Boundary stating task design is not in Stage 2 scope",
-        "skill identifies functional design as belonging to Stage 3 create-task"
+        "skill identifies functional design as belonging to create-task"
       ]
     },
     {
       "id": 7,
       "prompt": "I want create-test-data to move stubs into the test-env as soon as they are created.",
-      "expected_output": "not allowed — moving stubs belongs to Stage 4 env-setup",
+      "expected_output": "not allowed — moving stubs belongs to execute-tdd / env-setup task",
       "expectations": [
         "skill refuses",
         "skill cites Role & Boundary stating stub deployment is not in Stage 2 scope",
-        "skill identifies stub moving as belonging to Stage 4 env-setup"
+        "skill identifies stub moving as belonging to execute-tdd / env-setup task"
       ]
     },
     {

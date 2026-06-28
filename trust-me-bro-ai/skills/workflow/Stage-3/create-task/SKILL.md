@@ -112,5 +112,9 @@ Tell the user the updated `scenario.html` is ready (tasks + functional design re
 - generate-report — refresh `scenario.html` after the task list is staged (step 8).
 - self-report — when something needed to author a task isn't available (missing contract / endpoint / error_code, or a conflict); silent, aggregated in step 7.
 
+## Writes To
+- `02-Task/01-Setup/` + `02-Backlog/` — Setup + Backlog task files (one per function).
+- `02-Task/03-Api-test/` — api-test task files (one per request).
+
 ## Role & Boundary (Read Before Editing)
 This skill owns Stage 3: the **functional design** (function call tree, authored into `scenario.html`) and breaking the agreed scenario into **atomic, self-sufficient tasks** — grouped into Setup / Backlog / Api-test, ordered with dependencies and TDD test→code pairing, each carrying enough to be done standalone. Everything derives from `scenario.html`; gaps go to `self-report`. It authors api-test tasks (the endpoints are known from gateway-directory) but does NOT run them (that is `api-test`), does NOT execute Setup/Backlog tasks (`execute-tdd`), does NOT stage test data / seeds / stubs (`create-test-data` — it references their shapes), and does NOT define the scenario.html card markup (`generate-report`). For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

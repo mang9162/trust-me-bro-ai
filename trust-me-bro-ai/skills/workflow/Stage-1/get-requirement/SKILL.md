@@ -90,7 +90,7 @@ A step is at the wrong level if it names any of:
 If you find yourself naming one of these, it belongs in Stage 3 (create-task) or Stage 5 (api-test) - not here.
 
 ## References
-- cross-ref: `trust-me-bro-ai/context/domain-reference.md` — scenario naming conventions.
+- cross-ref: `trust-me-bro-ai/context/domain-reference.md` — scenario naming conventions + Core Terms (domain vocabulary for writing steps).
 - bridge: `trust-me-bro-ai/context/error-codes.md` — error codes mentioned in the requirement must match an existing entry exactly (catch duplicate names/spelling drift from the start).
 - bridge: `trust-me-bro-ai/skills/workflow/SKILL.md` (`## Layout`) — the scenario folder path `<NN>-<FULL_SCENARIO_NAME>` used in step 3 must match this format exactly.
 
@@ -105,9 +105,10 @@ requirement into a clear, agreed E2E narrative (`steps`) plus the scenario's
 name/description — including surfacing ambiguities back to the user when the
 requirement is unclear.
 
-It does not extend into test-data design, functional/task design, TDD
-implementation, or verification (api-test) — those are the responsibility of
-later stages (see Responsibility map in workflow/SKILL.md).
+It does not extend into test-data design (create-test-data), functional/task
+design (create-task), TDD implementation (execute-tdd), or verification
+(api-test) — for anything outside this boundary, see the Responsibility map in
+workflow/SKILL.md.
 
 The `steps` produced here are the single source later stages trace from —
 they are never reshaped to fit downstream (api-test) feasibility.

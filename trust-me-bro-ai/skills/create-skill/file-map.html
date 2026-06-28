@@ -115,6 +115,12 @@ flowchart LR
     gwcontract["gateway-contract.md"]
   end
 
+  subgraph C5["5 · initialize"]
+    direction TB
+    init["initialize<br/>(first-run bootstrap / re-sync)"]
+    initFmt["initialize/{context,tech-stack}/<br/>*-format.md (templates)"]
+  end
+
   subgraph C6["6 · self-learn"]
     direction TB
     tierJson["{small,medium,heavy}-learn.js"]
@@ -134,12 +140,6 @@ flowchart LR
 
   agents["AGENTS.md (root)<br/>stub"]
 
-  subgraph C5["5 · initialize"]
-    direction TB
-    init["initialize<br/>(first-run bootstrap / re-sync)"]
-    initFmt["initialize/{context,tech-stack}/<br/>*-format.md (templates)"]
-  end
-
   %% ===== 1: LIGHT-BLUE DASHED = cross-ref (one-way read, no key to match) =====
   agents -.->|"13"| techstack
   techstack -.->|"14 · ref: stub/mock + test-file layout"| testguide
@@ -153,7 +153,7 @@ flowchart LR
   defaultTdd -.->|"18 · ref: code conventions"| codestd
   defaultTdd -.->|"19 · ref: test conventions"| testguide
 
-  s1 -.->|"20 · ref: scenario naming"| domain
+  s1 -.->|"20 · ref: scenario naming + domain vocabulary"| domain
   s1 -.->|"21 · ref: error codes<br/>must match exactly"| errcodes
   s2 -.->|"22 · ref: gateway purpose/condition"| gwdir
   s2 -.->|"23 · ref: mock key params/path"| gwcontract
@@ -237,13 +237,22 @@ flowchart LR
   %% ===== Stage-4 candidate detection (72): cross-ref code-standards before reporting a candidate =====
   s4 -.->|"72 · ref: code-standard rules (is the pattern already a rule?)"| codestd
 
+  %% ===== generate-report (73): bridge to workflow Layout for scenario folder structure/paths =====
+  gr -.->|"73 · scenario folder structure + paths (## Layout)"| wf
+
+  %% ===== Model B main-output writes (74-77): which skill authors each work-output file =====
+  gr -->|"74 · write: scenario.html (rendered report)"| scenarioHtml
+  s2 -->|"75 · write: 01-Testdata/ (Datatest.md, db seeds, stubs)"| testdata
+  s3 -->|"76 · write: 01-Setup/ + 02-Backlog/ task files"| setupBacklog
+  s3 -->|"77 · write: 03-Api-test/ task files"| apiTestT
+
   class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd hardf
   class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson,scenarioHtml,testdata,setupBacklog,apiTestT softf
 
   linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66,69,70,71,72 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
-  linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64,67 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
+  linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64,67,73 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
   linkStyle 26,27,28,29,30,31,32,33,34,35,36,37,47,52,63 stroke:#dc2626,stroke-width:2px,color:#dc2626
-  linkStyle 38,39,50,51,65,68 stroke:#16a34a,stroke-width:2px,color:#16a34a
+  linkStyle 38,39,50,51,65,68,74,75,76,77 stroke:#16a34a,stroke-width:2px,color:#16a34a
   </div>
 
   <h2>Node Colors</h2>
@@ -252,12 +261,12 @@ flowchart LR
   <p class="note">This matches the hard/soft component split in <code>self-learn/self-report/SKILL.md</code>'s Tier definitions — use that file as the source of truth if a node's classification is unclear.</p>
 
   <h2>How to Read the 5 Edge Types</h2>
-  <p>Every edge is labeled with its index number (0-72) so it can be referenced unambiguously in discussion.</p>
+  <p>Every edge is labeled with its index number (0-73) so it can be referenced unambiguously in discussion.</p>
   <div class="legend-item"><span class="line exec"></span> <b>Solid, numbered 0-12</b> — execution flow: the actual Stage dispatch sequence between <code>workflow</code> (<code>wf</code>) and Stage-1..6 (<code>s1</code>-<code>s6</code>). Numbers show real invoke/return order; <code>"reject -&gt; 1"</code> is the Stage 6 alt-path when a scenario is rejected.</div>
   <div class="legend-item"><span class="line crossref"></span> <b>Light-blue dashed (13-18, 23-25, 27-30, 45-47, 49, 51, 54, 69)</b> — <b>cross-ref</b>: one-way read. The source opens the target file for info (naming conventions, value lists, etc.). No key has to match.</div>
-  <div class="legend-item"><span class="line bridge"></span> <b>Black dashed (19-22, 26, 48, 50, 53, 67)</b> — <b>bridge</b>: a key/value produced by the source must match an entry in the target exactly (the <code>ref</code> column convention, Issue #2). Breaks if either side changes without the other.</div>
+  <div class="legend-item"><span class="line bridge"></span> <b>Black dashed (19-22, 26, 48, 50, 53, 67, 73)</b> — <b>bridge</b>: a key/value produced by the source must match an entry in the target exactly (the <code>ref</code> column convention, Issue #2). Breaks if either side changes without the other.</div>
   <div class="legend-item"><span class="line trigger"></span> <b>Red dashed (31-42, 52, 57, 66)</b> — <b>trigger/notify</b>: the source skill hands off to the target skill to do its own work (e.g. <code>s1</code>-<code>s6</code> &rarr; <code>generate-report</code> to update the report, or <code>s1</code>-<code>s6</code> &rarr; <code>self-report</code> when something self-learn-worthy is found). NOT a file reference — do not duplicate under References.</div>
-  <div class="legend-item"><span class="line write"></span> <b>Solid green (43-44, 55-56, 68)</b> — <b>write</b>: the source skill writes directly into the target file as part of its own procedure (<code>self-report</code> &rarr; tier JS, <code>self-improve</code> &rarr; <code>log.js</code>, <code>execute-tdd</code> &rarr; task <code>status</code>).</div>
+  <div class="legend-item"><span class="line write"></span> <b>Solid green (38-39, 50-51, 65, 68, 74-77)</b> — <b>write</b>: the source skill writes directly into the target file — its main output or an in-passing update (<code>generate-report</code>/<code>create-test-data</code>/<code>create-task</code> &rarr; their work-output files, <code>execute-tdd</code>/<code>api-test</code> &rarr; task <code>status</code>, <code>self-report</code> &rarr; tier JS, <code>self-improve</code> &rarr; <code>log.js</code>).</div>
 
   <h2>How to Use This When Writing or Editing a Skill</h2>
   <p>For any skill's node in this diagram, look at every edge leaving (or, for bridge/write, touching) its node:</p>

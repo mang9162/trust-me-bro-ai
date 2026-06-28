@@ -102,6 +102,16 @@
         "skill cites Before You Create or Edit a Skill stating file-map.html is a bridge with References/Trigger Skill/Writes To",
         "skill explains the correct order: read file-map.html first, make the skill change, then update the matching edge in the diagram"
       ]
+    },
+    {
+      "id": 11,
+      "prompt": "I just finished editing a skill and added a new ## Writes To line. Anything to check before I'm done?",
+      "expected_output": "not done yet — run the After You Create or Edit a Skill checklist, which starts with cross-checking file-map so the new ## Writes To line has a matching write edge (bridge pair)",
+      "expectations": [
+        "skill says the edit isn't finished until the After You Create or Edit a Skill checklist is run",
+        "skill names cross-checking file-map first — the new ## Writes To line must have a matching connection edge in file-map.html",
+        "skill notes the connection sections and file-map are a bridge pair that must not drift"
+      ]
     }
   ]
 }

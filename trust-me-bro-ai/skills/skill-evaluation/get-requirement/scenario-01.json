@@ -17,11 +17,11 @@
     {
       "id": 2,
       "prompt": "checkout feature",
-      "expected_output": "Claude asks clarifying questions to resolve gaps before writing any steps",
+      "expected_output": "the skill asks clarifying questions to resolve gaps before writing any steps",
       "expectations": [
-        "Claude asks about scope — which scenarios need to be covered",
-        "Claude asks about the E2E flow, payment methods, or endpoint",
-        "Claude does not write scenario-meta or steps before receiving answers"
+        "the skill asks about scope — which scenarios need to be covered",
+        "the skill asks about the E2E flow, payment methods, or endpoint",
+        "the skill does not write scenario-meta or steps before receiving answers"
       ]
     },
     {
@@ -39,21 +39,21 @@
     {
       "id": 4,
       "prompt": "Order history feature — endpoint GET /orders, shows all orders belonging to the logged-in user.",
-      "expected_output": "Claude asks about edge cases or alternative scenarios before writing steps",
+      "expected_output": "the skill asks about edge cases or alternative scenarios before writing steps",
       "expectations": [
-        "Claude asks about alternative scenarios such as no orders or unauthorized access",
-        "If Claude writes steps, GET /orders must not appear inside the steps array",
-        "Claude does not start designing test data or tasks"
+        "the skill asks about alternative scenarios such as no orders or unauthorized access",
+        "If the skill writes steps, GET /orders must not appear inside the steps array",
+        "the skill does not start designing test data or tasks"
       ]
     },
     {
       "id": 5,
       "prompt": "Can we add a reference to a test data design guideline inside the get-requirement skill?",
-      "expected_output": "Claude declines and explains this is outside the boundary of Stage 1",
+      "expected_output": "the skill declines and explains this is outside get-requirement's boundary",
       "expectations": [
-        "Claude refuses to add a test data reference to this skill",
-        "Claude cites Role & Boundary, which states test data design is not in scope for Stage 1",
-        "Claude suggests a more appropriate stage or skill instead, such as Stage 3 or create-task"
+        "the skill refuses to add a test data reference to this skill",
+        "the skill cites Role & Boundary, which states test data design is not in scope for get-requirement",
+        "the skill suggests a more appropriate skill instead, such as create-test-data (which owns test-data design)"
       ]
     },
     {
@@ -64,6 +64,16 @@
         "Steps include the remove action and verification that the item is gone from the cart",
         "DELETE /cart/item does not appear inside the steps array",
         "scenario-meta has accepted: false and acceptanceHistory: []",
+        "A PAUSE or request for user review appears before proceeding"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Feature: during a live stream a viewer reserves a product until checkout; if it stays unpaid for 10 minutes the reservation is released. Write the scenario.",
+      "expected_output": "scenario-meta with plain-language steps; the skill consults domain-reference.md Core Terms so steps use the project's domain vocabulary",
+      "expectations": [
+        "Output contains a scenario-meta JSON with plain-language steps",
+        "The skill consults domain-reference.md Core Terms (the project's vocabulary) to word the steps, rather than inventing its own terminology",
         "A PAUSE or request for user review appears before proceeding"
       ]
     }

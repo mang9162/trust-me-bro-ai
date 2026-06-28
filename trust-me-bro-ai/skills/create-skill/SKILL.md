@@ -92,8 +92,9 @@ The **Common** rules apply to every skill; then add the **Generic** or
 - trigger — hand-off. Tell another skill to run when done — that skill owns
   its own logic/content; this is NOT a file reference, don't duplicate it
   under References.
-- write — this skill writes/updates the target file directly, as part of
-  its own procedure (not its main task output).
+- write — this skill writes/updates the target file directly as part of
+  its own procedure — its main output, or a file it updates in passing
+  (e.g. a status field).
 
 ## Section Formats
 
@@ -130,14 +131,20 @@ Run these in order once the body is written. Each step surfaces what it finds
 and lets the user decide — apply only what they choose, and never fix the
 skill or its test on your own.
 
-1. **Self-review** — check the skill matches its stated topic and follows
+1. **Cross-check file-map** — for this skill's node in `file-map.html`, every
+   connection edge (cross-ref / bridge / trigger / write) must have a matching
+   `## References` / `## Trigger Skill` / `## Writes To` line, and vice versa;
+   sync any edge you changed so the bridge pair never drifts (execution-flow
+   edges are exempt — they mirror `workflow/SKILL.md`'s Stages steps). Surface
+   mismatches; the user decides what to fix.
+2. **Self-review** — check the skill matches its stated topic and follows
    `## Writing the Skill`. Present the gaps as a table (cause / before /
    after); the user picks which to fix and which to let pass.
-2. **Cover the change** — confirm the case you just added or changed has a
+3. **Cover the change** — confirm the case you just added or changed has a
    scenario under `skill-evaluation/<skill>/`. If not, propose one drawn from
    this change — the user writes it or asks for a vibe-test — so the run below
    includes it.
-3. **Run and report** — run that skill's scenarios with this session as both
+4. **Run and report** — run that skill's scenarios with this session as both
    actor and judge. Report the results as a table (eval item / expected /
    actual / pass-fail), then list any failures with their reasons below it.
    All green: done. Any red: the user decides what to change.

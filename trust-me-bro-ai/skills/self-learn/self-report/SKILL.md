@@ -42,7 +42,7 @@ description: Sole writer of `{small,medium,heavy}-learn.js`. Triggered by any ot
 ## Tier definitions
 
 - **small** = fixing it touches a single file, and that file is a "soft component" (`context/`, `tech-stack/`, `{small,medium,heavy}-learn.js`, `log.js`).
-- **medium** = (a) fixing it touches 1-2 files of a "hard component" (`initialize`, `self-report/SKILL.md`, `self-improve/SKILL.md`, `feed-back.html`, `workflow` including its Stage-1..6 skills, `generate-report` — edited rarely, invoked/read constantly) without affecting many references, or (b) it touches several soft-component files at once.
+- **medium** = (a) fixing it touches 1-2 files of a "hard component" (`initialize`, `self-report/SKILL.md`, `self-improve/SKILL.md`, `feed-back.html`, `workflow` including its stage skills, `generate-report` — edited rarely, invoked/read constantly) without affecting many references, or (b) it touches several soft-component files at once.
 - **heavy** = process-level change — requires reworking/fixing references across many files, or changes how a structure works.
 
 ## Auto-improve (edit this table directly to change behavior)
