@@ -101,6 +101,8 @@ The **Common** rules apply to every skill; then add the **Generic** or
 ### `## References`
 One line per file this skill reads (cross-ref / bridge):
 - <type>: <file> — <what it's for / which key bridges>
+- a line with no file-map edge (by design) is marked `(no file-map edge)`
+  after the type: `- <type> (no file-map edge): <file> — <what it's for / which key bridges>`
 
 ### `## Trigger Skill`
 One line per skill this skill hands off to when done:
@@ -152,7 +154,9 @@ skill or its test on your own.
 ## References
 - bridge: `file-map.html` — every `## References` / `## Trigger Skill` /
   `## Writes To` line in any skill must correspond to a connection edge in
-  this diagram, and every connection edge must correspond to such a line.
+  this diagram, and every connection edge must correspond to such a line —
+  except a line marked `(no file-map edge)`, which is exempt by declaration
+  (the cross-check only confirms the mark is warranted, it expects no edge).
   (Execution-flow edges are different — they're mirrored by
   `workflow/SKILL.md`'s Stages / routing steps instead.)
 

@@ -112,6 +112,17 @@
         "skill names cross-checking file-map first — the new ## Writes To line must have a matching connection edge in file-map.html",
         "skill notes the connection sections and file-map are a bridge pair that must not drift"
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "I want create-task to also reference an external web article (a public URL, not a kit file) for the test-pyramid classification. Add it to ## References — but every References line is supposed to have a matching file-map edge, and there's no node for a URL.",
+      "expected_output": "allowed — an external URL is a valid cross-ref; mark the line (no file-map edge) so it is exempt from the edge correspondence, with no file-map node or edge added",
+      "expectations": [
+        "skill confirms an external URL is a valid cross-ref in ## References — read like any other reference",
+        "skill proposes marking the line (no file-map edge) after the type so it is exempt from the file-map edge check",
+        "skill does NOT add or require a file-map node or edge for the external URL",
+        "skill explains the cross-check only confirms the (no file-map edge) mark is warranted, not that an edge exists"
+      ]
     }
   ]
 }

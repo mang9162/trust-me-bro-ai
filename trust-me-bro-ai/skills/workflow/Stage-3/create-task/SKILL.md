@@ -17,10 +17,7 @@ This skill PLANS only — it does not implement code, run tests, or stage test d
 ### 1. Functional Design
 From the scenario steps in `scenario.html` + the codebase, build the function call tree and author it into the `scenario.html` Functional Design card.
 - Identify every function the requirement impacts; map parent→child relationships (which function calls which).
-- Assign each function a **test level** from what it does (use `tech-stack.md` for the project's structure):
-  - `unit` — the function does no I/O; only calls pure helpers.
-  - `integration` — the function directly hits DB / Redis / a gateway.
-  - `component` — the function orchestrates internal services; mock collaborators (NOT unit-level helpers); NO supertest.
+- Assign each function a **test level** (`unit` / `integration` / `component`) by what it does — using the level `definition` for that function's service in `testing-guide.md` `## Test Levels` (the project's source of truth; general pyramid = the Fowler ref). `tech-stack.md` tells which service a function belongs to.
   - **Exactly one level per function — never stack:** a function already covered by `unit` or `integration` does NOT also get a `component` test (e.g. a repository function that hits the DB is `integration` only).
 - Order the tree bottom-up — leaf nodes are implemented first by execute-tdd.
 - Author the tree into the scenario.html Functional Design card using the card format owned by `generate-report` (its `.fn-tree` node anatomy + test-level tags + `activateFn` task wiring). Don't redefine that markup here — generate-report owns it and preserves your card verbatim on later refreshes.
@@ -34,7 +31,7 @@ One task = one unit; **never bundle** ("…and also X" means X is a separate tas
   - `interface` — **one task per interface**: a brand-new interface is a `create` task; adding to / changing an existing one is a `modify` task (`at` = which field/member). If the feature needs several interfaces (some new, some edited), that is several tasks. Shape from the functional design + `code-standards.md`.
   - `error_code` — **one task per error code** (from `error-codes.md` registry + base-response).
   - `seed` / `stub` / `env-config` — from create-test-data's Datatest / stubs.
-- **02-Backlog/** — per node in the functional tree: **one test task per test case** (the success case + each alternative / error case — each its own task with its own running `NN`, never bundled, no letter suffixes) at the node's level (`unit` = no I/O; `integration` = hits DB/Redis/gateway; `component` = orchestrates internal services, mock collaborators, no supertest), **plus** the node's `code` task. The `code` task `depends_on` **all** the node's test-case tasks.
+- **02-Backlog/** — per node in the functional tree: **one test task per test case** (the success case + each alternative / error case — each its own task with its own running `NN`, never bundled, no letter suffixes) at the node's assigned level (from step 1), **plus** the node's `code` task. The `code` task `depends_on` **all** the node's test-case tasks.
   - Alternative / error cases stay as **test tasks in this scenario's backlog** (mocked / pure tests use no real data) — do NOT spin up a new scenario for an error you aren't deliberately scripting as its own flow. A new scenario is a get-requirement concern: only when the E2E flow genuinely differs and needs its own test data.
 - **03-Api-test/** — **one task per request** in the scenario's E2E flow. To author each request, read `gateway-directory.md` **Inbound** for its endpoint (method + path) and `gateway-contract.md` for its request/response shape. **Only the LAST api-test task carries the run `command`** (the project's api-test run command — runs the whole chain once); the rest have no `command`. Running each request separately is too slow — run once at the end.
 
@@ -85,7 +82,7 @@ Depth: `contract` carries referenced type shapes (no "see source") · `cases` re
   - `high` — novel scenario (no sibling), long request chain, multiple new downstream stubs, complex body templating.
 
 ### 6. Name + place files
-Each task file is `<id>.json` (= `<NN>-<slug>-<type>.json`), placed in its group folder. The folder paths are owned by workflow `## Layout`.
+Each task file is `<id>.json` (= `<NN>-<slug>-<type>.json`), placed in its group folder.
 
 ### 7. Self-learn
 Anything missing to author a task (no contract, a missing/unregistered endpoint, a missing error_code, a conflict) → aggregate to `self-report` (silent).
@@ -104,7 +101,7 @@ Tell the user the updated `scenario.html` is ready (tasks + functional design re
 - cross-ref: `tech-stack/tech-stack.md` — project structure (drives the functional design + where code / test files live).
 - cross-ref: `tech-stack/testing-guide.md` — test conventions + the test structure a test task's `at` path follows.
 - cross-ref: `tech-stack/code-standards.md` — code conventions / hard rules embedded into code tasks.
-- cross-ref: `https://martinfowler.com/articles/practical-test-pyramid.html` — the test-level (test pyramid) classification (unit / integration / component).
+- cross-ref (no file-map edge): `https://martinfowler.com/articles/practical-test-pyramid.html` — the test-level (test pyramid) classification (unit / integration / component).
 - cross-ref: `skills/generate-report/SKILL.md` — owns the scenario.html Functional Design card format (`.fn-tree` anatomy) this skill authors.
 - bridge: `skills/workflow/SKILL.md` (`## Layout`) — owns the Setup / Backlog / Api-test folder paths + task-file placement; this skill groups tasks and defers the paths there.
 
