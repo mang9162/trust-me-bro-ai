@@ -39,7 +39,6 @@ Related to:
 ## References
 - bridge: `tech-stack/database-schema.md` — a `ref` pointing at a DB column must match a column there; a `format`/type mismatch is a `self-report` conflict.
 - bridge: `tech-stack/gateway-contract.md` — a `ref` pointing at a request/response field matches that line's payload shape.
-- cross-ref: `context/domain-reference.md` — general domain meaning lives there; this file holds variable names only.
 
 ## Role & Boundary (Read Before Editing)
 data.md is the central dictionary of test-data variable NAMES — it records which domain entity each piece of

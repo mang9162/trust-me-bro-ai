@@ -147,7 +147,7 @@ flowchart LR
   %% ===== 1c: BLACK DASHED = bridge (key/value must match between 2 files — convention "ref = bridge", Issue #2) =====
   data -.->|"15 · ref: table.column"| dbschema
   data -.->|"16 · ref: Gateway.method.response"| gwcontract
-  gwdir <-.->|"17 · entry name match"| gwcontract
+  gwdir <-.->|"17 · bridge id &lt;service&gt;(&lt;path&gt;) match"| gwcontract
 
   %% ===== 1 (cont): LIGHT-BLUE DASHED = cross-ref =====
   defaultTdd -.->|"18 · ref: code conventions"| codestd
