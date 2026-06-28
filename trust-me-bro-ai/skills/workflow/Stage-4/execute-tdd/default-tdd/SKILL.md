@@ -63,6 +63,10 @@ Don't set `status`, refresh the report, pick the next task, or ask the user — 
 - cross-ref: `tech-stack/code-standards.md` — code conventions / hard rules a code task follows.
 - cross-ref (no file-map edge): `https://martinfowler.com/articles/practical-test-pyramid.html` — the unit / integration / component level a test task honours.
 
+## Writes To
+
+- (no file-map edge) the project's real source files at the task's `targets` — the test / code / setup artifact the task produces, written into the project itself (outside the kit — no node).
+
 ## Role & Boundary (Read Before Editing)
 
 This is the **default skill an engineer agent follows** under execute-tdd — the fallback for executing one already-pre-flighted task when no `execute-tdd/<task.type>/` handler matches. It covers: producing that single task's artifact from the task's own fields + project conventions, running the task's `command`, and self-verifying against the task's `acceptance`. It is a playbook, not the engineer — the agent is the engineer. It does NOT pick or order tasks, set `status`, refresh the report, or talk to the user (all execute-tdd's); does NOT author or edit tasks / contracts / cases (`create-task`); does NOT stage new test data, seeds, or stubs (`create-test-data` — it only applies what was staged, via an env-setup task); for a test task does NOT implement the code under test (the paired code task does), and for a code task does NOT rewrite the test. If a task can't be completed from what it carries, report back rather than guessing. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

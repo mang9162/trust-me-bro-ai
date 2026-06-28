@@ -111,6 +111,8 @@ One line per skill this skill hands off to when done:
 ### `## Writes To`
 One line per file this skill writes/updates directly:
 - <file> — <what gets written>
+- a write outside the diagram (e.g. into the real project, not a tracked node)
+  is marked `(no file-map edge)` at the start: `- (no file-map edge) <file> — <what gets written>`
 
 ### `## Role & Boundary (Read Before Editing)`
 Short positive statement of what this skill IS responsible for, so a future
