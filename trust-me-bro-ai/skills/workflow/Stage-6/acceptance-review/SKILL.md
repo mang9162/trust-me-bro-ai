@@ -64,9 +64,9 @@ This skill owns Stage 6: the acceptance gate. It Summarizes the finished scenari
 It does NOT:
 
 - write `scenario.html` itself — `generate-report` owns it; this stage only triggers it (accepted flag, Acceptance History, and the Summarize view all go through generate-report).
-- analyse a failure or write a fix / implement code — that is Stage 4 (`execute-tdd`); a failed api-test is surfaced for the user to decide on, not auto-fixed.
+- analyse a failure or write a fix itself — a fix **task** is `create-task`'s (on a loop-back), fix **code** is `execute-tdd`'s; a failed api-test is surfaced for the user to decide on, not auto-fixed.
 - re-run api-test or any earlier stage — it reviews their output only.
 - review self-learn entries in detail — that is the self-learn review in `feed-back.html`, outside the workflow; here they are only listed as a retrospective headline + count.
-- own the loop-back routing or the folder / `NN` conventions — that is `workflow` (Stage 6 routing) and Stages 1-3; this stage only supplies the reject feedback.
+- own the loop-back routing or the folder / `NN` conventions — that is `workflow`; this stage only supplies the reject feedback.
 
 For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
