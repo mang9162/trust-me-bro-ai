@@ -99,6 +99,26 @@
     <dt>Touches</dt><dd>New committed location; the board's existing Decision notes are the source to migrate. Format + where it lives still to be defined.</dd>
   </dl>
 </div>
+<h2>skill-sync — skill discovery</h2>
+<div class="item">
+  <h3>Clone per-skill pointer stubs instead of one index <span class="status">Planned</span></h3>
+  <dl>
+    <dt>Now</dt><dd><code>skill-sync</code> generates a single <code>index/SKILL.md</code> listing every skill. The harness surfaces only the <code>index</code> skill's description, so reaching any real skill means opening the index and reading to the very bottom — in practice the agent doesn't, so skills lower in the list (<code>api-test</code>, <code>acceptance-review</code>, the <code>Stage-*</code> skills) get missed.</dd>
+    <dt>Later</dt><dd>Generate one stub folder per skill — <code>.claude/skills/&lt;name&gt;/SKILL.md</code> (and <code>.agents/skills/&lt;name&gt;/</code>) — each carrying that skill's real <code>name</code> + <code>description</code> in frontmatter, so the harness surfaces every skill natively without any index-body reading. The stub body is a <em>pointer</em> to the real <code>trust-me-bro-ai/skills/.../SKILL.md</code>, not a copy — copying would break the real skill's relative refs to <code>scripts/</code>, <code>context/</code>, <code>file-map.html</code>. Clone is flat (harness discovers one level deep); nested skills like <code>workflow/Stage-1/get-requirement</code> flatten to a single name — names are unique today. Drop the <code>index</code> skill entirely (it is the thing that fails).</dd>
+    <dt>Touches</dt><dd><code>skill-sync/scripts/sync.sh</code> — rewrite to emit per-skill pointer stubs into both agent dirs and remove orphaned stubs for deleted skills, dropping the single-<code>index</code> generation. Update <code>skill-sync/SKILL.md</code> notes to match.</dd>
+  </dl>
+</div>
+
+<h2>self-improve — run create-skill checklist on skill edits</h2>
+<div class="item">
+  <h3>Always run the after-edit checklist when a fix edits a skill <span class="status">Planned</span></h3>
+  <dl>
+    <dt>Now</dt><dd><code>self-improve</code> executes a fix's <code>steps</code> against <code>fixOptions[].files</code> (step&nbsp;5) and closes the entry to <code>log.js</code> (step&nbsp;7). If one of those files is a skill's <code>SKILL.md</code>, it edits and moves on — it never runs <code>create-skill</code>'s <code>## After You Create or Edit a Skill</code> checklist (run eval + report). So a skill can be changed through self-improve without the eval/report that create-skill requires for any edit.</dd>
+    <dt>Later</dt><dd>Whenever a fix touches a skill file, always run <code>create-skill</code>'s <code>## After You Create or Edit a Skill</code> checklist (run the eval and report in the required format) before closing the entry — so no edit path bypasses the after-edit gate.</dd>
+    <dt>Touches</dt><dd><code>self-improve</code> — between step&nbsp;5 (execute fix) and step&nbsp;7 (close out): if any <code>fixOptions[].files</code> entry is a skill <code>SKILL.md</code>, invoke <code>create-skill</code>'s <code>## After You Create or Edit a Skill</code> checklist first. References the create-skill after-edit section as the checklist being run.</dd>
+  </dl>
+</div>
+
 <h2>Stand Error status</h2>
 <div class="item">
   <h3>เพื่อให้สามารถกำหนด status ของ response ได้อย่างถูกต้อง <span class="status">Planned</span></h3>
