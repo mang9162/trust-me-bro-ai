@@ -141,6 +141,18 @@
         "(B) assume doesn't hold → BLOCKED, loop halts immediately and asks user",
         "(B) does NOT go to self-report — blocking gaps are never silently logged"
       ]
+    },
+    {
+      "id": 10,
+      "title": "DRAINED lists this stage's self-learn items for review",
+      "prompt": "The loop reported two non-blocking issues to self-report this stage — one candidate and one problem. All tasks 00 through 23 are now done — the queue is DRAINED.",
+      "expectations": [
+        "At the DRAINED pause, the loop lists the self-learn items recorded this stage as headlines with their tier (the candidate and the problem)",
+        "The list is headlines + tier only — not full entry detail, and not a task-by-task dump",
+        "The listing is for the user to review at the pause; the loop does not promote, fix, or resolve any item",
+        "Blocking gaps are not in this list — they already halted the loop earlier",
+        "After listing, reports Stage 4 complete and Stage 5 (api-test) is next"
+      ]
     }
   ]
 }

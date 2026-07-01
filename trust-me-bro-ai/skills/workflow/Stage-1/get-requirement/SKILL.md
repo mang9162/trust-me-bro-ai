@@ -63,7 +63,7 @@ Establish a shared, unambiguous understanding of what each scenario does — in 
 
 5. **Update Report** — trigger `generate-report` to write/update `scenario.html` for each scenario (header-card + progress-indicator(1/6) + E2E-flow + placeholder test-data/tasks, per the `scenario-meta` from step 3).
 
-6. ⏸ **PAUSE** — present each `scenario.html` path and ask the user to review. Do NOT move to Stage 2 until approved.
+6. ⏸ **PAUSE** — present each `scenario.html` path and ask the user to review, and list the self-learn items recorded this round (headlines + tier). Do NOT move to Stage 2 until approved.
 
 ## Example steps (correct style)
 

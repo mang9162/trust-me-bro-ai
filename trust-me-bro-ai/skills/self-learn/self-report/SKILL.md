@@ -33,7 +33,7 @@ description: Sole writer of `{small,medium,heavy}-learn.js`. Triggered by any ot
 
 3. Classify `tier` (small / medium / heavy) — see Tier definitions below.
 4. Write the entry (new or updated) into `<tier>-learn.js`.
-5. **small / medium** -> silent. Do not interrupt the caller's flow or mention this to the user.
+5. **small / medium** -> **silent** mid-flow — don't interrupt the caller; the calling stage surfaces this round's entries at its pause.
 6. **heavy** -> always warn the user (heavy = process-level impact, they need to know now), regardless of the Auto-improve setting.
 7. Check **Auto-improve** (below) for this entry's tier:
    - **on** -> immediately trigger `self-improve` for this entry (pass its `id` and `<tier>-learn.js`).

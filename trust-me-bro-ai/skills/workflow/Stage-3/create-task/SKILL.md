@@ -91,7 +91,7 @@ Anything missing to author a task (no contract, a missing/unregistered endpoint,
 Trigger `generate-report` to refresh `scenario.html`.
 
 ### 9. ⏸ PAUSE
-Tell the user the updated `scenario.html` is ready (tasks + functional design rendered by generate-report in step 8) and to review it there — don't print a task summary. Do not start execute-tdd until approved.
+Tell the user the updated `scenario.html` is ready (tasks + functional design rendered by generate-report in step 8) and to review it there — don't print a task summary. Also list the self-learn items recorded this round (headlines + tier). Do not start execute-tdd until approved.
 
 ## References
 - bridge: `context/gateway-directory.md` — **Inbound** lines: each E2E request's endpoint (method + path); cross-check the flow against it to catch a missing / unregistered / outbound endpoint.

@@ -19,7 +19,20 @@ The task arrives already picked and pre-flighted by execute-tdd: its `depends_on
 
 ### 1. Read the task
 
-Read every field the task carries — `contract`, `cases`, `pseudocode`, `targets`, `uses`, `command`, `acceptance`. These plus the project conventions are the only inputs. No other task files; no inventing.
+Read every field the task carries. What each means (a quick gloss to read a dispatched task — create-task owns the full authoring spec; keep this in sync):
+
+| field | meaning |
+|---|---|
+| `contract` | the full signature / shape to build to (referenced type shapes included, not just names) |
+| `cases` | `[{ given, assert }]` with real values — the checks a test task must make |
+| `pseudocode` | the step-by-step plan to write the test / code, with no open design decisions |
+| `targets` | `[{ path, mode: create\|modify, at }]` — where the artifact goes (`at` = its place in the file's structure) |
+| `uses` | `{ testdata: name→value, stubs }` — the concrete values / stubs the artifact needs |
+| `assume` | the pre-state this task may rely on (already satisfied by an earlier task) |
+| `command` | the exact command to run to verify |
+| `acceptance` | the done criterion + expected `command` result: `red` / `green` / `compiles` |
+
+These plus the project conventions are the only inputs. No other task files; no inventing.
 
 ### 2. Produce exactly this task's artifact (by `type`)
 
@@ -52,7 +65,7 @@ Report: what was produced (the `targets` touched), the `command` output, and whe
 - Met → report success; execute-tdd's close-out sets `status` → `done`.
 - Not met / couldn't complete → report the mismatch honestly (what `acceptance` expected vs what happened); execute-tdd decides FAILURE / BLOCKED and owns the halt + user ask.
 
-Anything worth **improving** (a pattern hand-written across tasks, a missing convention) → surface it with the result so execute-tdd's close-out can aggregate it to `self-report`.
+Every improvement it found (a pattern hand-written across tasks, a missing convention) → surface it with the result so execute-tdd's close-out reports it to `self-report`.
 
 Don't set `status`, refresh the report, pick the next task, or ask the user — all of that is execute-tdd's.
 

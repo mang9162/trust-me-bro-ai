@@ -60,7 +60,7 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 - [ ] set `status` → `done`
 - [ ] record the run result (actual vs `acceptance` — green / red-as-expected / compiles)
 - [ ] update the central task / queue so the next pass (step 1) sees the latest status
-- [ ] anything worth **improving** (not blocking) → `self-report`: a recurring pattern from step 5 that isn't a rule yet goes as a `candidate` (with its `places` list); other issues go as a `problem`
+- [ ] **every** non-blocking issue found this task → `self-report`: a recurring pattern from step 5 that isn't a rule yet goes as a `candidate` (with its `places` list); other issues go as a `problem`
 
 → back to step 1.
 
@@ -77,7 +77,7 @@ Every halt/pause first refreshes the report (`generate-report` → `scenario.htm
 
 | Outcome | When | Action (after `generate-report`) |
 | --- | --- | --- |
-| **DRAINED** | no Setup/Backlog task left (step 1) | tell the user Stage 4 is done (Setup + Backlog green); Stage 5 (`api-test`) is next. No task-by-task dump. |
+| **DRAINED** | no Setup/Backlog task left (step 1) | tell the user Stage 4 is done (Setup + Backlog green) and list the self-learn items recorded this stage (headlines + tier); Stage 5 (`api-test`) is next. No task-by-task dump. |
 | **DEADLOCK** | tasks remain but none runnable — every `pending` has an unmet or `failed` `depends_on` (step 1) | ask the user which task is blocked and why; don't guess |
 | **BLOCKED** | an `assume` doesn't hold (step 2) | ask the user to supply/repair the missing pre-state; don't guess it |
 | **FAILURE** | result ≠ the task's `acceptance` (step 5) | set the task `failed`; ask the user — downstream depends on it, barrelling ahead spreads the break |

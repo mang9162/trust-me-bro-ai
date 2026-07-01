@@ -43,7 +43,7 @@ Build the queue from the `03-Api-test/` tasks, then repeat:
 - [ ] set `status` → `done`
 - [ ] record the run result (actual vs `acceptance`)
 - [ ] update the central task / queue so the next pass (step 1) sees the latest status
-- [ ] anything worth **improving** (not blocking) → aggregate to `self-report`
+- [ ] **every** non-blocking issue found this task → `self-report`
 
 → back to step 1.
 
@@ -53,7 +53,7 @@ Every halt/pause first refreshes the report (`generate-report` → `scenario.htm
 
 | Outcome | When | Action (after `generate-report`) |
 | --- | --- | --- |
-| **DRAINED** | no api-test task left (step 1) | pause → Stage 6 (`acceptance-review`). No task-by-task dump. |
+| **DRAINED** | no api-test task left (step 1) | list the self-learn items recorded this stage (headlines + tier), then pause → Stage 6 (`acceptance-review`). No task-by-task dump. |
 | **DEADLOCK** | tasks remain but none runnable — each `pending` has an unmet or `failed` `depends_on` (step 1) | ask the user which task is blocked and why; don't guess |
 | **BLOCKED** | an `assume` doesn't hold (step 2) | ask the user to supply / repair the missing pre-state; don't guess it |
 | **FAILURE** | result ≠ the task's `acceptance` (step 5) | set the task `failed`; ask the user — the feature isn't verified end-to-end, and downstream may depend on it |

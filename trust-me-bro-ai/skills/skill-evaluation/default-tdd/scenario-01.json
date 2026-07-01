@@ -1,0 +1,66 @@
+{
+  "skill_name": "default-tdd",
+  "context": {
+    "dispatch": "execute-tdd handed the engineer agent ONLY the task below plus the default-tdd skill — no create-task, no other task files.",
+    "task": {
+      "id": "09-filter-available-test",
+      "type": "unit-test",
+      "status": "in_progress",
+      "title": "unit test: filterAvailable() drops out-of-stock items",
+      "targets": [{ "path": "src/menu/filterAvailable.spec.ts", "mode": "create", "at": "MenuService > filterAvailable > unit" }],
+      "contract": "filterAvailable(items: MenuItem[]): MenuItem[]  // MenuItem = { id: string; inStock: boolean }",
+      "cases": [
+        { "given": "items = [{ id: 'm1', inStock: true }, { id: 'm2', inStock: false }]", "assert": ["result === [{ id: 'm1', inStock: true }]", "result.length === 1"] }
+      ],
+      "pseudocode": ["arrange the items array from the case", "call filterAvailable(items)", "assert the result is the in-stock item only"],
+      "assume": "the MenuItem interface already compiles (a Setup task is done)",
+      "command": "npx jest src/menu/filterAvailable.spec.ts",
+      "acceptance": "red"
+    }
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Interprets the task from its own field legend, standalone",
+      "prompt": "Produce the task's artifact.",
+      "expectations": [
+        "Reads the task's fields using default-tdd's own field legend — does not open create-task or any other task file to learn what a field means",
+        "Writes the test at targets.path, placed per targets.at, following cases (the given/assert with their real values) and contract",
+        "Does NOT implement filterAvailable — that is the paired code task",
+        "Runs the task's command exactly (npx jest src/menu/filterAvailable.spec.ts); does not substitute another",
+        "Invents no field or value beyond what the task and the project conventions carry"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "acceptance: red means confirm red, not make green",
+      "prompt": "The written test runs and fails with 'filterAvailable is not a function'.",
+      "expectations": [
+        "A failing test because the function isn't implemented = red = matches acceptance 'red' → PASS",
+        "Does NOT write filterAvailable to turn the test green — red IS the acceptance for a test task",
+        "Hands the result back to execute-tdd (what was produced, the command output, whether acceptance was met)",
+        "Does not set status, refresh the report, pick the next task, or ask the user"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Can't complete from what the task carries → report back",
+      "prompt": "Suppose the contract referenced a type whose shape the task never carries and the project conventions don't define.",
+      "expectations": [
+        "Does NOT guess the missing type shape or open another task file to find it",
+        "Reports back to execute-tdd that the task can't be completed from what it carries",
+        "Does not massage a non-matching result into looking like a pass"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Improvement observation is surfaced, not written or acted on",
+      "prompt": "While writing the test, the agent notices the same DB-connection setup has been hand-written across several test tasks this run.",
+      "expectations": [
+        "Surfaces the recurring pattern with the result so execute-tdd's close-out reports it to self-report — it is not dropped",
+        "Does not write to any learn.js itself — default-tdd is not the self-report writer",
+        "Does not halt or ask the user — it is a non-blocking improvement handed back with the result"
+      ]
+    }
+  ]
+}

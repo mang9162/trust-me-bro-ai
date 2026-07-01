@@ -50,7 +50,7 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
    - stub predicates use the scenario-unique values from step 2,
    - every value embedded in a stub or seed exists in `Datatest.md`,
    - every row flagged in `status` was actually sent to `self-report`.
-   Then present the updated `scenario.html` for review. Do NOT move to Stage 3 until approved.
+   Then present the updated `scenario.html` for review, and list the self-learn items recorded this round (headlines + tier). Do NOT move to Stage 3 until approved.
 
 ## References
 - cross-ref: `trust-me-bro-ai/context/data.md` — central dictionary; pick catalogued variable names from here (read-only — never write back).
