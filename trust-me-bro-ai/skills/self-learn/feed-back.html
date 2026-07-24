@@ -6,6 +6,7 @@
 <script src="small-learn.js"></script>
 <script src="medium-learn.js"></script>
 <script src="heavy-learn.js"></script>
+<script src="tech-debt.js"></script>
 <script src="log.js"></script>
 <style>
   :root {
@@ -23,6 +24,9 @@
     --heavy-color: #dc2626;
     --heavy-bg: #fee2e2;
     --heavy-border: #fca5a5;
+    --issue-color: #4f46e5;
+    --issue-bg: #e0e7ff;
+    --issue-border: #a5b4fc;
     --log-color: #64748b;
     --log-bg: #f1f5f9;
     --log-border: #cbd5e1;
@@ -65,6 +69,7 @@
   .tab-btn.active[data-tier="small"]  { border-bottom-color: var(--small-color);  color: var(--small-color); }
   .tab-btn.active[data-tier="medium"] { border-bottom-color: var(--medium-color); color: var(--medium-color); }
   .tab-btn.active[data-tier="heavy"]  { border-bottom-color: var(--heavy-color);  color: var(--heavy-color); }
+  .tab-btn.active[data-tier="issue"]  { border-bottom-color: var(--issue-color);  color: var(--issue-color); }
   .tab-btn.active[data-tier="log"]    { border-bottom-color: var(--log-color);    color: var(--log-color); }
 
   .count-badge {
@@ -78,6 +83,7 @@
   .tab-btn[data-tier="small"]  .count-badge { background: var(--small-bg);  color: var(--small-color);  border: 1px solid var(--small-border); }
   .tab-btn[data-tier="medium"] .count-badge { background: var(--medium-bg); color: var(--medium-color); border: 1px solid var(--medium-border); }
   .tab-btn[data-tier="heavy"]  .count-badge { background: var(--heavy-bg);  color: var(--heavy-color);  border: 1px solid var(--heavy-border); }
+  .tab-btn[data-tier="issue"]  .count-badge { background: var(--issue-bg);  color: var(--issue-color);  border: 1px solid var(--issue-border); }
   .tab-btn[data-tier="log"]    .count-badge { background: var(--log-bg);    color: var(--log-color);    border: 1px solid var(--log-border); }
 
   .tab-panel { display: none; }
@@ -151,25 +157,29 @@
   .controls input { flex: 1; }
   .controls select:focus, .controls input:focus { border-color: #0ea5e9; }
   .entry.candidate { border-left: 3px solid #7c3aed; }
+  .entry.issue { border-left: 3px solid var(--issue-color); }
   .kind-badge {
     font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
     margin-left: 8px; padding: 1px 7px; border-radius: 999px;
     background: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd;
   }
+  .kind-badge.issue { background: var(--issue-bg); color: var(--issue-color); border-color: var(--issue-border); }
+  .places { font-size: 0.78rem; color: var(--muted); margin: 6px 0; }
   .score-badge { color: #6d28d9; font-weight: 700; }
 </style>
 </head>
 <body>
   <h1>Self-Learn Feedback</h1>
   <p class="subtitle">
-    View of <code>small-learn.js</code> / <code>medium-learn.js</code> / <code>heavy-learn.js</code> / <code>log.js</code>.
-    Reload after <code>self-report</code> or <code>self-improve</code> updates a file.
+    View of <code>small-learn.js</code> / <code>medium-learn.js</code> / <code>heavy-learn.js</code> / <code>tech-debt.js</code> / <code>log.js</code>.
+    Reload after <code>self-report</code>, <code>self-improve</code>, or <code>define-task</code> updates a file.
   </p>
 
   <div class="tab-bar">
     <button class="tab-btn active" data-tier="small"  onclick="switchTab('small')">Small  <span class="count-badge" id="count-small">0</span></button>
     <button class="tab-btn"        data-tier="medium" onclick="switchTab('medium')">Medium <span class="count-badge" id="count-medium">0</span></button>
     <button class="tab-btn"        data-tier="heavy"  onclick="switchTab('heavy')">Heavy  <span class="count-badge" id="count-heavy">0</span></button>
+    <button class="tab-btn"        data-tier="issue"  onclick="switchTab('issue')">Issue  <span class="count-badge" id="count-issue">0</span></button>
     <button class="tab-btn"        data-tier="log"    onclick="switchTab('log')">Log    <span class="count-badge" id="count-log">0</span></button>
   </div>
 
@@ -178,6 +188,7 @@
       <option value="all">All kinds</option>
       <option value="problem">Problems</option>
       <option value="candidate">Candidates</option>
+      <option value="issue">Issues</option>
     </select>
     <input id="search-box" type="text" placeholder="Search title or problem..." oninput="renderCurrent()" />
   </div>
@@ -185,6 +196,7 @@
   <div id="panel-small"  class="tab-panel active"></div>
   <div id="panel-medium" class="tab-panel"></div>
   <div id="panel-heavy"  class="tab-panel"></div>
+  <div id="panel-issue"  class="tab-panel"></div>
   <div id="panel-log"    class="tab-panel"></div>
 
   <script>
@@ -247,9 +259,11 @@
 
     function renderEntry(entry, file, readOnly) {
       var isCandidate = entry.kind === 'candidate';
-      var card = el('div', { 'class': 'entry' + (isCandidate ? ' candidate' : '') });
+      var isIssue = entry.kind === 'issue';
+      var card = el('div', { 'class': 'entry' + (isCandidate ? ' candidate' : '') + (isIssue ? ' issue' : '') });
       var title = [el('span', { text: entry.title || entry.id })];
       if (isCandidate) title.push(el('span', { 'class': 'kind-badge', text: 'candidate' }));
+      if (isIssue) title.push(el('span', { 'class': 'kind-badge issue', text: 'issue' }));
       var meta = [el('span', { text: 'id: ' + entry.id + ' · first seen: ' + entry.firstSeen + ' · by: ' + entry.reportedBy + ' · status: ' + entry.status })];
       if (isCandidate) {
         meta.push(el('span', { 'class': 'score-badge', text: ' · point ' + (entry.point || 0) + ' · ' + ((entry.places || []).length) + ' places' }));
@@ -259,6 +273,9 @@
         el('div', { 'class': 'entry-meta' }, meta),
       ]));
       card.appendChild(el('div', { 'class': 'entry-problem', text: entry.problem || '' }));
+      if (isIssue) {
+        card.appendChild(el('div', { 'class': 'places', text: 'Places: ' + ((entry.places || []).join(', ') || '—') }));
+      }
       var occ = el('div', { 'class': 'occurrences' });
       occ.appendChild(el('div', { text: 'Occurrences (' + (entry.occurrences || []).length + '):' }));
       var list = el('ul');
@@ -267,9 +284,17 @@
       });
       occ.appendChild(list);
       card.appendChild(occ);
-      card.appendChild(renderFixOptions(entry, file));
+      if (!isIssue) card.appendChild(renderFixOptions(entry, file));
       if (readOnly) {
-        card.appendChild(el('div', { 'class': 'log-fields', text: 'chosen option: ' + entry.chosenOption + ' · applied: ' + entry.appliedDate }));
+        card.appendChild(el('div', { 'class': 'log-fields', text: isIssue
+          ? 'issue folder: ' + entry.issueFolder
+          : 'chosen option: ' + entry.chosenOption + ' · applied: ' + entry.appliedDate }));
+      } else if (isIssue) {
+        var dbtn = el('button', { 'class': 'copy-btn', text: 'Copy define-task prompt' });
+        dbtn.addEventListener('click', function() {
+          copyPrompt(dbtn, 'define-task: entry=' + entry.id + ' (' + file + ')');
+        });
+        card.appendChild(el('div', { 'class': 'custom-fix' }, [dbtn]));
       } else if (isCandidate) {
         var rbtn = el('button', { 'class': 'copy-btn', text: 'Copy reject prompt' });
         rbtn.addEventListener('click', function() {
@@ -295,14 +320,14 @@
       small:  { file: 'small-learn.js',  entries: typeof SMALL_LEARN  !== 'undefined' ? SMALL_LEARN  : [], readOnly: false },
       medium: { file: 'medium-learn.js', entries: typeof MEDIUM_LEARN !== 'undefined' ? MEDIUM_LEARN : [], readOnly: false },
       heavy:  { file: 'heavy-learn.js',  entries: typeof HEAVY_LEARN  !== 'undefined' ? HEAVY_LEARN  : [], readOnly: false },
+      issue:  { file: 'tech-debt.js',    entries: typeof TECH_DEBT    !== 'undefined' ? TECH_DEBT    : [], readOnly: false },
       log:    { file: 'log.js',          entries: typeof LOG_DATA     !== 'undefined' ? LOG_DATA     : [], readOnly: true }
     };
     var currentTab = 'small';
 
     function matchesFilter(e) {
       var kind = document.getElementById('filter-kind').value;
-      if (kind === 'problem'   && e.kind === 'candidate') return false;
-      if (kind === 'candidate' && e.kind !== 'candidate') return false;
+      if (kind !== 'all' && (e.kind || 'problem') !== kind) return false;
       var q = document.getElementById('search-box').value.trim().toLowerCase();
       if (q && ((e.title || '') + ' ' + (e.problem || '')).toLowerCase().indexOf(q) === -1) return false;
       return true;

@@ -58,6 +58,11 @@ The **Common** rules apply to every skill; then add the **Generic** or
   cases. Push "when" and "how" into the steps.
 - **Lean prose** — short, direct sentences; don't restate what a nearby
   table, JSON example, or step already says.
+- **Only what-it-does + real links** — include what the skill does and the
+  skills / files it actually connects to (a `## References` / `## Trigger
+  Skill` / `## Writes To` edge, or a `does NOT` boundary pointer). Cut design
+  history, "why it's built this way" rationale, and skills that are merely
+  similar but not linked — they make it ramble and read as two things at once.
 - **Ordered steps, no jumping** — one action per step, in run order; don't
   fold several decisions into one sentence or hop back and forth.
 - **Table once it's dense** — when fields / cases / options pile up, switch

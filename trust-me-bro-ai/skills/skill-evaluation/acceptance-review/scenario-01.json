@@ -40,8 +40,8 @@
     },
     {
       "id": 3,
-      "title": "PAUSE — agent asks and waits, never decides",
-      "prompt": "Summary is shown. Ask for acceptance.",
+      "title": "Acceptance ask (step 7) — agent asks and waits, never decides",
+      "prompt": "Concerns, anomalies, and the retrospective are done. Now resolve — ask the user for acceptance.",
       "expectations": [
         "Agent asks the user directly: accept or reject (or similar phrasing)",
         "Agent does NOT decide accept or reject on its own",
@@ -52,10 +52,10 @@
     },
     {
       "id": 4,
-      "title": "Retrospective runs on accept — lists self-learn headlines",
-      "prompt": "User says 'accept'. Run the retrospective before resolving.",
+      "title": "Retrospective always runs before resolve — lists self-learn headlines",
+      "prompt": "Before the acceptance decision, run the retrospective.",
       "expectations": [
-        "Retrospective runs BEFORE the accept is resolved — not skipped because it's accepted",
+        "Retrospective runs before the acceptance decision (step 7) — every round, never skipped",
         "Lists the 3 self-learn entries as headlines with count (e.g. '3 improvement observations')",
         "Does NOT show full detail of each entry — headlines only",
         "Asks the user for closing feedback (process feedback, not functional)",
@@ -64,12 +64,12 @@
     },
     {
       "id": 5,
-      "title": "Retrospective runs on reject too",
-      "prompt": "User says 'reject — the order total calculation doesn't apply the free delivery coupon'. Run the retrospective.",
+      "title": "Reject feedback (functional) stays separate from closing feedback (process)",
+      "prompt": "The retrospective ran and collected closing feedback. At resolve, the user rejects: 'the order total calculation doesn't apply the free delivery coupon'.",
       "expectations": [
-        "Retrospective runs even though the scenario is rejected",
-        "Same format: self-learn headlines + ask for closing feedback",
-        "The reject reason (coupon issue) is functional feedback — separate from closing process feedback",
+        "The retrospective already ran before the decision — it is not gated on the eventual accept/reject",
+        "The reject reason (coupon issue) is functional feedback (what to fix) — collected at resolve, handed to Stage 1",
+        "The closing process feedback from the retrospective is separate — it goes to self-report as an occurrence",
         "Both types of feedback are captured but handled differently"
       ]
     },

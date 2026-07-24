@@ -1,6 +1,6 @@
 ---
 name: execute-tdd
-description: Stage-4 of workflow. The central TDD execution loop. Drains the Setup + Backlog tasks authored by create-task in dependency order; for each task it runs a pre-flight / dispatch / close-out checklist, hands the task + a skill (the type handler at `execute-tdd/<task.type>/` if one exists, otherwise `execute-tdd/default-tdd`) to an engineer agent, then accepts the result against the task's own acceptance (red / green / compiles). Does not implement code itself. Halts and asks the user on a blocking gap (deadlock, failure, an assume that doesn't hold); refreshes the report and pauses when the queue is drained, then hands off to Stage 5.
+description: Stage-4 of workflow. The central TDD execution loop. Drains the Setup + Backlog tasks authored by create-task in dependency order; for each task it runs a pre-flight / dispatch / close-out checklist, hands the task + a skill (the type handler at `agent-skill/<task.type>/` if one exists, otherwise `agent-skill/default-tdd`) to an engineer agent, then accepts the result against the task's own acceptance (red / green / compiles). Does not implement code itself. Halts and asks the user on a blocking gap (deadlock, failure, an assume that doesn't hold); refreshes the report and pauses when the queue is drained, then hands off to Stage 5.
 ---
 
 # Execute TDD
@@ -9,7 +9,7 @@ description: Stage-4 of workflow. The central TDD execution loop. Drains the Set
 
 Stage 4. Take the atomic tasks create-task authored into `01-Setup/` + `02-Backlog/` and run them through the TDD red→green loop, one task at a time in dependency order.
 
-This skill is the **central loop / dispatcher** — it does NOT implement code itself. It reads each task, hands it (plus a skill) to an **engineer agent** to execute, and accepts the result against the task's own `acceptance`. The skill the agent follows is either a type-specific handler (`execute-tdd/<task.type>/`) or, by default, `execute-tdd/default-tdd` (the plain TDD procedure). The task carries everything the agent needs (create-task's self-sufficiency bar).
+This skill is the **central loop / dispatcher** — it does NOT implement code itself. It reads each task, hands it (plus a skill) to an **engineer agent** to execute, and accepts the result against the task's own `acceptance`. The skill the agent follows is either a type-specific handler (`agent-skill/<task.type>/`) or, by default, `agent-skill/default-tdd` (the plain TDD procedure). The task carries everything the agent needs (create-task's self-sufficiency bar).
 
 ## Procedure
 
@@ -31,7 +31,7 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 
 **3. Dispatch** — pick the skill, then run it in the active mode.
 
-- [ ] **skill** = the handler at `execute-tdd/<task.type>/` if it exists (its type-specific format layers on top of the plain flow), otherwise `execute-tdd/default-tdd`
+- [ ] **skill** = the handler at `agent-skill/<task.type>/` if it exists (its type-specific format layers on top of the plain flow), otherwise `agent-skill/default-tdd`
 
 *Mode — one-context (current; always dispatch this way):*
 
@@ -68,8 +68,8 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 
 `execute-tdd` never writes code; an engineer agent does, following one of these skills. Two kinds:
 
-- **`execute-tdd/default-tdd`** — the always-present default. Given only the task, the agent follows the task's `pseudocode`: a **test task** → write the test exactly as `cases` + `contract` specify, run `command`, confirm red per `acceptance`; a **code task** → implement the `contract` so the paired red test goes green; a **Setup task** (interface / error_code / seed / stub / env-setup) → produce the artifact `contract` / `targets` describe and verify with `command`. No design decisions are left open — the task already carries them.
-- **`execute-tdd/<task.type>/`** — an optional, type-specific handler (e.g. `execute-tdd/integration-test/`). When present, it layers extra format/conventions for that type on top of the plain flow. Add one only when a type needs special handling (propose it via `self-report`).
+- **`agent-skill/default-tdd`** — the always-present default. Given only the task, the agent follows the task's `pseudocode`: a **test task** → write the test exactly as `cases` + `contract` specify, run `command`, confirm red per `acceptance`; a **code task** → implement the `contract` so the paired red test goes green; a **Setup task** (interface / error_code / seed / stub / env-setup) → produce the artifact `contract` / `targets` describe and verify with `command`. No design decisions are left open — the task already carries them.
+- **`agent-skill/<task.type>/`** — an optional, type-specific handler (e.g. `agent-skill/integration-test/`). When present, it layers extra format/conventions for that type on top of the plain flow. Add one only when a type needs special handling (propose it via `self-report`).
 
 ### Stop & pause
 
@@ -87,7 +87,7 @@ Report refresh happens only at these points — **not on every task** (too heavy
 
 ### `self-report` is improve, not fix
 
-`self-report` carries **non-blocking improvement** observations only — e.g. "this pattern keeps getting hand-written across tasks; promote it to a `code-standard`?" or "this type recurs and needs special handling; add an `execute-tdd/<type>/` handler?". **Blocking** outcomes (DEADLOCK / BLOCKED / FAILURE above) are never silently logged — they halt the loop and ask the user right away.
+`self-report` carries **non-blocking improvement** observations only — e.g. "this pattern keeps getting hand-written across tasks; promote it to a `code-standard`?" or "this type recurs and needs special handling; add an `agent-skill/<type>/` handler?". **Blocking** outcomes (DEADLOCK / BLOCKED / FAILURE above) are never silently logged — they halt the loop and ask the user right away.
 
 ## References
 
@@ -96,7 +96,7 @@ Report refresh happens only at these points — **not on every task** (too heavy
 
 ## Trigger Skill
 
-- `execute-tdd/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `execute-tdd/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
+- `agent-skill/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `agent-skill/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
 - generate-report — refresh `scenario.html` at every halt/pause (drained / deadlock / blocked / failure / review).
 - self-report — non-blocking **improvement** observations (step 7): a recurring code pattern as a `candidate`, other issues as a `problem`. Silent, aggregated; blocking gaps ask the user instead.
 
@@ -106,4 +106,4 @@ Report refresh happens only at these points — **not on every task** (too heavy
 
 ## Role & Boundary (Read Before Editing)
 
-This skill owns Stage 4: the **central TDD execution loop** over Setup + Backlog — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`execute-tdd/<task.type>/` handler, else `execute-tdd/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / compiles). It does NOT author tasks (`create-task`), does NOT implement code itself (the engineer agent does, following the dispatched skill, guided entirely by the task), does NOT run api-tests (`03-Api-test/` is `api-test` — a different loop), does NOT stage test data / seeds / stubs (`create-test-data`), and does NOT define folder paths or stage gating (`workflow`). Task `status` uses create-task's set — `pending` / `in_progress` / `done` / `failed`; a task that fails acceptance is set `failed` and halts the loop. Blocking gaps (deadlock, failure, an `assume` that doesn't hold) stop the loop and ask the user; only non-blocking improvements go to `self-report`. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
+This skill owns Stage 4: the **central TDD execution loop** over Setup + Backlog — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / compiles). It does NOT author tasks (`create-task`), does NOT implement code itself (the engineer agent does, following the dispatched skill, guided entirely by the task), does NOT run api-tests (`03-Api-test/` is `api-test` — a different loop), does NOT stage test data / seeds / stubs (`create-test-data`), does NOT run issue-fix tasks (`execute-issue`), and does NOT define folder paths or stage gating (`workflow`). Task `status` uses create-task's set — `pending` / `in_progress` / `done` / `failed`; a task that fails acceptance is set `failed` and halts the loop. Blocking gaps (deadlock, failure, an `assume` that doesn't hold) stop the loop and ask the user; only non-blocking improvements go to `self-report`. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

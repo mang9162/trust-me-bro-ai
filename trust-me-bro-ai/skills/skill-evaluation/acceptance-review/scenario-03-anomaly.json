@@ -1,0 +1,74 @@
+{
+  "skill_name": "acceptance-review",
+  "context": {
+    "scenario": "USER_ORDER_FOOD_SUCCESS_1",
+    "description": "Stage 5 finished, all tasks done and api-tests green. This scenario built/changed OrderService.createOrder and the order-confirmation view. PriceHelper.round is a shared helper this scenario did NOT touch. ReportService.exportMonthly is unrelated code this scenario did NOT touch.",
+    "tech-debt.js": [],
+    "note": "Anomaly routing (steps 4-5): a confirmed anomaly that belongs to THIS scenario → recommend reject (workflow loop-back), not captured; anything else → self-report kind:issue, then fix-now (trigger define-task) or later (parked)."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Agent-detected concern, out-of-scenario → confirmed → issue",
+      "prompt": "At the concerns step, while reviewing you notice PriceHelper.round (a shared helper this scenario did not touch) rounds half-down, which looks wrong for money totals. Handle it.",
+      "expectations": [
+        "Raises it to the user as a concern — does NOT itself decide it is a bug",
+        "On the user confirming it is real, routes it as out-of-scenario → triggers self-report with kind: issue (places includes PriceHelper.round)",
+        "Does NOT reject the scenario over it (it is not part of this scenario)",
+        "Does NOT author or run a fix itself"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Agent-detected concern dismissed → dropped",
+      "prompt": "You raised the PriceHelper.round concern. The user says: 'no, half-down is intentional for our accounting — not a bug.' Proceed.",
+      "expectations": [
+        "Nothing is recorded — no kind: issue entry is created and tech-debt.js is not written",
+        "The scenario is not affected",
+        "The agent accepts the user's judgment — the user decides right/wrong, not the agent"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "User-raised anomaly that belongs to THIS scenario → reject loop-back, not an issue",
+      "prompt": "At the 'anything wrong?' step, the user says: 'the order confirmation we just built shows the wrong currency symbol.' Handle it.",
+      "expectations": [
+        "Recognizes it belongs to this scenario (part of what was just built)",
+        "Recommends the user reject, so workflow loops it back to Stage 1 as a fast feedback loop (the existing additive loop-back)",
+        "Does NOT capture it as a kind: issue in tech-debt.js",
+        "Does NOT trigger define-task"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "User-raised out-of-scenario anomaly, fix now → issue + define-task",
+      "prompt": "At the 'anything wrong?' step, the user says: 'unrelated to this feature, but ReportService.exportMonthly still imports the legacy mongo client — dead dependency. Let's get it fixed now.' Handle it.",
+      "expectations": [
+        "Routes it as out-of-scenario → triggers self-report with kind: issue (places includes ReportService.exportMonthly)",
+        "Because the user chose fix-now → triggers define-task on that entry's id",
+        "Does NOT reject the scenario — its accept/reject is unaffected",
+        "Does not itself design or author the fix — define-task does"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "User-raised out-of-scenario anomaly, later → issue only, parked",
+      "prompt": "Same dead-dependency anomaly as before, but the user says: 'just log it for later, don't fix it now.' Handle it.",
+      "expectations": [
+        "self-report writes the kind: issue entry to tech-debt.js",
+        "define-task is NOT triggered — the entry is parked and surfaces in feed-back.html for a later run",
+        "The scenario's accept/reject is unaffected"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Closing feedback is a separate question from anomalies",
+      "prompt": "At the retrospective closing-feedback step, the user gives process feedback: 'the integration tests were slow this round.'",
+      "expectations": [
+        "The closing-feedback question is asked separately from the anomaly steps (it is not merged with 'anything wrong?')",
+        "Process feedback is sent to self-report as a new occurrence — NOT as a kind: issue",
+        "It is not run through the Anomaly routing (no scenario-vs-issue split, no fix-now/later)"
+      ]
+    }
+  ]
+}

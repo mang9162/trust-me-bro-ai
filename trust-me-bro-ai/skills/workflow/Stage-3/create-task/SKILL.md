@@ -51,35 +51,12 @@ Every scenario's first task. It turns create-test-data's mocks / seeds / stubs i
 - **api-test chain:** each api-test task also `depends_on` the previous api-test request in the chain → authoring order = run order (only the last carries the run command, per step 2).
 - A compile error because the function isn't written yet IS the expected red; the test task does not stub or fix it — the paired code task does.
 
-### 5. Write each task to the format
-Every task is a JSON file that meets the **self-sufficiency bar**: a fresh small agent, given ONLY this task + the project's standing conventions (`testing-guide` / `code-standards`), finishes it — no asking, no opening another task, no guessing. It may rely on (1) its own `targets` files, (2) project conventions, (3) its own `assume` — **everything else is carried in the task. Carry content, not names** (a function/type/value/location comes with its content, not just its name).
+### 5. Write each task to the schema
+Author every task JSON to the shared schema in `skills/maintenance/task-schema.md` — the self-sufficiency bar, common fields, conditional fields, and effort sizing are all defined there; read it before authoring. On top of the schema, this stage sets:
 
-**Common fields (every task):**
-- `id` — `<NN>-<slug>-<type>`; `NN` runs per folder (the slug keeps the full id unique)
-- `type` · `folder` · `status` (`pending` / `in_progress` / `done` / `failed`) · `title` — author tasks as `pending`; execute-tdd advances the rest (`failed` = the task ran but didn't meet its `acceptance`)
-- `purpose` — what this task achieves + why, and the scenario it sits under (scope: handle only in-scenario inputs)
-- `targets` — `[{ path, mode: create|modify, at }]` — `create` = write new code/test, `modify` = change/refactor existing. For a test task, `at` = its place within the test file's structure — from `testing-guide` `## Test Levels`: the `### <service>` that owns it (the inbound's service for an api-test, the code node's service otherwise), then that test level's `#### <level>` `layout`.
-- `depends_on` — task ids (ordering only) · `assume` — the pre-state it may rely on, in plain words
-- `command` — exact command to run/verify · `acceptance` — done criteria + expected result of `command` (red / green / compiles)
-- `effort` (`low`/`med`/`high`, sized below) · `notes`
-
-**Conditional fields (by type):**
-- `contract` (interface / code / test / api-test) — full signature/shape **including the shapes of referenced types**, never just their names
-- `cases` (test / api-test) — `[{ given, assert: [concrete checks] }]` with real values from `Datatest.md`
-- `pseudocode` (test / code) — the step-by-step plan to write it (a test: setup → action → assert; code: the implementation), precise enough to write with no open design decisions
-- `uses` (when needed) — `{ testdata: { name: value }, stubs: [...] }` with real values taken from `Datatest.md`
-
-Depth: `contract` carries referenced type shapes (no "see source") · `cases` real `given → assert` · `uses.testdata` name→value · `pseudocode` no open decisions · `targets` path+mode+`at` · `assume` plain pre-state · `command`+`acceptance` exact. **Atomicity:** 1 task = 1 unit.
-
-**Size `effort`:**
-- **Backlog tasks** (`unit-test` / `integration-test` / `component-test` / `code-task`) — drivers: LoC, # collaborators to mock, # DB tables touched, novelty.
-  - `low` — single function, ≤ ~50 LoC, 0–1 collaborator/mock, follows an existing repo pattern.
-  - `medium` — multiple files or coordinated mock setup, < few hundred LoC, cross-module but follows existing patterns.
-  - `high` — new pattern, multi-module orchestration, many edge cases, > a few thousand agent tokens.
-- **Api-test tasks** (`api-test`) — drivers: sibling pattern availability, # assertions, new mountebank stubs, position in chain.
-  - `low` — single request, a sibling scenario to mirror, ≤ ~5 assertions, no new stub.
-  - `medium` — 5–15 assertions OR first-in-chain (must bootstrap the chain's shared variables) OR one new stub.
-  - `high` — novel scenario (no sibling), long request chain, multiple new downstream stubs, complex body templating.
+- `id` `NN` runs per group folder (`01-Setup` / `02-Backlog` / `03-Api-test` — the grouping from step 2)
+- `cases` and `uses` carry real values taken from `Datatest.md` (create-test-data's reviewed values) — never invented
+- a test task's `targets.at` owning service: the inbound's service for an api-test task, the code node's service otherwise
 
 ### 6. Name + place files
 Each task file is `<id>.json` (= `<NN>-<slug>-<type>.json`), placed in its group folder.
@@ -101,6 +78,7 @@ Tell the user the updated `scenario.html` is ready (tasks + functional design re
 - cross-ref: `tech-stack/tech-stack.md` — project structure (drives the functional design + where code / test files live).
 - cross-ref: `tech-stack/testing-guide.md` — test conventions + the test structure a test task's `at` path follows.
 - cross-ref: `tech-stack/code-standards.md` — code conventions / hard rules embedded into code tasks.
+- cross-ref: `skills/maintenance/task-schema.md` — the shared task JSON schema every authored task follows (step 5).
 - cross-ref (no file-map edge): `https://martinfowler.com/articles/practical-test-pyramid.html` — the test-level (test pyramid) classification (unit / integration / component).
 - cross-ref: `skills/generate-report/SKILL.md` — owns the scenario.html Functional Design card format (`.fn-tree` anatomy) this skill authors.
 - bridge: `skills/workflow/SKILL.md` (`## Layout`) — owns the Setup / Backlog / Api-test folder paths + task-file placement; this skill groups tasks and defers the paths there.
