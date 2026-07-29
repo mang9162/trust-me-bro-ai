@@ -111,10 +111,10 @@
     {
       "id": 7,
       "title": "Dispatch selects correct engineer",
-      "prompt": "07-find-menu-items-test has type 'integration-test'. A handler exists at execute-tdd/integration-test/. 09-filter-available-test has type 'unit-test'. No handler exists for unit-test.",
+      "prompt": "07-find-menu-items-test has type 'integration-test'. A handler exists at agent-skill/integration-test/. 09-filter-available-test has type 'unit-test'. No handler exists for unit-test.",
       "expectations": [
-        "07-find-menu-items-test dispatched to execute-tdd/integration-test/ handler",
-        "09-filter-available-test dispatched to execute-tdd/default-tdd",
+        "07-find-menu-items-test dispatched to agent-skill/integration-test/ handler",
+        "09-filter-available-test dispatched to agent-skill/default-tdd",
         "Both engineers self-verify result against the task's own acceptance before handing back",
         "execute-tdd itself does not write any code in either case"
       ]

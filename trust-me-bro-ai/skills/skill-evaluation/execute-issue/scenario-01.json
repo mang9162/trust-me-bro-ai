@@ -1,0 +1,77 @@
+{
+  "skill_name": "execute-issue",
+  "context": {
+    "run": "issue run — invoked pointed at one work/Issue folder (define-task's staged fix), not a scenario",
+    "invocation": "execute-issue: work/Issue/03-order-total-rounding/",
+    "issue": "order grand total rounds half-down; fix PriceHelper.round to half-up and let OrderService.calcGrandTotal use it",
+    "note": "There is no scenario.html for this run — status is read straight from the task files. The project also has an unrelated scenario queue (01-Setup/ + 02-Backlog/) that this run must NOT touch.",
+    "tasks": {
+      "work/Issue/03-order-total-rounding/Backlog": [
+        { "id": "00-check-test", "type": "regression", "depends_on": [], "command": "full unit/integration/component suite + api-test suite", "acceptance": "all green (baseline, before any change)" },
+        { "id": "01-round-half-up-boundary-test", "type": "unit-test", "depends_on": ["00-check-test"], "acceptance": "red" },
+        { "id": "02-round-half-up-nonboundary-test", "type": "unit-test", "depends_on": ["00-check-test"], "acceptance": "red" },
+        { "id": "03-round-half-up-code", "type": "code-task", "depends_on": ["01-round-half-up-boundary-test", "02-round-half-up-nonboundary-test"], "acceptance": "green" },
+        { "id": "04-regression", "type": "regression", "depends_on": ["03-round-half-up-code"], "command": "full unit/integration/component suite + api-test suite", "acceptance": "all green" }
+      ]
+    }
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Issue run builds its queue from the pointed-at folder",
+      "prompt": "Run execute-issue for the invocation above. All tasks start pending.",
+      "expectations": [
+        "The queue is built from work/Issue/03-order-total-rounding/Backlog/ — the folder the run was pointed at",
+        "The scenario queue (01-Setup/ + 02-Backlog/) is NOT drained by this run and its tasks are not touched",
+        "00-check-test is picked first — the only task with no depends_on",
+        "The same loop applies: topmost runnable pending task whose depends_on are all done (00 → 01/02 → 03 → 04)",
+        "03-round-half-up-code is not picked until both 01 and 02 are done"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "00-check-test is the baseline gate",
+      "prompt": "00-check-test is dispatched. Its command runs the project's existing full suite + api-test suite. acceptance = all green (baseline).",
+      "expectations": [
+        "It runs the existing suites and expects all green BEFORE any change is made",
+        "If the baseline is already red → halt and ask the user; new code on a broken baseline makes later failures impossible to attribute",
+        "If all green → 00-check-test done, the loop proceeds to 01/02",
+        "No production code is written for this task — it is run-only"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Same dispatch + RED-is-PASS as the scenario run",
+      "prompt": "01-round-half-up-boundary-test (type unit-test) is dispatched. No handler exists at agent-skill/unit-test/. The engineer writes the test and runs command; it fails because half-up rounding isn't implemented yet. acceptance = red.",
+      "expectations": [
+        "Dispatched to agent-skill/default-tdd — no type-specific handler for unit-test",
+        "The red result matches acceptance 'red' → this is a PASS, 01 set to done",
+        "execute-issue does not write the test or code itself — the engineer agent does",
+        "The loop does not try to fix the red — the paired code task 03 turns it green"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "A halt tells the user WITHOUT refreshing a report",
+      "prompt": "03-round-half-up-code is dispatched but after implementation tests 01/02 are still red. acceptance = green.",
+      "expectations": [
+        "Result (red) ≠ acceptance (green) → FAILURE; 03 set to failed and the loop halts",
+        "The user is told and the run waits for their decision — downstream 04-regression depends on 03",
+        "generate-report is NOT called and no scenario.html is written — an issue run has no report; status is read from the task files",
+        "The loop does not barrel ahead to any other task"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "DRAINED ends the run — no Stage 5 handoff",
+      "prompt": "01, 02, 03 are done; 04-regression is dispatched, runs the full suite + api-test suite, and is green. No pending tasks remain in the folder.",
+      "expectations": [
+        "04-regression runs the whole suite + api-test as its command and confirms all green — it is the run's regression gate",
+        "No pending tasks remain → DRAINED, and the run ends here",
+        "It reports the result plus the self-learn items recorded this run, then stops",
+        "It does NOT hand off to Stage 5 / api-test — the regression task already ran the api-test suite; there is no next stage for an issue run",
+        "generate-report is NOT called at the DRAINED pause either"
+      ]
+    }
+  ]
+}

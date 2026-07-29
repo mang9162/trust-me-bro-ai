@@ -1,0 +1,105 @@
+{
+  "skill_name": "define-task",
+  "context": {
+    "tech-debt.js": [
+      {
+        "id": "20260714-payment-charge-wrong-endpoint",
+        "kind": "issue",
+        "status": "pending",
+        "firstSeen": "2026-07-14",
+        "reportedBy": "acceptance-review",
+        "title": "charge request sent to the wrong route",
+        "problem": "during the payment scenario the charge request was found being sent to the wrong route",
+        "places": ["PaymentGateway.charge"],
+        "occurrences": [
+          { "date": "2026-07-14", "by": "acceptance-review", "note": "user flagged it in the retrospective of the payment scenario" }
+        ]
+      },
+      {
+        "id": "20260716-order-total-rounding",
+        "kind": "issue",
+        "status": "pending",
+        "firstSeen": "2026-07-16",
+        "reportedBy": "acceptance-review",
+        "title": "order grand total rounds half-down",
+        "problem": "order grand total rounds half-down but finance expects half-up",
+        "places": ["OrderService.calcGrandTotal", "PriceHelper.round"],
+        "occurrences": [
+          { "date": "2026-07-16", "by": "acceptance-review", "note": "user flagged wrong totals on .5 amounts in the retrospective" }
+        ]
+      }
+    ],
+    "log.js": [
+      {
+        "id": "20260620-menu-cache-ttl",
+        "kind": "issue",
+        "status": "done",
+        "issueFolder": "work/Issue/02-menu-cache-ttl/",
+        "title": "menu cache ttl too long"
+      }
+    ],
+    "work/Issue/": "already contains 01-remove-legacy-logger/ and 02-menu-cache-ttl/ — the next issue folder NN is 03",
+    "work/Scenario/": "Payment/Success/01-PAYMENT-CHARGE/ exists and was accepted"
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Out of scope → hand to the workflow loop",
+      "prompt": "define-task: entry=20260714-payment-charge-wrong-endpoint. Probing with the user reveals the correct endpoint does not exist anywhere in the system — it would have to be created as a new api route.",
+      "expectations": [
+        "The skill recognizes the fix needs a new api route / its own E2E flow, which is outside refactor + fix scope",
+        "It proposes re-opening the payment scenario through the workflow loop (get-requirement) and tells the user why",
+        "No work/Issue/ folder and no task file is created",
+        "The entry 20260714-payment-charge-wrong-endpoint stays in tech-debt.js untouched"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Conversational pickup, in scope → agree before any task",
+      "prompt": "A user says in conversation: \"that order-total rounding problem we logged a while back — can you get it ready to be fixed?\"",
+      "expectations": [
+        "The entry 20260716-order-total-rounding is located in tech-debt.js by matching what the user described",
+        "The scope gate is applied: the fix is judged within refactor + fix scope (no new test data, no new E2E flow) so it is NOT handed to the workflow loop and the pipeline continues",
+        "The code at OrderService.calcGrandTotal and PriceHelper.round is investigated before proposing anything",
+        "A fix approach is proposed to the user",
+        "No issue folder or task file is written before the user agrees"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "TDD breakdown of the agreed fix",
+      "prompt": "The user agreed the fix for 20260716-order-total-rounding: change PriceHelper.round to half-up and let OrderService.calcGrandTotal use it; two test cases were agreed — a .5 boundary amount rounds up, a non-boundary amount is unchanged. Break it into tasks.",
+      "expectations": [
+        "Tasks are written under work/Issue/03-order-total-rounding/Backlog/",
+        "00-check-test is the first task and runs the existing full test suite + api-test suite expecting all green",
+        "Each agreed test case is its own test task — the two cases are not bundled into one task",
+        "The code task depends_on all of its test tasks",
+        "The last task is type regression, runs the full test suite + api-test suite, and depends_on every code task",
+        "Every authored task has status pending"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Close the entry into log.js",
+      "prompt": "The tasks for 20260716-order-total-rounding are staged under work/Issue/03-order-total-rounding/. Close out the entry.",
+      "expectations": [
+        "The entry 20260716-order-total-rounding is removed from tech-debt.js",
+        "The entry is appended to log.js",
+        "The log.js entry has status done",
+        "The log.js entry records work/Issue/03-order-total-rounding/ in its issueFolder field",
+        "The existing log.js entry 20260620-menu-cache-ttl and the other tech-debt.js entry are not touched"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Authors to the shared schema",
+      "prompt": "define-task is about to author the task files for the agreed fix on 20260716-order-total-rounding.",
+      "expectations": [
+        "task-schema.md (the shared schema in the maintenance component) is read before authoring",
+        "Authored fields follow what that file defines rather than an improvised shape",
+        "The task types used come from define-task's own type list (no Setup or api-test authoring types)",
+        "No uses field appears — this pipeline carries no test data"
+      ]
+    }
+  ]
+}

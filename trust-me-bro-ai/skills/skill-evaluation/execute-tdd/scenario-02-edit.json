@@ -60,9 +60,9 @@
     {
       "id": 3,
       "title": "Can edit: add a type handler for integration-test",
-      "prompt": "Integration tests in this project always need a DB transaction wrapper and teardown. We want to add execute-tdd/integration-test/ as a type handler that enforces this. Update the dispatch logic.",
+      "prompt": "Integration tests in this project always need a DB transaction wrapper and teardown. We want to add agent-skill/integration-test/ as a type handler that enforces this. Update the dispatch logic.",
       "expectations": [
-        "Dispatch step recognizes execute-tdd/integration-test/ as a type handler",
+        "Dispatch step recognizes agent-skill/integration-test/ as a type handler",
         "Tasks with type integration-test (05, 07, 18, 20) are dispatched to the new handler",
         "Tasks with no matching handler still fall back to default-tdd",
         "The handler layers extra conventions on top — does not replace the core accept/close-out flow"

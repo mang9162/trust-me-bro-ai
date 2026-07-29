@@ -1,0 +1,51 @@
+{
+  "skill_name": "self-report",
+  "context": {
+    "note": "kind: issue entries live in tech-debt.js (not the tier files). These are the current contents.",
+    "tech-debt.js": [
+      {
+        "id": "20260716-order-total-rounding",
+        "kind": "issue",
+        "status": "pending",
+        "firstSeen": "2026-07-16",
+        "reportedBy": "acceptance-review",
+        "title": "order grand total rounds half-down",
+        "problem": "order grand total rounds half-down but finance expects half-up",
+        "places": ["OrderService.calcGrandTotal"],
+        "occurrences": [
+          { "date": "2026-07-16", "by": "acceptance-review", "note": "user flagged wrong totals on .5 amounts" }
+        ]
+      }
+    ],
+    "small-learn.js": [],
+    "medium-learn.js": [],
+    "heavy-learn.js": []
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "New issue → tech-debt.js, no tier, no fixOptions, writer-only",
+      "prompt": "self-report from acceptance-review, kind: issue: the app still imports the legacy mongo client in ReportService.exportMonthly even though the data moved to postgres — dead dependency to remove. places: [ReportService.exportMonthly].",
+      "expectations": [
+        "A new entry is created in tech-debt.js — NOT in any of the {small,medium,heavy}-learn.js tier files",
+        "kind is issue, status pending, reportedBy is acceptance-review, firstSeen is today",
+        "places is a list containing ReportService.exportMonthly",
+        "The entry has NO tier field and NO fixOptions field (no tier classification is performed)",
+        "self-report writes the entry and stops — it does not itself start any fix (it neither authors tasks nor hands off to define-task)",
+        "The user is not interrupted mid-flow (silent) — the reporting stage surfaces it at its pause"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Recurring issue → dedup, append occurrence + add place",
+      "prompt": "self-report from acceptance-review, kind: issue: order grand total rounds half-down but finance expects half-up — saw it again, this time also in PriceHelper.round. places: [PriceHelper.round].",
+      "expectations": [
+        "No new entry is created — the existing entry 20260716-order-total-rounding is matched on its problem text",
+        "occurrences gains exactly 1 new item (by acceptance-review)",
+        "PriceHelper.round is added to that entry's places list (now 2 locations) — places stays a LIST",
+        "No tier or fixOptions is added on recurrence",
+        "The entry stays in tech-debt.js"
+      ]
+    }
+  ]
+}
