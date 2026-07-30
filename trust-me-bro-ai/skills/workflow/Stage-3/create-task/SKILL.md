@@ -71,7 +71,7 @@ Trigger `generate-report` to refresh `scenario.html`.
 Tell the user the updated `scenario.html` is ready (tasks + functional design rendered by generate-report in step 8) and to review it there — don't print a task summary. Also list the self-learn items recorded this round (headlines + tier). Do not start execute-tdd until approved.
 
 ### 10. Sync to the external tracker
-On approval, if the repo set up sync (`initialize-sync-task` created a `sync-task-*` skill), open it and do a full topic sync — creates the scenario's parent issue + one sub-issue per task on its board (`execute-tdd` then keeps each card updated per task). Skip if no such skill exists.
+On approval, read `scenario-meta.syncTarget` (selected at Stage 1). Unset → skip. Set → open `sync-task-<syncTarget>` and do a **full topic** sync — parent issue + one sub-issue per task on that board (`execute-tdd` then updates each card per task).
 
 ## References
 - bridge: `context/gateway-directory.md` — **Inbound** lines: each E2E request's endpoint (method + path); cross-check the flow against it to catch a missing / unregistered / outbound endpoint.
@@ -89,7 +89,7 @@ On approval, if the repo set up sync (`initialize-sync-task` created a `sync-tas
 ## Trigger Skill
 - generate-report — refresh `scenario.html` after the task list is staged (step 8).
 - self-report — when something needed to author a task isn't available (missing contract / endpoint / error_code, or a conflict); silent, aggregated in step 7.
-- sync-task (only if set up) — on approval, full topic sync of the staged scenario to its board via the generated `sync-task-*` skill (step 10). Added to `file-map.html` only when the repo has a sync-task skill.
+- sync-task — on approval, a full topic sync to `scenario-meta.syncTarget`'s board (step 10), when set. Added to `file-map.html` only when a sync-task skill exists.
 
 ## Writes To
 - `02-Task/01-Setup/` + `02-Backlog/` — Setup + Backlog task files (one per function).

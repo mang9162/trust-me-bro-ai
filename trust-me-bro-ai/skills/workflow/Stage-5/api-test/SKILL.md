@@ -27,7 +27,7 @@ Build the queue from the `03-Api-test/` tasks, then repeat:
 - [ ] `depends_on` are all `done`
 - [ ] read the task in full (`contract` / `cases` / `targets` / `assume` / `command` / `acceptance`)
 - [ ] confirm `assume` holds — the pre-state is really there → if not, **BLOCKED** (see Stop & pause); don't guess it
-- [ ] set `status` → `in_progress`
+- [ ] set `status` → `in_progress`; stamp `startedAt` = now (ISO 8601). Don't sync yet — one sync per task, at close-out
 
 **3. Author** — write the request into the project's api-test file at the task's `targets.at`, exactly as its `contract` + `cases` specify. The agent running this skill writes it directly — no dispatch. (Reading `gateway-contract.md` for the line's request/response shape is fine, to write the asserts without guessing fields.)
 
@@ -36,16 +36,24 @@ Build the queue from the `03-Api-test/` tasks, then repeat:
 **5. Accept the result** — check it against the task's **own `acceptance`**.
 
 - matches `acceptance` → pass, continue.
-- doesn't → **FAILURE** (see Stop & pause): set `status` → `failed`.
+- doesn't → **FAILURE** (see Stop & pause): set `status` → `failed`, stamp `finishedAt`, and **sync** the task (if set up — see *Sync to the board*).
 
 **6. Close-out** — every task:
 
-- [ ] set `status` → `done`
+- [ ] set `status` → `done`; stamp `finishedAt` = now; **sync** the task (if set up — see *Sync to the board*)
 - [ ] record the run result (actual vs `acceptance`)
 - [ ] update the central task / queue so the next pass (step 1) sees the latest status
 - [ ] **every** non-blocking issue found this task → `self-report`
 
 → back to step 1.
+
+### Sync to the board
+
+Read `scenario-meta.syncTarget`. Unset → skip (sync is opt-in). Set → at each task's **close-out / failure** (steps 6 / 5), run `sync-task-<syncTarget>` on that one task — the single sync carries its final `status`, `startedAt`, `finishedAt`, and actual time:
+
+`sync-task/sync-task-<syncTarget>/sync-task.sh <that task's .json>`
+
+It updates only that card (idempotent). **Don't** sync on pickup (`in_progress`) — one sync per task.
 
 ### Stop & pause
 
@@ -71,12 +79,13 @@ Every halt/pause first refreshes the report (`generate-report` → `scenario.htm
 
 - generate-report — refresh `scenario.html` at every halt/pause (drained / deadlock / blocked / failure).
 - self-report — non-blocking **improvement** observations only; blocking gaps ask the user instead.
+- sync-task — at a task's close-out / failure, push that one task to `scenario-meta.syncTarget`'s board. Added to `file-map.html` only when a sync-task skill exists.
 
 ## Writes To
 
 - (no file-map edge) the project's real api-test files at each task's `targets.at` — the runnable request files written into the project itself (outside the kit — no node).
-- create-task's `03-Api-test/` task files — advances each task's `status` (`pending` → `in_progress` → `done` / `failed`); doesn't touch any other field.
+- create-task's `03-Api-test/` task files — advances each task's `status` (`pending` → `in_progress` → `done` / `failed`) and stamps `startedAt` (pickup) / `finishedAt` (close-out); touches no other field.
 
 ## Role & Boundary (Read Before Editing)
 
-This skill owns Stage 5: the loop over `03-Api-test/` — pick the topmost runnable task, author its request into the project's api-test file at `targets.at` (the agent running this skill writes it, no dispatch), run the task's `command` if it has one, and accept it against its **own `acceptance`**. It may read `gateway-contract.md` for a line's request/response shape to write the asserts. It does NOT author the api-test tasks (`create-task`), does NOT run Setup / Backlog or implement feature code (`execute-tdd`), does NOT stage test data / seeds / stubs (`create-test-data`), does NOT define folder paths or stage gating (`workflow`), and does NOT decide accept / reject the scenario (`acceptance-review`). Task `status` uses create-task's set — `pending` / `in_progress` / `done` / `failed`. Blocking gaps (deadlock, failure, an `assume` that doesn't hold) halt the loop and ask the user; only non-blocking improvements go to `self-report`. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
+This skill owns Stage 5: the loop over `03-Api-test/` — pick the topmost runnable task, author its request into the project's api-test file at `targets.at` (the agent running this skill writes it, no dispatch), run the task's `command` if it has one, and accept it against its **own `acceptance`**. It may read `gateway-contract.md` for a line's request/response shape to write the asserts. It does NOT author the api-test tasks (`create-task`), does NOT run Setup / Backlog or implement feature code (`execute-tdd`), does NOT stage test data / seeds / stubs (`create-test-data`), does NOT define folder paths or stage gating (`workflow`), and does NOT decide accept / reject the scenario (`acceptance-review`). Task `status` uses create-task's set — `pending` / `in_progress` / `done` / `failed`; it also stamps `startedAt` / `finishedAt` and, when a `sync-task-*` skill exists, pushes each finished task to `scenario-meta.syncTarget`'s board (not owning the sync mechanics — `sync-task`). Blocking gaps (deadlock, failure, an `assume` that doesn't hold) halt the loop and ask the user; only non-blocking improvements go to `self-report`. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

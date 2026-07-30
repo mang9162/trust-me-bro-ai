@@ -52,6 +52,8 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
    - every row flagged in `status` was actually sent to `self-report`.
    Then present the updated `scenario.html` for review, and list the self-learn items recorded this round (headlines + tier). Do NOT move to Stage 3 until approved.
 
+8. **Sync** — on approval, read `scenario-meta.syncTarget`. Unset → skip. Set → open `sync-task-<syncTarget>` and do a **parent-only** sync (`--parent`); the new test data now shows in the scenario's parent issue.
+
 ## References
 - cross-ref: `trust-me-bro-ai/context/data.md` — central dictionary; pick catalogued variable names from here (read-only — never write back).
 - cross-ref: `trust-me-bro-ai/context/gateway-directory.md` — which downstream gateways the flow calls (purpose / condition).
@@ -62,6 +64,7 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
 ## Trigger Skill
 - self-report — when something needed isn't catalogued or contradicts the dictionary (new variable / conflict / missing gateway or entity); silent, aggregated once in step 5.
 - generate-report — refresh `scenario.html` after staging, per step 6.
+- sync-task — a parent-only sync to `scenario-meta.syncTarget`'s board (step 8), when set. Added to `file-map.html` only when a sync-task skill exists.
 
 ## Writes To
 - `01-Testdata/` — `Datatest.md`, DB seeds (`db/`), and stubs (`stubs/`) for this scenario.
@@ -70,4 +73,4 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
 
 This skill's responsibility is limited to STAGING this scenario's test data — the concrete values (`Datatest.md`), the DB seeds, and the stubs for the downstream calls the scenario makes (paths owned by the workflow `## Layout`).
 
-It reads the shared reference files (`data.md`, `gateway-directory.md`, `gateway-contract.md`, `database-schema.md`) but never edits them — gaps go to `self-report`. It does not write assertions (api-test), does not move stubs into the live mock environment (execute-tdd / env-setup task), and does not design tasks (create-task). For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
+It reads the shared reference files (`data.md`, `gateway-directory.md`, `gateway-contract.md`, `database-schema.md`) but never edits them — gaps go to `self-report`. It does not write assertions (api-test), does not move stubs into the live mock environment (execute-tdd / env-setup task), and does not design tasks (create-task), nor own the external-sync mechanics (`sync-task` — step 8 only triggers a parent-only sync to the recorded target). For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

@@ -62,6 +62,10 @@ Ask the user whether they accept, then record it **through `generate-report`** (
 - **Accept** → mark the scenario accepted and append an **"Accepted"** round to the Acceptance History. The scenario's workflow is done.
 - **Reject** → append a new **"Acceptance Round N"** entry with the user's feedback (what to fix / add), then hand it back to **Stage 1** and reset this stage to pending. workflow routes the loop-back (see `workflow/SKILL.md` → Stage 6 routing); the new requirement is written additively (from → to), continuing the existing scenario folder — never a rewrite.
 
+### 8. Sync to the external tracker
+
+After the decision is recorded, read `scenario-meta.syncTarget`. Unset → skip. Set → open `sync-task-<syncTarget>` and do a **parent-only** sync (`--parent`) — updates the scenario's parent issue with the final accepted state + acceptance history.
+
 ## References
 
 - cross-ref: `scenario.html` — task statuses, api-test results, and the E2E flow, read to Summarize (step 2).
@@ -72,6 +76,7 @@ Ask the user whether they accept, then record it **through `generate-report`** (
 - generate-report — owns `scenario.html`; triggered to render the Summarize view and to write the acceptance state (accepted flag + Acceptance History round) on both accept and reject. This stage never writes `scenario.html` itself.
 - self-report — an out-of-scenario anomaly (steps 4–5) is handed over as a `kind: issue` entry, and any closing process feedback (step 6) as a new `occurrence`.
 - define-task — on a **fix-now**, out-of-scenario anomaly (steps 4–5), triggered on that issue entry's `id` to co-design and stage the fix; skipped when the user parks it for later, or when the anomaly belongs to this scenario (that loops back through workflow instead).
+- sync-task — a parent-only sync to `scenario-meta.syncTarget`'s board (step 8), reflecting the final accepted state + history, when set. Added to `file-map.html` only when a sync-task skill exists.
 
 ## Role & Boundary (Read Before Editing)
 
@@ -84,5 +89,6 @@ It does NOT:
 - re-run api-test or any earlier stage — it reviews their output only.
 - review self-learn entries in detail — that is the self-learn review in `feed-back.html`, outside the workflow; here they are only listed as a retrospective headline + count.
 - own the loop-back routing or the folder / `NN` conventions — that is `workflow`; this stage only supplies the reject feedback.
+- own the external-sync mechanics — that is `sync-task`; this stage only triggers a parent-only sync of the final state (step 8) to the recorded target.
 
 For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
