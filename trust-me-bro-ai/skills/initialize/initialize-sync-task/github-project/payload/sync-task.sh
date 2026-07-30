@@ -53,6 +53,9 @@ command -v jq >/dev/null || { echo "jq not found" >&2; exit 1; }
 
 PROJECT_NUMBER=$(jq -r '.project_number' "$CONFIG")
 LABEL=$(jq -r '.label // ""' "$CONFIG")
+START_FIELD=$(jq -r '.fields.start // ""' "$CONFIG")
+END_FIELD=$(jq -r '.fields.end // ""' "$CONFIG")
+ACTUAL_FIELD=$(jq -r '.fields.actual // ""' "$CONFIG")
 
 # ---------------------------------------------------------------- repo / owner
 REMOTE_URL=$(git -C "$TOPIC" remote get-url origin)
@@ -74,6 +77,20 @@ status_option_id() {  # board option name -> option id (looked up by name, never
 }
 status_board_name() {  # task status -> board option name via config.status_map
   jq -r --arg s "$1" '.status_map[$s] // .status_map.pending' "$CONFIG"
+}
+field_id() {  # board field name -> field id ("" if the board has no such field)
+  jq -r --arg n "$1" '.fields[] | select(.name==$n) | .id' <<<"$FIELDS_JSON"
+}
+set_date() {  # $1=item  $2=board_field_name  $3=iso_datetime  (skips if unmapped/absent)
+  local fid; [[ -n "$2" && -n "$3" ]] || return 0
+  fid=$(field_id "$2"); [[ -n "$fid" ]] || return 0
+  gh project item-edit --id "$1" --project-id "$PROJECT_ID" --field-id "$fid" --date "${3%%T*}" >/dev/null
+}
+set_actual() {  # $1=item  $2=started_iso  $3=finished_iso  -> writes duration in hours
+  local fid hours; [[ -n "$ACTUAL_FIELD" && -n "$2" && -n "$3" ]] || return 0
+  fid=$(field_id "$ACTUAL_FIELD"); [[ -n "$fid" ]] || return 0
+  hours=$(jq -rn --arg s "$2" --arg f "$3" '(($f|fromdateiso8601)-($s|fromdateiso8601))/3600 | (.*100|round)/100' 2>/dev/null) || return 0
+  gh project item-edit --id "$1" --project-id "$PROJECT_ID" --field-id "$fid" --number "$hours" >/dev/null
 }
 type_label() {  # raw task type -> display label used in the issue title  (edit to taste)
   case "$1" in
@@ -140,7 +157,7 @@ task_body() {  # $1=task_json  $2=rel_path -> stdout
 }
 
 process_task() {  # $1=task_json
-  local f="$1" rel tp title status_name sync_id url num bodyfile item
+  local f="$1" rel tp title status_name sync_id url num bodyfile item started finished
   rel="${f#"$ROOT"/}"
   tp=$(jq -r '.type // "task"' "$f")
   title="[$(type_label "$tp")] $(jq -r '.title // .id // "task"' "$f")"
@@ -163,6 +180,10 @@ process_task() {  # $1=task_json
 
   item=$(ensure_on_board "$url" "$num")
   set_status "$item" "$status_name"
+  started=$(jq -r '.startedAt // empty' "$f"); finished=$(jq -r '.finishedAt // empty' "$f")
+  set_date "$item" "$START_FIELD" "$started"
+  set_date "$item" "$END_FIELD" "$finished"
+  set_actual "$item" "$started" "$finished"
   TASK_STATUSES+=("$(jq -r '.status // "pending"' "$f")")
   echo "  task #$num  $(basename "$f")"
 }

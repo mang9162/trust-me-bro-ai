@@ -25,21 +25,31 @@ Ask the user for a short label (e.g. `jabz`) → the generated skill becomes `sy
 
 List boards: `gh project list --owner <owner>` (`owner` from `git remote get-url origin`). Show them; the user picks one → its **number** is `project_number`. No board yet → help the user create one (`gh project create --owner <owner> --title <name>`) or point them to the web UI, then re-list.
 
-### 4. Ensure the board's fields
+### 4. Map the board's fields — ask, don't assume the names
 
-Inspect with `gh project field-list <number> --owner <owner>`.
+Field names differ per board, so **ask the user** which existing field to use for each, or whether to create a new one. List what the board has first: `gh project field-list <number> --owner <owner>`.
 
-- **Status** (single-select) with one option per `status_map` value (default `Todo` / `In Progress` / `Done`). GitHub's default board already has these; if the names differ, rename on the board or record the real names in step 5.
-- **Date fields for start/finish** — create if missing (used once the runner stamps `startedAt` / `finishedAt`):
-  - `gh project field-create <number> --owner <owner> --name "Start" --data-type DATE`
-  - `gh project field-create <number> --owner <owner> --name "End" --data-type DATE`
+The sync fills these fields, so confirm one for each (skip any the user doesn't want — it just won't sync):
+
+- **Status** (single-select) — the task's status. Usually already present; its option names go in `status_map` (step 5).
+- **Start** (date) — the task's start date (from `startedAt`).
+- **End** (date) — the task's finish date (from `finishedAt`).
+- **Actual Time** (number) — hours spent = `finish − start` (e.g. `1.5` = 90 min).
+
+Per field, use an existing one (the user picks which — the names vary) OR create it only if they ask:
+
+- date: `gh project field-create <number> --owner <owner> --name "<name>" --data-type DATE`
+- number: `gh project field-create <number> --owner <owner> --name "<name>" --data-type NUMBER`
+
+Record the chosen field names in `config.fields` (step 5).
 
 ### 5. Collect config
 
 Assemble the values for `config.json` (shape = `payload/config.example.json`):
 
 - `project_number` — from step 3.
-- `status_map` — task status → board option **name**. Default `{ pending: Todo, in_progress: "In Progress", done: Done, failed: Todo }`; the left side is fixed by `task-schema.md`, the right must match the board's real option names.
+- `status_map` — task status → board Status **option name**. Default `{ pending: Todo, in_progress: "In Progress", done: Done, failed: Todo }`; the left side is fixed by `task-schema.md`, the right must match the board's real option names.
+- `fields` — the board field **names** chosen in step 4: `{ start, end, actual }`. Leave any `""` to skip syncing it.
 - `label` — optional label put on the parent issue; must already exist in the repo, or `""`.
 
 ### 6. Generate the skill
@@ -71,7 +81,7 @@ Create `sync-task/sync-task-<name>/` and:
 ## Writes To
 
 - (no file-map edge) `sync-task/sync-task-<name>/` — the generated skill: `SKILL.md`, `sync-task.sh`, `templates/`, `config.json` (step 6).
-- (no file-map edge) the GitHub Projects board — creates `Start` / `End` date fields if missing (step 4).
+- (no file-map edge) the GitHub Projects board — may create Start / End / Actual-Time fields, only if the user asks for new ones (step 4).
 
 ## Role & Boundary (Read Before Editing)
 

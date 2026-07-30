@@ -7,5 +7,10 @@
     "in_progress": "In Progress",
     "done": "Done",
     "failed": "Todo"
+  },
+  "fields": {
+    "start": "Start",
+    "end": "End",
+    "actual": "Actual Time"
   }
 }
