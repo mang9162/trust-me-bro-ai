@@ -242,11 +242,31 @@ write_meta_sync() {  # $1=id  $2=url — add .sync into the scenario-meta block,
   rm -f "$metaf"
 }
 parent_scenario() {
-  local title sync_id bodyfile url
+  local title sync_id bodyfile url meta cat feature datatest testdata counts fndesign
+  meta=$(meta_json)
   title="[Scenario] $SCENARIO_NAME"
-  sync_id=$(meta_json | jq -r '.sync.id // empty')
+  sync_id=$(jq -r '.sync.id // empty' <<<"$meta")
+
+  # --- gather the rich body's data (from the scenario folder) ---
+  cat=$(jq -r '.category // ""' <<<"$meta")
+  feature=""
+  if [[ -n "$cat" ]]; then
+    feature=$(sed -E "s/_$(printf '%s' "$cat" | tr '[:lower:]' '[:upper:]')_[0-9]+$//" <<<"$SCENARIO_NAME")
+    [[ "$feature" == "$SCENARIO_NAME" ]] && feature=""
+  fi
+  datatest="$TOPIC/01-Testdata/Datatest.md"
+  # keep only the section headings + tables (drop the intro prose); nest headings under ## Test Data
+  testdata=""; [[ -f "$datatest" ]] && testdata=$(awk '/^## /{sub(/^## /,"### "); print ""; print; print ""; next} /^\|/{print}' "$datatest")
+  counts=$(find "$TOPIC/02-Task" -type f -name '*.json' -exec jq -s \
+    '{byType:(group_by(.type)|map({key:(.[0].type//"?"),value:length})|from_entries),mocks:([.[].uses.stubs//[]]|add//[]|unique|length)}' {} + 2>/dev/null)
+  [[ -n "$counts" ]] || counts='{"byType":{},"mocks":0}'
+  fndesign=$(grep -oE 'class="fn-node[^"]*">[^<]+' "$TOPIC/scenario.html" 2>/dev/null | sed -E 's/.*">//' | sed '/^$/d' || true)
+
   bodyfile=$(mktemp)
-  meta_json | jq -r --arg scenario "$SCENARIO_NAME" -f "$TPL_DIR/scenario-parent.jq" >"$bodyfile"
+  printf '%s' "$meta" | jq -r \
+    --arg scenario "$SCENARIO_NAME" --arg repo "$OWNER/$REPO" --arg feature "$feature" \
+    --arg testdata "$testdata" --argjson counts "$counts" --arg fndesign "$fndesign" \
+    -f "$TPL_DIR/scenario-parent.jq" >"$bodyfile"
   if [[ -n "$sync_id" ]]; then
     PARENT_NUM="$sync_id"; edit_issue "$PARENT_NUM" "$title" "$bodyfile"
     write_meta_sync "$PARENT_NUM" "https://github.com/$OWNER/$REPO/issues/$PARENT_NUM"
