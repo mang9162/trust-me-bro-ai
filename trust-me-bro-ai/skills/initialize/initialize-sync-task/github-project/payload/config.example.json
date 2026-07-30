@@ -1,0 +1,11 @@
+{
+  "provider": "github-project",
+  "project_number": 0,
+  "label": "",
+  "status_map": {
+    "pending": "Todo",
+    "in_progress": "In Progress",
+    "done": "Done",
+    "failed": "Todo"
+  }
+}
