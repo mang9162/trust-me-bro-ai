@@ -15,14 +15,19 @@
 #   $SYNC_TEMPLATES/task-body.jq        — sub-issue body
 #   $SYNC_TEMPLATES/scenario-parent.jq  — scenario parent body
 #
-# Usage:  sync-task.sh <topic-folder | task.json>   (a task file updates just that one task)
+# Usage:  sync-task.sh [--parent] <topic-folder | task.json>
+#           <folder>        sync the whole topic (parent + every task)
+#           <task.json>     update just that one task's card
+#           --parent <dir>  sync only the parent (rollup from the tasks, don't touch their cards)
 # Config: $SYNC_CONFIG    else <script-dir>/config.json      (see config.example.json)
 # Tpls:   $SYNC_TEMPLATES else <script-dir>/templates
 #
 set -euo pipefail
 
 # ---------------------------------------------------------------- args + deps
-INPUT="${1:?usage: sync-task.sh <topic-folder | task.json>}"
+PARENT_ONLY=0
+if [[ "${1:-}" == "--parent" ]]; then PARENT_ONLY=1; shift; fi
+INPUT="${1:?usage: sync-task.sh [--parent] <topic-folder | task.json>}"
 INPUT="${INPUT%/}"
 # topic root = the folder holding issue.md / scenario.html at or above a path
 find_topic_root() {
@@ -41,6 +46,7 @@ elif [[ -f "$INPUT" ]]; then
 else
   echo "not a folder or file: $INPUT" >&2; exit 1
 fi
+[[ "$PARENT_ONLY" == 1 && "$MODE" == task ]] && { echo "--parent needs a topic folder, not a task file" >&2; exit 1; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="${SYNC_CONFIG:-$SCRIPT_DIR/config.json}"
@@ -242,7 +248,7 @@ write_meta_sync() {  # $1=id  $2=url — add .sync into the scenario-meta block,
   rm -f "$metaf"
 }
 parent_scenario() {
-  local title sync_id bodyfile url meta cat feature datatest testdata counts fndesign
+  local title sync_id bodyfile url meta cat feature datatest testdata counts fndesign summary
   meta=$(meta_json)
   title="[Scenario] $SCENARIO_NAME"
   sync_id=$(jq -r '.sync.id // empty' <<<"$meta")
@@ -261,11 +267,17 @@ parent_scenario() {
     '{byType:(group_by(.type)|map({key:(.[0].type//"?"),value:length})|from_entries),mocks:([.[].uses.stubs//[]]|add//[]|unique|length)}' {} + 2>/dev/null)
   [[ -n "$counts" ]] || counts='{"byType":{},"mocks":0}'
   fndesign=$(grep -oE 'class="fn-node[^"]*">[^<]+' "$TOPIC/scenario.html" 2>/dev/null | sed -E 's/.*">//' | sed '/^$/d' || true)
+  # acceptance-history summary — AI writes it into $SYNC_SUMMARIES keyed by the scenario name (ephemeral)
+  summary=""
+  if [[ -n "${SYNC_SUMMARIES:-}" && -f "${SYNC_SUMMARIES:-}" ]]; then
+    summary=$(jq -r --arg k "$SCENARIO_NAME" '.[$k] // ""' "$SYNC_SUMMARIES")
+  fi
 
   bodyfile=$(mktemp)
   printf '%s' "$meta" | jq -r \
     --arg scenario "$SCENARIO_NAME" --arg repo "$OWNER/$REPO" --arg feature "$feature" \
     --arg testdata "$testdata" --argjson counts "$counts" --arg fndesign "$fndesign" \
+    --arg summary "$summary" \
     -f "$TPL_DIR/scenario-parent.jq" >"$bodyfile"
   if [[ -n "$sync_id" ]]; then
     PARENT_NUM="$sync_id"; edit_issue "$PARENT_NUM" "$title" "$bodyfile"
@@ -304,14 +316,19 @@ if [[ "$MODE" == task ]]; then
   exit 0
 fi
 
-# ---- whole topic: parent + every task ----
-echo "sync ($KIND): $TOPIC  →  $OWNER/$REPO  project #$PROJECT_NUMBER"
+# ---- topic: the parent (+ every task, unless --parent) ----
+echo "sync ($KIND$([[ $PARENT_ONLY == 1 ]] && echo ', parent-only')): $TOPIC  →  $OWNER/$REPO  project #$PROJECT_NUMBER"
 if [[ "$KIND" == issue ]]; then parent_issue_md; else parent_scenario; fi
 echo "  parent #$PARENT_NUM"
 PARENT_ITEM=$(ensure_on_board "$PARENT_URL" "$PARENT_NUM")
 
 while IFS= read -r taskfile; do
-  [[ -n "$taskfile" ]] && process_task "$taskfile"
+  [[ -n "$taskfile" ]] || continue
+  if [[ "$PARENT_ONLY" == 1 ]]; then
+    TASK_STATUSES+=("$(jq -r '.status // "pending"' "$taskfile")")   # rollup only — don't touch task cards
+  else
+    process_task "$taskfile"
+  fi
 done < <(tasks_list)
 
 set_status "$PARENT_ITEM" "$(status_board_name "$(rollup_status)")"
