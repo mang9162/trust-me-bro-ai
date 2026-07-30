@@ -28,7 +28,7 @@ Build the queue from every task in the pointed-at `work/Issue/<NN>-<slug>/Backlo
 - [ ] read the task in full (`contract` / `cases` / `pseudocode` / `targets` / `assume` / `command` / `acceptance`)
 - [ ] confirm `assume` holds — the pre-state is really there. If it doesn't → **BLOCKED** (see Stop & end); don't guess the missing pre-state
 - [ ] **`00-check-test`** — its `acceptance` is the project's existing suites all green **before any change is made**. A red baseline is a halt: new code on an already-broken baseline makes later failures impossible to attribute
-- [ ] set `status` → `in_progress`
+- [ ] set `status` → `in_progress`; stamp `startedAt` = now (ISO 8601). Don't sync yet — one sync per task, at close-out
 
 **3. Dispatch** — pick the engineer skill, then run it:
 
@@ -42,15 +42,23 @@ Build the queue from every task in the pointed-at `work/Issue/<NN>-<slug>/Backlo
 - a **test task** is expected **RED** — a correctly-red test (e.g. a compile/import error because the function isn't written yet) is a **PASS**, not a failure. Don't "fix" it here; its paired code task turns it green.
 - a **code task** is expected **GREEN**; a **`regression` / check task** is expected to run its whole suite green.
 - matches `acceptance` → pass, continue.
-- doesn't match → **FAILURE** (see Stop & end): set `status` → `failed`.
+- doesn't match → **FAILURE** (see Stop & end): set `status` → `failed`, stamp `finishedAt`, and **sync** the task (if set up — see *Sync to the board*).
 - while accepting, look over the code/test the engineer wrote. If a coding pattern recurs and is **not** already a rule in `code-standards.md`, note the location where it appears; it feeds the `candidate` in step 6.
 
 **6. Close-out checklist** — every task:
 
-- [ ] set `status` → `done`
+- [ ] set `status` → `done`; stamp `finishedAt` = now; **sync** the task (if set up — see *Sync to the board*)
 - [ ] **every** non-blocking issue found this task → `self-report`: a recurring pattern that isn't a rule yet goes as a `candidate` (with its `places` list); other issues go as a `problem`
 
 → back to step 1.
+
+### Sync to the board (only if set up)
+
+If the repo was wired to an external tracker (`initialize-sync-task` created a `sync-task-*` skill), push each task to the board **once, at close-out / failure** (steps 6 / 5) — that single sync carries its final `status`, `startedAt`, `finishedAt`, and actual time. Run that skill's engine on the one task:
+
+`sync-task/sync-task-<name>/sync-task.sh <that task's .json>`
+
+It updates only that card (idempotent). **Don't** sync on pickup (`in_progress`) — a sync per transition is wasteful. Skip entirely if no `sync-task-*` skill exists; sync is opt-in.
 
 ### Stop & end
 
@@ -76,13 +84,14 @@ There is **no report** for an issue run — no `scenario.html` exists; status is
 
 - `agent-skill/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `agent-skill/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
 - self-report — non-blocking **improvement** observations (step 6): a recurring code pattern as a `candidate`, other issues as a `problem`. Silent, aggregated; blocking gaps ask the user instead.
+- sync-task (only if set up) — at a task's close-out / failure, push that one task to its board via the generated `sync-task-*` engine. Added to `file-map.html` only when the repo has a sync-task skill.
 
 ## Writes To
 
-- define-task's task files in `work/Issue/<NN>-<slug>/Backlog/` — advances each task's `status` (`pending` → `in_progress` → `done` / `failed`) as the loop runs; doesn't touch any other field.
+- define-task's task files in `work/Issue/<NN>-<slug>/Backlog/` — advances each task's `status` (`pending` → `in_progress` → `done` / `failed`) and stamps `startedAt` (pickup) / `finishedAt` (close-out) as the loop runs; touches no other field.
 
 ## Role & Boundary (Read Before Editing)
 
-This skill owns the **issue-fix execution loop**: pointed at one `work/Issue/<NN>-<slug>/`, it drains that folder's `Backlog/` — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / all-green). It does NOT author tasks (`define-task`), does NOT implement code itself (the engineer agent does, guided entirely by the task), does NOT stage test data / seeds / stubs (anything needing them belongs to the workflow loop), and does NOT own the `work/Issue/` layout (`define-task`). There is no report and no stage handoff — a DRAINED run simply ends.
+This skill owns the **issue-fix execution loop**: pointed at one `work/Issue/<NN>-<slug>/`, it drains that folder's `Backlog/` — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / all-green). It does NOT author tasks (`define-task`), does NOT implement code itself (the engineer agent does, guided entirely by the task), does NOT stage test data / seeds / stubs (anything needing them belongs to the workflow loop), and does NOT own the `work/Issue/` layout (`define-task`). It stamps `startedAt` / `finishedAt` and, when the repo set up sync, pushes each finished task to its board (`sync-task-*`), but does NOT own the sync mechanics (`sync-task`). There is no report and no stage handoff — a DRAINED run simply ends.
 
 For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

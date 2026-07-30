@@ -72,7 +72,7 @@ Tell the user the issue is staged — point to `issue.md` + the `Backlog/` task 
 
 ### 9. Sync to the external tracker
 
-Open `sync-task`'s skill file and follow it to push the staged issue + tasks. If that skill doesn't exist (yet) or doesn't cover this case, skip this step. Either way, the folder is now ready for the user to hand to `execute-issue`.
+If the repo set up sync (`initialize-sync-task` created a `sync-task-*` skill), open it and follow it to push the staged issue + tasks — a full topic sync creates the parent issue + one sub-issue per task on its board (`execute-issue` then keeps each card updated per task). If no such skill exists, skip. Either way, the folder is now ready for the user to hand to `execute-issue`.
 
 ## References
 
@@ -84,7 +84,7 @@ Open `sync-task`'s skill file and follow it to push the staged issue + tasks. If
 
 ## Trigger Skill
 
-- sync-task — push the staged issue + tasks to the external tracker (step 9); skipped while that skill doesn't exist or doesn't cover the case.
+- sync-task (only if set up) — full topic sync of the staged issue + tasks to its board via the generated `sync-task-*` skill (step 9); skipped when the repo has no sync-task skill.
 
 ## Writes To
 

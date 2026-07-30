@@ -27,7 +27,7 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 - [ ] `depends_on` are all `done`
 - [ ] read the task in full (`contract` / `cases` / `pseudocode` / `targets` / `assume` / `command` / `acceptance`)
 - [ ] confirm `assume` holds — the pre-state is really there (e.g. `00-env-setup` seeded the data). If it doesn't → **BLOCKED** (see Stop & pause); don't guess the missing pre-state
-- [ ] set `status` → `in_progress`
+- [ ] set `status` → `in_progress`; stamp `startedAt` = now (ISO 8601). Don't sync yet — one sync per task, at close-out
 
 **3. Dispatch** — pick the skill, then run it in the active mode.
 
@@ -50,19 +50,27 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 
 - A test task is expected to be **RED** — a correctly-red test (e.g. a compile/import error because the function isn't written yet) is a **PASS**, not a failure. Don't "fix" it here; its paired code task turns it green.
 - matches `acceptance` → pass, continue.
-- doesn't match → **FAILURE** (see Stop & pause): set `status` → `failed`.
+- doesn't match → **FAILURE** (see Stop & pause): set `status` → `failed`, stamp `finishedAt`, and **sync** the task (if set up — see *Sync to the board*).
 - while accepting, look over the code/test the engineer wrote — not just the run result. If a coding pattern recurs and is **not** already a rule in `code-standards.md`, note the location where the pattern appears in this task; it feeds the candidate in step 7 — self-report adds it to the candidate's accumulating `places` list (deduped) and scores from `places.length`. execute-tdd reports the location, never a score.
 
 **6. Per-task review gate** — only when the user asked to review each task: pause here and report `{ task, actual vs acceptance, files / diff touched }`, wait for approval, then resume. If the user didn't ask → don't stop.
 
 **7. Close-out checklist** — every task:
 
-- [ ] set `status` → `done`
+- [ ] set `status` → `done`; stamp `finishedAt` = now; **sync** the task (if set up — see *Sync to the board*)
 - [ ] record the run result (actual vs `acceptance` — green / red-as-expected / compiles)
 - [ ] update the central task / queue so the next pass (step 1) sees the latest status
 - [ ] **every** non-blocking issue found this task → `self-report`: a recurring pattern from step 5 that isn't a rule yet goes as a `candidate` (with its `places` list); other issues go as a `problem`
 
 → back to step 1.
+
+### Sync to the board (only if set up)
+
+If the repo was wired to an external tracker (`initialize-sync-task` created a `sync-task-*` skill), push each task to the board **once, at close-out / failure** (steps 7 / 5) — that single sync carries its final `status`, `startedAt`, `finishedAt`, and actual time. Run that skill's engine on the one task:
+
+`sync-task/sync-task-<name>/sync-task.sh <that task's .json>`
+
+It updates only that card (idempotent). **Don't** sync on pickup (`in_progress`) — a sync per transition is wasteful. Skip entirely if no `sync-task-*` skill exists; sync is opt-in.
 
 ### Skills the engineer agent follows — `default-tdd` + type handlers
 
@@ -99,11 +107,12 @@ Report refresh happens only at these points — **not on every task** (too heavy
 - `agent-skill/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `agent-skill/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
 - generate-report — refresh `scenario.html` at every halt/pause (drained / deadlock / blocked / failure / review).
 - self-report — non-blocking **improvement** observations (step 7): a recurring code pattern as a `candidate`, other issues as a `problem`. Silent, aggregated; blocking gaps ask the user instead.
+- sync-task (only if set up) — at a task's close-out / failure, push that one task to its board via the generated `sync-task-*` engine. Added to `file-map.html` only when the repo has a sync-task skill.
 
 ## Writes To
 
-- create-task's task files in `01-Setup/` / `02-Backlog/` — advances each task's `status` (`pending` → `in_progress` → `done` / `failed`) as the loop runs; doesn't touch any other field.
+- create-task's task files in `01-Setup/` / `02-Backlog/` — advances each task's `status` (`pending` → `in_progress` → `done` / `failed`) and stamps `startedAt` (pickup) / `finishedAt` (close-out) as the loop runs; touches no other field.
 
 ## Role & Boundary (Read Before Editing)
 
-This skill owns Stage 4: the **central TDD execution loop** over Setup + Backlog — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / compiles). It does NOT author tasks (`create-task`), does NOT implement code itself (the engineer agent does, following the dispatched skill, guided entirely by the task), does NOT run api-tests (`03-Api-test/` is `api-test` — a different loop), does NOT stage test data / seeds / stubs (`create-test-data`), does NOT run issue-fix tasks (`execute-issue`), and does NOT define folder paths or stage gating (`workflow`). Task `status` uses create-task's set — `pending` / `in_progress` / `done` / `failed`; a task that fails acceptance is set `failed` and halts the loop. Blocking gaps (deadlock, failure, an `assume` that doesn't hold) stop the loop and ask the user; only non-blocking improvements go to `self-report`. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
+This skill owns Stage 4: the **central TDD execution loop** over Setup + Backlog — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / compiles). It does NOT author tasks (`create-task`), does NOT implement code itself (the engineer agent does, following the dispatched skill, guided entirely by the task), does NOT run api-tests (`03-Api-test/` is `api-test` — a different loop), does NOT stage test data / seeds / stubs (`create-test-data`), does NOT run issue-fix tasks (`execute-issue`), and does NOT define folder paths or stage gating (`workflow`). Task `status` uses create-task's set — `pending` / `in_progress` / `done` / `failed`; a task that fails acceptance is set `failed` and halts the loop. It also stamps `startedAt` / `finishedAt` on the task and, when the repo set up sync, pushes each finished task to its board (`sync-task-*`) — but does NOT own the sync mechanics or the board (`sync-task`). Blocking gaps (deadlock, failure, an `assume` that doesn't hold) stop the loop and ask the user; only non-blocking improvements go to `self-report`. For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

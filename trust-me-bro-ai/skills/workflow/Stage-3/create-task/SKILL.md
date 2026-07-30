@@ -70,6 +70,9 @@ Trigger `generate-report` to refresh `scenario.html`.
 ### 9. ⏸ PAUSE
 Tell the user the updated `scenario.html` is ready (tasks + functional design rendered by generate-report in step 8) and to review it there — don't print a task summary. Also list the self-learn items recorded this round (headlines + tier). Do not start execute-tdd until approved.
 
+### 10. Sync to the external tracker
+On approval, if the repo set up sync (`initialize-sync-task` created a `sync-task-*` skill), open it and do a full topic sync — creates the scenario's parent issue + one sub-issue per task on its board (`execute-tdd` then keeps each card updated per task). Skip if no such skill exists.
+
 ## References
 - bridge: `context/gateway-directory.md` — **Inbound** lines: each E2E request's endpoint (method + path); cross-check the flow against it to catch a missing / unregistered / outbound endpoint.
 - bridge: `tech-stack/gateway-contract.md` — request/response shapes an api-test `contract` must match.
@@ -86,10 +89,11 @@ Tell the user the updated `scenario.html` is ready (tasks + functional design re
 ## Trigger Skill
 - generate-report — refresh `scenario.html` after the task list is staged (step 8).
 - self-report — when something needed to author a task isn't available (missing contract / endpoint / error_code, or a conflict); silent, aggregated in step 7.
+- sync-task (only if set up) — on approval, full topic sync of the staged scenario to its board via the generated `sync-task-*` skill (step 10). Added to `file-map.html` only when the repo has a sync-task skill.
 
 ## Writes To
 - `02-Task/01-Setup/` + `02-Backlog/` — Setup + Backlog task files (one per function).
 - `02-Task/03-Api-test/` — api-test task files (one per request).
 
 ## Role & Boundary (Read Before Editing)
-This skill owns Stage 3: the **functional design** (function call tree, authored into `scenario.html`) and breaking the agreed scenario into **atomic, self-sufficient tasks** — grouped into Setup / Backlog / Api-test, ordered with dependencies and TDD test→code pairing, each carrying enough to be done standalone. Everything derives from `scenario.html`; gaps go to `self-report`. It authors api-test tasks (the endpoints are known from gateway-directory) but does NOT run them (that is `api-test`), does NOT execute Setup/Backlog tasks (`execute-tdd`), does NOT stage test data / seeds / stubs (`create-test-data` — it references their shapes), and does NOT define the scenario.html card markup (`generate-report`). For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
+This skill owns Stage 3: the **functional design** (function call tree, authored into `scenario.html`) and breaking the agreed scenario into **atomic, self-sufficient tasks** — grouped into Setup / Backlog / Api-test, ordered with dependencies and TDD test→code pairing, each carrying enough to be done standalone. Everything derives from `scenario.html`; gaps go to `self-report`. It authors api-test tasks (the endpoints are known from gateway-directory) but does NOT run them (that is `api-test`), does NOT execute Setup/Backlog tasks (`execute-tdd`), does NOT stage test data / seeds / stubs (`create-test-data` — it references their shapes), and does NOT define the scenario.html card markup (`generate-report`), and does NOT own external-sync mechanics (`sync-task` — this skill only triggers a full sync on approval, step 10). For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
