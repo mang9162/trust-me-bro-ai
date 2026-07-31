@@ -30,10 +30,12 @@
 + "**Tasks:**\n\n" + (($counts.byType // {}) | to_entries | map("- \(.key) ×\(.value)") | join("\n")) + "\n\n"
 + "**Mocks (stubs):** ×\($counts.mocks // 0)\n"
 
-# ---- acceptance: AI summary on top ($summary), raw rounds collapsed (like a task's notes) ----
+# ---- acceptance: one AI summary line per round ($summary keyed by round), raw rounds collapsed ----
 + "\n**accepted:** \(.accepted // false)\n"
 + ((.acceptanceHistory // []) | if length>0 then
-    (($summary // "") | if . != "" then "\n" + . + "\n" else "" end)
+    "\n" + (map("- **Round \(.round)** (\(.result))"
+      + (((($summary // {})[(.round|tostring)]) // "") | if . != "" then " — " + . else "" end)
+      ) | join("\n")) + "\n"
     + "\n<details><summary>acceptance history (raw)</summary>\n\n"
     + (map("**round \(.round)** — \(.result)\n\n\(.feedback)") | join("\n\n"))
     + "\n</details>\n" else "" end)

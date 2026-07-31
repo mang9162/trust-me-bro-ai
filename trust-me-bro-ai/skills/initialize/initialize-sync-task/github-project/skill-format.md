@@ -32,9 +32,14 @@ Two shapes — the engine auto-detects which:
   - **Scenario** (from the workflow) → `work/Scenario/<…>/<NN>-<NAME>/` — parent `scenario.html` (its `scenario-meta`), tasks under `02-Task/{01-Setup,02-Backlog,03-Api-test}/`.
 - **A single task** (one `*.json` task file) — updates just that task's card. For when `execute-tdd` / `execute-issue` finishes a task and pushes its new `status` (+ times) back one at a time, instead of resyncing the whole topic. The task must already be synced (its topic was synced once first).
 
-### 3. Summarize long notes (optional)
+### 3. Summarize long text (optional)
 
-For any task whose `notes` are long, write a 1–2 line human summary into a JSON map keyed by task `id` (`{ "<task-id>": "summary", … }`) and save it to a temp file. The issue shows it above the raw notes (kept collapsed); tasks with no entry just show the raw notes. This summary is NOT stored in the task file.
+Long text shows as a short human summary above the raw (kept collapsed). Write summaries into one JSON map, save it to a temp file, and pass it as `SYNC_SUMMARIES` (step 4). It is NOT stored in any file. Two kinds of key:
+
+- **task notes** — for any task whose `notes` are long, key by task `id`: `{ "<task-id>": "1–2 line summary" }`.
+- **acceptance history** (parent sync) — key by the scenario name; its value is an object keyed by round, one line per acceptance round: `{ "<scenario-name>": { "1": "…", "2": "…" } }`. The parent issue renders these as a per-round list above the raw history.
+
+A task or round with no entry just shows its raw text.
 
 ### 4. Run the engine
 

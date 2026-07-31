@@ -72,7 +72,7 @@ Tell the user the issue is staged — point to `issue.md` + the `Backlog/` task 
 
 ### 9. Sync to the external tracker
 
-If the repo set up sync (`initialize-sync-task` created a `sync-task-*` skill), open it and follow it to push the staged issue + tasks — a full topic sync creates the parent issue + one sub-issue per task on its board (`execute-issue` then keeps each card updated per task). If no such skill exists, skip. Either way, the folder is now ready for the user to hand to `execute-issue`.
+On approval, find the `sync-task-*` skills in `skills/sync-task/`. None → skip. Otherwise select the one for this issue, record it in `issue.md` as a trailing `<!-- syncTarget: <name> -->` marker (a comment, invisible when rendered — `execute-issue` reads it to hit the same board), then open it for a **full topic** sync: the parent issue + one sub-issue per task on that board (`execute-issue` then keeps each card updated per task). Either way, the folder is now ready for the user to hand to `execute-issue`.
 
 ## References
 
@@ -84,11 +84,11 @@ If the repo set up sync (`initialize-sync-task` created a `sync-task-*` skill), 
 
 ## Trigger Skill
 
-- sync-task (only if set up) — full topic sync of the staged issue + tasks to its board via the generated `sync-task-*` skill (step 9); skipped when the repo has no sync-task skill.
+- sync-task — a full topic sync of the staged issue + tasks to the selected board via its `sync-task-*` skill (step 9), when one exists in `skills/sync-task/`. Added to `file-map.html` only when a sync-task skill exists.
 
 ## Writes To
 
-- `work/Issue/<NN>-<slug>/` — `issue.md` + the `Backlog/` TDD task files (the staged fix).
+- `work/Issue/<NN>-<slug>/` — `issue.md` (+ a trailing `<!-- syncTarget: <name> -->` marker at step 9 when a sync board is selected) + the `Backlog/` TDD task files (the staged fix).
 - `self-learn/tech-debt.js` — the defined entry is removed (step 7).
 - `self-learn/log.js` — the closed entry is appended with `status: done` + `issueFolder` (step 7).
 
@@ -103,6 +103,6 @@ It does NOT:
 - record new entries — `self-report` is the sole writer of new `tech-debt.js` entries; this skill only moves an already-defined entry out.
 - improve the kit itself — that is `self-improve`; this skill plans fixes for the project's app code, never kit files.
 - author scenario work — anything needing new test data / seeds / stubs or its own E2E flow belongs to the workflow loop (`get-requirement` onward, tasks by `create-task`).
-- own the external sync mechanics — that is `sync-task`; this skill only hands off to it.
+- own the external sync mechanics — that is `sync-task`; this skill only selects the board, records it as `issue.md`'s `syncTarget` marker, and triggers a full topic sync.
 
 For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.

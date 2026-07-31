@@ -151,9 +151,10 @@ set_status() {  # $1=item_id  $2=board_option_name  (item must already be on boa
 }
 
 # ---------------------------------------------------------------- body (from templates)
-# Optional $SYNC_SUMMARIES = path to a JSON map { "<task-id>": "short summary", ... }.
-# The playbook (AI) writes it at sync time to summarize long `notes`; it is NOT stored
-# in the task file. Missing entry → no summary line (raw notes still shown, collapsed).
+# Optional $SYNC_SUMMARIES = path to a JSON map the playbook (AI) writes at sync time; it is
+# NOT stored in any file. Two kinds of key: a task `id` → a short `notes` summary string;
+# the scenario name → an object keyed by round for the acceptance history
+# ({ "<task-id>": "…", "<scenario>": { "1": "…", "2": "…" } }). Missing entry → raw shown, collapsed.
 task_body() {  # $1=task_json  $2=rel_path -> stdout
   local sum=""
   if [[ -n "${SYNC_SUMMARIES:-}" && -f "${SYNC_SUMMARIES:-}" ]]; then
@@ -217,7 +218,8 @@ parent_issue_md() {
   title="[Issue] $SCENARIO_NAME"
   marker=$(grep -oE '<!-- sync: \{.*\} -->' "$doc" | head -1 || true)
   bodyfile=$(mktemp)
-  grep -v -E '<!-- sync: \{.*\} -->' "$doc" >"$bodyfile"
+  # strip both kit-internal markers from the pushed body: the sync id and define-task's syncTarget
+  grep -v -E '<!-- sync: \{.*\} -->|<!-- syncTarget: .* -->' "$doc" >"$bodyfile"
   printf '\n---\n_Synced from Trust me bro ai · %s_\n' "$SCENARIO_NAME" >>"$bodyfile"
   if [[ -n "$marker" ]]; then
     PARENT_NUM=$(sed -E 's/^<!-- sync: (.*) -->$/\1/' <<<"$marker" | jq -r '.id')
@@ -267,17 +269,18 @@ parent_scenario() {
     '{byType:(group_by(.type)|map({key:(.[0].type//"?"),value:length})|from_entries),mocks:([.[].uses.stubs//[]]|add//[]|unique|length)}' {} + 2>/dev/null)
   [[ -n "$counts" ]] || counts='{"byType":{},"mocks":0}'
   fndesign=$(grep -oE 'class="fn-node[^"]*">[^<]+' "$TOPIC/scenario.html" 2>/dev/null | sed -E 's/.*">//' | sed '/^$/d' || true)
-  # acceptance-history summary — AI writes it into $SYNC_SUMMARIES keyed by the scenario name (ephemeral)
-  summary=""
+  # acceptance-history summary — AI writes it into $SYNC_SUMMARIES keyed by the scenario name;
+  # its value is an object keyed by round ({ "<scenario>": { "1": "...", "2": "..." } }); ephemeral
+  summary="{}"
   if [[ -n "${SYNC_SUMMARIES:-}" && -f "${SYNC_SUMMARIES:-}" ]]; then
-    summary=$(jq -r --arg k "$SCENARIO_NAME" '.[$k] // ""' "$SYNC_SUMMARIES")
+    summary=$(jq -c --arg k "$SCENARIO_NAME" '.[$k] // {}' "$SYNC_SUMMARIES")
   fi
 
   bodyfile=$(mktemp)
   printf '%s' "$meta" | jq -r \
     --arg scenario "$SCENARIO_NAME" --arg repo "$OWNER/$REPO" --arg feature "$feature" \
     --arg testdata "$testdata" --argjson counts "$counts" --arg fndesign "$fndesign" \
-    --arg summary "$summary" \
+    --argjson summary "$summary" \
     -f "$TPL_DIR/scenario-parent.jq" >"$bodyfile"
   if [[ -n "$sync_id" ]]; then
     PARENT_NUM="$sync_id"; edit_issue "$PARENT_NUM" "$title" "$bodyfile"

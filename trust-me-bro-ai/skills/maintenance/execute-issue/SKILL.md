@@ -52,13 +52,13 @@ Build the queue from every task in the pointed-at `work/Issue/<NN>-<slug>/Backlo
 
 → back to step 1.
 
-### Sync to the board (only if set up)
+### Sync to the board
 
-If the repo was wired to an external tracker (`initialize-sync-task` created a `sync-task-*` skill), push each task to the board **once, at close-out / failure** (steps 6 / 5) — that single sync carries its final `status`, `startedAt`, `finishedAt`, and actual time. Run that skill's engine on the one task:
+Read the `<!-- syncTarget: <name> -->` marker in `issue.md` (define-task records which board it pushed to). Unset → skip (sync is opt-in). Set → push each task to that board **once, at close-out / failure** (steps 6 / 5) — the single sync carries its final `status`, `startedAt`, `finishedAt`, and actual time. Run its engine on the one task:
 
-`sync-task/sync-task-<name>/sync-task.sh <that task's .json>`
+`sync-task/sync-task-<syncTarget>/sync-task.sh <that task's .json>`
 
-It updates only that card (idempotent). **Don't** sync on pickup (`in_progress`) — a sync per transition is wasteful. Skip entirely if no `sync-task-*` skill exists; sync is opt-in.
+It updates only that card (idempotent). **Don't** sync on pickup (`in_progress`) — one sync per task, not per transition.
 
 ### Stop & end
 
@@ -84,7 +84,7 @@ There is **no report** for an issue run — no `scenario.html` exists; status is
 
 - `agent-skill/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `agent-skill/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
 - self-report — non-blocking **improvement** observations (step 6): a recurring code pattern as a `candidate`, other issues as a `problem`. Silent, aggregated; blocking gaps ask the user instead.
-- sync-task (only if set up) — at a task's close-out / failure, push that one task to its board via the generated `sync-task-*` engine. Added to `file-map.html` only when the repo has a sync-task skill.
+- sync-task — at a task's close-out / failure, push that one task to the board named by `issue.md`'s `syncTarget` marker (define-task records it) via its `sync-task-*` engine. Added to `file-map.html` only when a sync-task skill exists.
 
 ## Writes To
 
@@ -92,6 +92,6 @@ There is **no report** for an issue run — no `scenario.html` exists; status is
 
 ## Role & Boundary (Read Before Editing)
 
-This skill owns the **issue-fix execution loop**: pointed at one `work/Issue/<NN>-<slug>/`, it drains that folder's `Backlog/` — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / all-green). It does NOT author tasks (`define-task`), does NOT implement code itself (the engineer agent does, guided entirely by the task), does NOT stage test data / seeds / stubs (anything needing them belongs to the workflow loop), and does NOT own the `work/Issue/` layout (`define-task`). It stamps `startedAt` / `finishedAt` and, when the repo set up sync, pushes each finished task to its board (`sync-task-*`), but does NOT own the sync mechanics (`sync-task`). There is no report and no stage handoff — a DRAINED run simply ends.
+This skill owns the **issue-fix execution loop**: pointed at one `work/Issue/<NN>-<slug>/`, it drains that folder's `Backlog/` — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / all-green). It does NOT author tasks (`define-task`), does NOT implement code itself (the engineer agent does, guided entirely by the task), does NOT stage test data / seeds / stubs (anything needing them belongs to the workflow loop), and does NOT own the `work/Issue/` layout (`define-task`). It stamps `startedAt` / `finishedAt` and, when `issue.md` names a `syncTarget`, pushes each finished task to that board (`sync-task-*`), but does NOT own the sync mechanics (`sync-task`). There is no report and no stage handoff — a DRAINED run simply ends.
 
 For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
