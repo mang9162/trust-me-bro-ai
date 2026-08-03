@@ -2,6 +2,7 @@
   "provider": "github-project",
   "project_number": 0,
   "label": "",
+  "assign_syncer_on_done": true,
   "status_map": {
     "pending": "Todo",
     "in_progress": "In Progress",

@@ -62,6 +62,12 @@ LABEL=$(jq -r '.label // ""' "$CONFIG")
 START_FIELD=$(jq -r '.fields.start // ""' "$CONFIG")
 END_FIELD=$(jq -r '.fields.end // ""' "$CONFIG")
 ACTUAL_FIELD=$(jq -r '.fields.actual // ""' "$CONFIG")
+ASSIGN_ON_DONE=$(jq -r '.assign_syncer_on_done // false' "$CONFIG")
+SYNCER_LOGIN=""
+if [[ "$ASSIGN_ON_DONE" == true ]]; then
+  SYNCER_LOGIN=$(gh api user --jq '.login' 2>/dev/null || true)
+  [[ -n "$SYNCER_LOGIN" ]] || echo "warn: assign_syncer_on_done is on but the gh account couldn't be resolved — done tasks won't be assigned" >&2
+fi
 
 # ---------------------------------------------------------------- repo / owner
 REMOTE_URL=$(git -C "$TOPIC" remote get-url origin)
@@ -149,6 +155,11 @@ set_status() {  # $1=item_id  $2=board_option_name  (item must already be on boa
   gh project item-edit --id "$1" --project-id "$PROJECT_ID" --field-id "$STATUS_FIELD_ID" \
     --single-select-option-id "$opt" >/dev/null
 }
+assign_syncer() {  # $1=issue_number — assign the syncing gh account (done tasks only, when enabled)
+  [[ "$ASSIGN_ON_DONE" == true && -n "$SYNCER_LOGIN" ]] || return 0
+  gh issue edit "$1" --repo "$OWNER/$REPO" --add-assignee "$SYNCER_LOGIN" >/dev/null 2>&1 \
+    || echo "  warn: could not assign $SYNCER_LOGIN to #$1" >&2
+}
 
 # ---------------------------------------------------------------- body (from templates)
 # Optional $SYNC_SUMMARIES = path to a JSON map the playbook (AI) writes at sync time; it is
@@ -164,11 +175,12 @@ task_body() {  # $1=task_json  $2=rel_path -> stdout
 }
 
 process_task() {  # $1=task_json
-  local f="$1" rel tp title status_name sync_id url num bodyfile item started finished
+  local f="$1" rel tp title status status_name sync_id url num bodyfile item started finished
   rel="${f#"$ROOT"/}"
   tp=$(jq -r '.type // "task"' "$f")
   title="[$(type_label "$tp")] $(jq -r '.title // .id // "task"' "$f")"
-  status_name=$(status_board_name "$(jq -r '.status // "pending"' "$f")")
+  status=$(jq -r '.status // "pending"' "$f")
+  status_name=$(status_board_name "$status")
   sync_id=$(jq -r '.sync.id // empty' "$f")
   bodyfile=$(mktemp); task_body "$f" "$rel" >"$bodyfile"
 
@@ -187,11 +199,12 @@ process_task() {  # $1=task_json
 
   item=$(ensure_on_board "$url" "$num")
   set_status "$item" "$status_name"
+  if [[ "$status" == done ]]; then assign_syncer "$num"; fi
   started=$(jq -r '.startedAt // empty' "$f"); finished=$(jq -r '.finishedAt // empty' "$f")
   set_date "$item" "$START_FIELD" "$started"
   set_date "$item" "$END_FIELD" "$finished"
   set_actual "$item" "$started" "$finished"
-  TASK_STATUSES+=("$(jq -r '.status // "pending"' "$f")")
+  TASK_STATUSES+=("$status")
   echo "  task #$num  $(basename "$f")"
 }
 
