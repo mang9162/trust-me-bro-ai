@@ -1,0 +1,40 @@
+{
+  "skill_name": "initialize-sync-task-github-project",
+  "context": {
+    "scenario": "Installing GitHub Projects sync into a repo",
+    "description": "The user chose GitHub Projects as the tracker. Their board already has a single-select field named Status (options Todo / In Progress / Done). The installer maps board fields to task status + time, collects config, and produces a self-contained sync-task-<name>/ skill.",
+    "note": "The installer does not auto-create fields that likely already exist — it asks the user to map an existing field or create a new one. Each install generates its own self-contained skill (a copy of the payload engine + templates + a config.json), never a shared/global engine."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Map an existing field, do not auto-create a duplicate",
+      "prompt": "During field mapping the board already has a Status field, and a mapping for task status is needed.",
+      "expectations": [
+        "the skill asks whether to map the existing Status field or create a new one — it does not silently create a second Status field",
+        "the same map-or-create choice is offered for the time fields (Start / End / Actual Time), not only Status",
+        "the chosen field names are written into config.json (status_map / fields)"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Preflight the token scope before doing work",
+      "prompt": "The active gh token has scopes repo and read:org but not project.",
+      "expectations": [
+        "the skill detects the missing project scope up front, before creating or writing anything",
+        "it tells the user how to grant it (e.g. gh auth refresh -s project) and stops until the token can reach the board",
+        "it does not push ahead and fail partway with a raw API permission error"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Generate a self-contained per-install skill",
+      "prompt": "Config is collected. Produce the sync-task skill for this board.",
+      "expectations": [
+        "a self-contained skills/sync-task/sync-task-<name>/ is generated — its own engine copy, templates, and config.json",
+        "it does not point at or edit a shared/global engine — each install is independent (multi-vendor safe)",
+        "the generated skill is instantiated from the installer's skill-format template"
+      ]
+    }
+  ]
+}
