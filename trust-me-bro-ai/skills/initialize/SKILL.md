@@ -48,7 +48,8 @@ After Phases 1–3, fill the gaps a scan can't answer. Ask this fixed set (skip 
 5. Test placement — confirm the test-file (unit / component / integration / api-test) location + naming the scan found; if the scan found none, ask — and suggest a convention that fits the project.
 6. Error-code format — only if Phase 3 flagged an error registry is needed and none exists: propose a format and ask which abbreviations to use. (Skip if the project has no API surface.)
 7. Local test infra — is local integration/api-test infra already present? If not, PROPOSE scaffolding the kit's default (propose only — don't auto-do).
-8. Open-ended — "anything else the AI should know before real work starts?"
+8. Task sync — does the team want staged work (`work/Issue/` / `work/Scenario/`) pushed to an external board (e.g. GitHub Projects)? If yes, trigger `initialize-sync-task` to set it up; skip if tasks are tracked only in-repo.
+9. Open-ended — "anything else the AI should know before real work starts?"
 
 ### Setup Concerns
 Collect everything still needing setup but not done (from Phase 3 + items 6/7). Name each `INITIALIZE_<NameOfWork>` (e.g. `INITIALIZE_BASE_RESPONSE_ERROR_CODE`, `INITIALIZE_API_TEST_SETUP`) and report it to the self-report skill, recording its fix as: start a workflow for it, the way the project recommends. Then advise the user: open `self-learn/feed-back.html`, pick the solution they want, click copy, and paste it back here to start it.
@@ -58,6 +59,7 @@ Collect everything still needing setup but not done (from Phase 3 + items 6/7). 
 
 ## Trigger Skill
 - self-report — record each `INITIALIZE_<NameOfWork>` setup concern (with its fix) so the user can action it via `self-learn/feed-back.html`.
+- initialize-sync-task — set up external task sync (Phase 4 item 8), when the user opts in.
 
 ## Writes To
 - each template's `Target:` file (e.g. `context/gateway-directory.md`, `tech-stack/database-schema.md`) — created on first run, or updated/extended when it already exists.

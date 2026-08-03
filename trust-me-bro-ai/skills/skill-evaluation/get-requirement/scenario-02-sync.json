@@ -1,0 +1,27 @@
+{
+  "skill_name": "get-requirement",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "You have defined the scenario, the report is written, and the user approves it at the Stage-1 pause. There is nothing under skills/sync-task/.",
+      "expected_output": "the stage finishes with no external-tracker sync and no sync target recorded",
+      "expectations": [
+        "the skill runs no sync — there is no sync-task-* skill to select",
+        "the skill does not ask the user to set up sync and does not treat the absence as an error",
+        "no syncTarget field is written into scenario-meta",
+        "the stage still completes normally (report written, user approved)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Same Stage-1 approval, but skills/sync-task/ contains one skill, sync-task-jabz.",
+      "expected_output": "the scenario's board is recorded and its parent issue is created",
+      "expectations": [
+        "the skill selects sync-task-jabz and records it in scenario-meta as syncTarget: jabz",
+        "the sync is parent-only — the scenario has no tasks yet at Stage 1, so it is not a full topic sync",
+        "the sync happens only after the user approves at the pause, not before it",
+        "the recorded syncTarget is what later stages read, so Stages 2-6 push to the same board"
+      ]
+    }
+  ]
+}

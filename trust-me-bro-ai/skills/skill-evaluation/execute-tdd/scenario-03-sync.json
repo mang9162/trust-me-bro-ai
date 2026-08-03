@@ -1,0 +1,47 @@
+{
+  "skill_name": "execute-tdd",
+  "context": {
+    "scenario": "USER_EDIT_CART_SUCCESS_1",
+    "description": "A short backlog. Sync is opt-in via scenario-meta.syncTarget; here it is 'github' (skills/sync-task/sync-task-github/ is installed, Start/End/Actual Time board fields mapped).",
+    "tasks": {
+      "02-Backlog": [
+        { "id": "01-add-item-test", "type": "unit-test", "depends_on": [], "acceptance": "red" },
+        { "id": "02-add-item-code", "type": "code", "depends_on": ["01-add-item-test"], "acceptance": "green" }
+      ]
+    },
+    "note": "On pickup a task is set in_progress and stamped startedAt; at close-out/failure it is stamped finishedAt and synced once. The runner never writes code. syncTarget unset = sync skipped."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Pickup stamps time but does not sync",
+      "prompt": "01-add-item-test is picked. Handle pre-flight and pickup.",
+      "expectations": [
+        "status set to in_progress and startedAt stamped (ISO 8601)",
+        "the task is NOT synced at pickup — sync-task-github is not run here",
+        "the rule followed is one sync per task at close-out, not one per status transition"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Close-out syncs the one task once",
+      "prompt": "The engineer returns 01-add-item-test red, which matches its acceptance. Close it out.",
+      "expectations": [
+        "status set to done and finishedAt stamped",
+        "sync-task-github's engine is run on that one task's JSON only (single-task sync), carrying its final status + startedAt / finishedAt / actual time",
+        "the whole topic is NOT re-synced — only this one card is updated",
+        "this is the task's single sync; pickup did not sync it"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "No syncTarget: stamp but skip sync",
+      "prompt": "Run the same close-out, but scenario-meta has no syncTarget set.",
+      "expectations": [
+        "status / startedAt / finishedAt are still written to the task file",
+        "no sync runs at all — sync is opt-in and skipped when syncTarget is unset",
+        "the loop proceeds normally and does not treat the missing sync as an error"
+      ]
+    }
+  ]
+}

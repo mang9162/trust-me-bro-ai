@@ -39,7 +39,7 @@ Establish a shared, unambiguous understanding of what each scenario does — in 
      "acceptanceHistory": []
    }
    ```
-   `accepted` / `acceptanceHistory` are written back later by `acceptance-review` (Stage 6) — create them here with these defaults.
+   `accepted` / `acceptanceHistory` are written back later by `acceptance-review` (Stage 6) — create them here with these defaults. `syncTarget` (which sync board this scenario uses) is written at step 7 when a `sync-task-*` skill exists.
 
    b. **Header card** — scenario name, category badge, description.
 
@@ -64,6 +64,8 @@ Establish a shared, unambiguous understanding of what each scenario does — in 
 5. **Update Report** — trigger `generate-report` to write/update `scenario.html` for each scenario (header-card + progress-indicator(1/6) + E2E-flow + placeholder test-data/tasks, per the `scenario-meta` from step 3).
 
 6. ⏸ **PAUSE** — present each `scenario.html` path and ask the user to review, and list the self-learn items recorded this round (headlines + tier). Do NOT move to Stage 2 until approved.
+
+7. **Sync to the external tracker** — on approval, find the `sync-task-*` skills in `skills/sync-task/`. None → skip. Otherwise select the one for this scenario, record it in `scenario-meta` as `"syncTarget": "<name>"` (later stages read it), and open it for a **parent-only** sync (`--parent`) — the scenario's parent issue on that board (no tasks yet).
 
 ## Example steps (correct style)
 
@@ -97,6 +99,7 @@ If you find yourself naming one of these, it belongs in Stage 3 (create-task) or
 ## Trigger Skill
 - generate-report — write/update `scenario.html` (header-card + progress-indicator(1/6) + E2E-flow + placeholder test-data/tasks), per step 5.
 - self-report — when something self-learn-worthy is noticed while gathering the requirement, per step 4.
+- sync-task — a parent-only sync of the scenario to the selected board (step 7), when a `sync-task-*` skill exists.
 
 ## Role & Boundary (Read Before Editing)
 
@@ -106,8 +109,9 @@ name/description — including surfacing ambiguities back to the user when the
 requirement is unclear.
 
 It does not extend into test-data design (create-test-data), functional/task
-design (create-task), TDD implementation (execute-tdd), or verification
-(api-test) — for anything outside this boundary, see the Responsibility map in
+design (create-task), TDD implementation (execute-tdd), verification
+(api-test), or the external-sync mechanics (`sync-task` — step 7 only selects the
+target and triggers a parent-only sync) — for anything outside this boundary, see the Responsibility map in
 workflow/SKILL.md.
 
 The `steps` produced here are the single source later stages trace from —

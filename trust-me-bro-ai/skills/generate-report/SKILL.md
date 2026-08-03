@@ -18,7 +18,7 @@ Read the scenario folder per the workflow `## Layout` — it owns the folder str
 
 | Source | What to extract |
 |--------|----------------|
-| `scenario.html` → `<script id="scenario-meta">` block | `scenario`, `category`, `description`, `steps[]`, `accepted`, `acceptanceHistory[]` |
+| `scenario.html` → `<script id="scenario-meta">` block | `scenario`, `category`, `description`, `steps[]`, `accepted`, `acceptanceHistory[]`, `sync` (written by sync-task: `{ id, url, board? }`), `syncTarget` (which `sync-task-*` board, written by get-requirement). **Preserve the tool-written `sync` / `syncTarget` verbatim when re-emitting the block** — never drop them. |
 | `scenario.html` → functional-design section (if present) | preserve as-is; do NOT regenerate — it is authored by `create-task` |
 | Test-data table file (`Datatest.md`) | all markdown tables → variable name + value + notes |
 | Task files (Setup / Backlog / Api-test groups) | each task **by its own `type` field** — render its tag/group from the task data, whatever the type (incl. project-custom ones) |
@@ -69,6 +69,7 @@ The file contains multiple `## Section` headings, each followed by one markdown 
 
 - Each task card MUST be a `<details class="task-card" data-step="...">` element — never a plain `<div>`.
 - The `<summary>` contains: dot status indicator + `.task-body` (id, title, tags) + `<span class="expand-icon">▾</span>`.
+- If the task has a `sync` field (written by sync-task), append `<a class="tag sync-tag" href="{sync.url}" target="_blank">↗ #{sync.id}</a>` as the last chip inside `.tags` — the link to its synced issue.
 - `<summary>` must have `list-style:none` and `::-webkit-details-marker{display:none}` to suppress the browser default triangle.
 - The `<div class="task-detail">` after `</summary>` shows full task detail when expanded. Include only fields that are present in the task JSON:
   - `pseudocode` → `<pre class="detail-pre">` (newline-joined array)
@@ -94,6 +95,7 @@ The file contains multiple `## Section` headings, each followed by one markdown 
         <span class="tag t-env-setup">env-setup</span>
         <span class="tag e-low">low</span>
         <span class="tag status-badge">pending</span>
+        <!-- only if the task has a `sync` field: --><a class="tag sync-tag" href="{sync.url}" target="_blank">↗ #{sync.id}</a>
       </div>
     </div>
     <span class="expand-icon">▾</span>
@@ -150,6 +152,11 @@ details.task-card[open] .expand-icon{transform:rotate(180deg)}
 .dep-tag{background:#f1f5f9;color:#475569;font-size:0.67rem;padding:2px 8px;border-radius:10px;font-family:monospace}
 .target-path{font-family:'SFMono-Regular',Consolas,monospace;font-size:0.72rem;color:#6366f1;word-break:break-all;line-height:1.7}
 .detail-text{font-size:0.8rem;color:#475569;line-height:1.55}
+.sync-links{display:flex;gap:8px;margin-top:10px}
+.sync-link{font-size:0.72rem;font-weight:600;color:#4338ca;text-decoration:none;border:1px solid #c7d2fe;background:#eef2ff;border-radius:6px;padding:3px 10px}
+.sync-link:hover{background:#e0e7ff}
+.sync-tag{font-size:0.67rem;font-weight:700;color:#4338ca;background:#e0e7ff;border:1px solid #c7d2fe;border-radius:10px;padding:2px 8px;text-decoration:none}
+.sync-tag:hover{background:#c7d2fe}
 ```
 
 ## HTML Template
@@ -181,7 +188,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .section-title{font-size:0.78rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
 .stage-track{display:flex;align-items:flex-start}
 .stage-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
-.stage-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;position:relative;z-index:1}
+.stage-circle{width:100%;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;position:relative;z-index:1}
 .s-done .stage-circle{background:#6366f1;color:#fff}
 .s-active .stage-circle{background:#fff;border:2.5px solid #6366f1;color:#6366f1;box-shadow:0 0 0 4px #e0e7ff}
 .s-todo .stage-circle{background:#f8fafc;border:2px solid #cbd5e1;color:#94a3b8}
@@ -273,6 +280,7 @@ code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Re
   <div class="card header">
     <div class="scenario-name"><!-- FILL: scenario-meta .scenario --></div>
     <span class="category cat-<!-- FILL: success or alternative (lowercase) -->"><!-- FILL: scenario-meta .category --></span>
+    <!-- only if scenario-meta has a `sync` field: --><div class="sync-links"><a class="sync-link" href="<!-- FILL: sync.url -->" target="_blank">↗ Issue #<!-- FILL: sync.id --></a><!-- and, only if sync.board is present: --><a class="sync-link" href="<!-- FILL: sync.board -->" target="_blank">▦ Board</a></div>
     <p class="desc"><!-- FILL: scenario-meta .description --></p>
   </div>
 

@@ -9,6 +9,7 @@ The one schema every task JSON follows, no matter who authors it — `create-tas
 - **Self-sufficiency bar** — the depth every field must reach.
 - **Common fields** — present on every task.
 - **Conditional fields** — present by task type.
+- **Tool-managed fields** — `sync` / `startedAt` / `finishedAt`, written by tooling, not the author.
 - **Size `effort`** — how to set `effort`, by task family.
 
 ## Format
@@ -33,6 +34,13 @@ Every task is one JSON file that meets the **self-sufficiency bar**: a fresh age
 - `pseudocode` (test / code) — the step-by-step plan to write it (a test: setup → action → assert; code: the implementation), precise enough to leave no open design decisions
 - `uses` (only when the pipeline stages test data) — `{ testdata: { name: value }, stubs: [...] }` with real values
 
+**Tool-managed fields** *(optional — not authored; written by tooling as the task moves)*:
+
+- `sync` — `sync-task` writes `{ id, url }` back after the first push: `id` = the tracker handle used to update the item on resync (GitHub = issue number), `url` = human link. Present → update on resync; absent → create.
+- `startedAt` / `finishedAt` — ISO 8601 timestamps the runner (`execute-tdd` / `execute-issue`) stamps when the task starts and finishes; `sync-task` maps them onto the board's date fields. Actual duration is derived (`finishedAt` − `startedAt`), not stored.
+
+Author skills (`create-task`, `define-task`) leave all of these absent.
+
 Depth recap: `contract` carries referenced type shapes (no "see source") · `cases` real `given → assert` · `uses.testdata` name→value · `pseudocode` no open decisions · `targets` path+mode+`at` · `assume` plain pre-state · `command`+`acceptance` exact.
 
 **Size `effort`:**
@@ -48,4 +56,4 @@ Depth recap: `contract` carries referenced type shapes (no "see source") · `cas
 
 ## Role & Boundary
 
-This file owns the task JSON schema — the self-sufficiency bar, common fields, conditional fields, and effort sizing every authored task follows. It does NOT own any author's type list, group folders, or ordering rules (`create-task`, `define-task` — each defines its own on top), and not how tasks are executed (`execute-tdd`).
+This file owns the task JSON schema — the self-sufficiency bar, common fields, conditional fields, the tool-managed fields (`sync`, `startedAt`, `finishedAt`), and effort sizing every authored task follows. It does NOT own any author's type list, group folders, or ordering rules (`create-task`, `define-task` — each defines its own on top), how tasks are executed (`execute-tdd` / `execute-issue`), or how the tool-managed fields are written (`sync-task` writes `sync`; the runner stamps the timestamps).
