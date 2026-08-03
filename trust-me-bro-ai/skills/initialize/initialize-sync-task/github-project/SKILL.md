@@ -51,6 +51,7 @@ Assemble the values for `config.json` (shape = `payload/config.example.json`):
 - `status_map` — task status → board Status **option name**. Default `{ pending: Todo, in_progress: "In Progress", done: Done, failed: Todo }`; the left side is fixed by `task-schema.md`, the right must match the board's real option names.
 - `fields` — the board field **names** chosen in step 4: `{ start, end, actual }`. Leave any `""` to skip syncing it.
 - `label` — optional label put on the parent issue; must already exist in the repo, or `""`.
+- `assign_syncer_on_done` — when `true`, the syncing gh account is added as an assignee on each task issue once its status is `done`. `false` (or absent) to skip.
 
 ### 6. Generate the skill
 
