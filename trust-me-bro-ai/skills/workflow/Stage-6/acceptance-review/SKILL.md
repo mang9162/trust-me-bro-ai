@@ -15,7 +15,7 @@ This stage **replaces** the old "agile loop-back on failure": the agent no longe
 
 ### 1. Self-review against DoD — *not active yet*
 
-*Placeholder — see `roadmap.html` → "Stage 6 — acceptance-review" → AI self-review against Definition of Done.* The intent: before summarizing, the agent vets the scenario against a DoD checklist and surfaces gaps first. The DoD content is not defined yet — skip this step for now and go straight to Summarize.
+*Placeholder — a planned AI self-review against a Definition of Done.* The intent: before summarizing, the agent vets the scenario against a DoD checklist and surfaces gaps first. The DoD content is not defined yet — skip this step for now and go straight to Summarize.
 
 ### 2. Summarize
 

@@ -38,7 +38,7 @@ Build the queue from the Setup + Backlog tasks, then repeat:
 - [ ] one engineer agent, single context, follows the chosen skill on this one task
 - [ ] the agent writes the test/code, runs the task's `command`, and **self-verifies the result meets the task's `acceptance` before handing back** (test task: red-as-expected; code task: green)
 
-*Mode — multi-agent (future option, not active — see `roadmap.html` → "Multi-agent engineer dispatch"):*
+*Mode — multi-agent (future option, not active):*
 
 - [ ] route the task to an engineer agent by `effort` (e.g. a higher-capability model for high-effort tasks)
 - [ ] run independent tasks (no shared `depends_on`) in parallel
