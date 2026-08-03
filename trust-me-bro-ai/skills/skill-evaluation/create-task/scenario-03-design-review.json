@@ -1,0 +1,30 @@
+{
+  "skill_name": "create-task",
+  "context": "Scenario: VIEW_LIVE_MATCH_SUCCESS_1 — a read-through cache flow. The functional design has ALREADY been authored into scenario.html; run the step-9 Design self-review over what is given (do NOT re-derive the tree). Nodes:\n- LiveController.getLive(id) [component] — handler for GET /live/:id; calls CacheService.getCache(id) and returns its result.\n- LiveController.listLive() [component] — handler for GET /live; calls LiveService.listAll().\n- CacheService.getCache(key) [integration] — reads key from redis; returns the cached value, or null on a miss.\n- LiveService.getCache(key) [integration] — calls CacheService.getCache(key); on null, loads the record via LiveRepo.findById(key), writes it into redis, and returns it.\n- LiveService.listAll() [integration] — calls LiveRepo.findAll() and returns the list.\n- LiveRepo.findById(id) / LiveRepo.findAll() [integration] — DB reads.\nScenario intent: GET /live/:id must return the live record, warming the cache on a miss. Both API endpoints are registered in gateway-directory Inbound.",
+  "evals": [
+    {
+      "id": 1,
+      "title": "Intent match — caller wired to a callee whose job doesn't fit the need",
+      "prompt": "Run the Design self-review over the authored tree and report the flags.",
+      "expectations": [
+        "Flags LiveController.getLive -> CacheService.getCache: CacheService.getCache returns null on a miss, but getLive must return the live record, so a cold/expired cache yields nothing instead of loading from source",
+        "Identifies that LiveService.getCache is the path whose job fits getLive's need (it warms the cache on a miss) — i.e. getLive should reach LiveService.getCache",
+        "The same wiring is corroborated by the structural items: LiveService.getCache has no caller (dangling node), and CacheService.getCache's null/miss outcome has no fallback in getLive's wiring (silent gap)",
+        "Does NOT rewire or fix the tree itself — it surfaces the flag at the pause for the user to decide (create-task plans only)",
+        "Does NOT flag the LiveController.listLive -> LiveService.listAll -> LiveRepo.findAll branch — its intent aligns (no false positive)"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Clean design — the review does not manufacture flags",
+      "prompt": "The tree is corrected so LiveController.getLive now calls LiveService.getCache(id) (the read-through) instead of CacheService.getCache directly. Everything else is unchanged. Re-run the Design self-review.",
+      "expectations": [
+        "Reports no intent-mismatch flag — getLive now reaches the read-through path that fits its need",
+        "Reports no dangling node — LiveService.getCache now has a caller",
+        "Reports no unhandled-miss gap — the miss path (LiveRepo -> warm redis) is now reached",
+        "Does not invent flags on the otherwise-clean tree",
+        "Still implements nothing — the review only reports"
+      ]
+    }
+  ]
+}

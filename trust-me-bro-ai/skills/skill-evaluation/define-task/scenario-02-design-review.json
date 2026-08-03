@@ -1,0 +1,28 @@
+{
+  "skill_name": "define-task",
+  "context": "Issue 20260716-order-total-rounding (order grand total rounds half-down but finance expects half-up) has been picked up and a fix approach was agreed with the user. The functions the fix impacts (step 5) are: OrderService.calcGrandTotal [unit] — sums line totals and rounds the grand total via a rounding helper; the fix wires it to MathUtil.round(value) [unit] — rounds to the nearest integer using banker's rounding (half-even). The codebase also has PriceHelper.round(value) [unit] — the money-rounding helper that rounds half-up. Run the step-7 Design self-review over the agreed fix before closing the entry. define-task authors no api-test / E2E flow, so the endpoint check does not apply here.",
+  "evals": [
+    {
+      "id": 1,
+      "title": "Intent match — helper whose behavior doesn't fit the need",
+      "prompt": "Run the Design self-review over the agreed fix for 20260716-order-total-rounding and report the flags.",
+      "expectations": [
+        "Flags OrderService.calcGrandTotal -> MathUtil.round: MathUtil.round rounds half-even, but the fix needs half-up rounding for money, so the .5 boundary the issue is about would still round the wrong way",
+        "Identifies PriceHelper.round as the helper whose job fits the need (money rounding, half-up)",
+        "Does NOT rewire or fix anything itself — surfaces the flag at the pause for the user to decide (define-task plans only)",
+        "Does not over-flag: the test-level assignments and the rest of the fix are left unflagged"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Clean fix — the review does not manufacture flags",
+      "prompt": "The agreed fix is corrected so OrderService.calcGrandTotal uses PriceHelper.round (made half-up) instead of MathUtil.round. Re-run the Design self-review.",
+      "expectations": [
+        "Reports no intent-mismatch flag — calcGrandTotal now uses the money-rounding helper that fits the finance rule",
+        "Reports no dangling / orphan among the impacted functions",
+        "Does not invent flags on the otherwise-clean fix",
+        "Still implements nothing — the review only reports"
+      ]
+    }
+  ]
+}
