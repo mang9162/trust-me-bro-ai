@@ -51,39 +51,55 @@ Then invoke `workflow` with a requirement.
 
 ---
 
-## Usage — the two lanes
+## Usage — the skills & how to invoke them
 
-**Feature lane** — a new requirement. Invoke `workflow` (the lead that only routes: which stage / which skill next / time to pause). It pauses for human review after **every** stage:
+Invoke a skill by just asking the agent in plain language (or `$skill-name`). It pauses for your review at each gate, and when it hits a wall (deadlock, failing test, a broken `assume`) it stops and asks instead of guessing. Work lives in `work/` — one folder per scenario/issue, committed and shareable.
 
-1. `get-requirement` — clarify → scenario + user-story steps
-2. `create-test-data` — stage values (`Datatest.md`), DB seeds, stubs for downstream services
-3. `create-task` — design the call tree, **self-review it**, break into atomic tasks (1 task = 1 unit), test paired with code
-4. `execute-tdd` — the TDD loop: one task at a time, red → green, until the queue drains
-5. `api-test` — author + run the api-test suite end-to-end
-6. `acceptance-review` — summarize; a **human** accepts (done) or rejects (→ loop back to Stage 1)
+### `workflow` — build a feature from a requirement
+The full 6-stage loop — get-requirement → create-test-data → create-task (designs **and self-reviews** the call tree) → execute-tdd → api-test → acceptance-review — pausing for your review after every stage.
 
-**Maintenance lane** — a bug / tech debt / hotfix logged during work:
+```
+Hey, I've got a new requirement — kick off workflow for me. Here's what I need:
+1. ...
+2. ...
+3. ...
+```
 
-- `self-report` logs it as an issue in `tech-debt.js` (usually mid-work, automatically)
-- `define-task` turns one issue into staged TDD fix tasks under `work/Issue/`
-- `execute-issue` runs them (baseline check → red→green → regression gate)
+…or point it at a file:
 
-Both lanes: hit a wall (deadlock, failing test, a broken `assume`) → **stop and ask**, never guess. Work lives in `work/` (one folder per scenario/issue), committed and shareable.
+```
+I dropped the requirement in ./docs/requirement.md — start workflow on it.
+```
 
----
+### `define-task` → `execute-issue` — fix a logged bug / tech-debt
+`define-task` turns one logged issue into staged TDD fix tasks under `work/Issue/`; `execute-issue` then runs them (baseline check → red→green → regression gate). Open `self-learn/feed-back.html`, hit **Copy define-task prompt** on the issue, and paste it:
 
-## Features — what you can do & how
+```
+define-task: entry=<id> (tech-debt.js)
+```
 
-| I want to… | How |
-|---|---|
-| Build a feature from a requirement | invoke `workflow` → runs the 6-stage loop |
-| Fix a logged bug / tech-debt | `define-task` (from `feed-back.html` or an entry id) → `execute-issue` |
-| Review & apply the AI's self-learned notes | open `self-learn/feed-back.html`; `self-improve` applies a chosen fix |
-| Watch progress visually | `generate-report` → renders `scenario.html` (progress, E2E flow, call tree, task cards) |
-| Sync work to a team board | install once with `initialize-sync-task`; the stages then push automatically |
-| Draft a PR | `create-pr` → copy-paste title + body |
-| Refresh the skill index | `skill-sync` |
-| (Re)bootstrap repo knowledge | `initialize` |
+### `self-improve` — apply the AI's self-learned notes
+Review the notebook in `self-learn/feed-back.html`, then paste its copy-prompt to apply a fix.
+
+```
+self-improve: entry=<id> (medium-learn.js), apply fix option 1
+```
+
+### `generate-report` — render the visual report
+Rebuilds `scenario.html` — 6-stage progress, E2E flow, call tree, task cards.
+
+```
+Refresh the report for the current scenario.
+```
+
+### `create-pr` — draft a PR
+Outputs copy-paste PR title + body (Problems / Solutions / Changes); it does not run `gh`.
+
+```
+Write the PR text for this branch.
+```
+
+_Examples are in English to match the docs — the agent takes any language, so ask however you'd naturally type._
 
 ---
 
