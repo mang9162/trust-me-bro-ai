@@ -99,7 +99,7 @@ If you find yourself naming one of these, it belongs in Stage 3 (create-task) or
 ## Trigger Skill
 - generate-report — write/update `scenario.html` (header-card + progress-indicator(1/6) + E2E-flow + placeholder test-data/tasks), per step 5.
 - self-report — when something self-learn-worthy is noticed while gathering the requirement, per step 4.
-- sync-task — a parent-only sync of the scenario to the selected board (step 7), when a `sync-task-*` skill exists. Added to `file-map.html` only when one does.
+- sync-task — a parent-only sync of the scenario to the selected board (step 7), when a `sync-task-*` skill exists.
 
 ## Role & Boundary (Read Before Editing)
 

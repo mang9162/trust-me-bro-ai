@@ -79,7 +79,7 @@ Every halt/pause first refreshes the report (`generate-report` → `scenario.htm
 
 - generate-report — refresh `scenario.html` at every halt/pause (drained / deadlock / blocked / failure).
 - self-report — non-blocking **improvement** observations only; blocking gaps ask the user instead.
-- sync-task — at a task's close-out / failure, push that one task to `scenario-meta.syncTarget`'s board. Added to `file-map.html` only when a sync-task skill exists.
+- sync-task — at a task's close-out / failure, push that one task to `scenario-meta.syncTarget`'s board; skipped when no sync-task skill is installed.
 
 ## Writes To
 

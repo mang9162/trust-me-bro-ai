@@ -107,7 +107,7 @@ Report refresh happens only at these points — **not on every task** (too heavy
 - `agent-skill/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `agent-skill/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
 - generate-report — refresh `scenario.html` at every halt/pause (drained / deadlock / blocked / failure / review).
 - self-report — non-blocking **improvement** observations (step 7): a recurring code pattern as a `candidate`, other issues as a `problem`. Silent, aggregated; blocking gaps ask the user instead.
-- sync-task — at a task's close-out / failure, push that one task to `scenario-meta.syncTarget`'s board. Added to `file-map.html` only when a sync-task skill exists.
+- sync-task — at a task's close-out / failure, push that one task to `scenario-meta.syncTarget`'s board; skipped when no sync-task skill is installed.
 
 ## Writes To
 

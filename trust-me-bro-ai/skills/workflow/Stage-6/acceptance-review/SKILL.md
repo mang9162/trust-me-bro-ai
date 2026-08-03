@@ -76,7 +76,7 @@ After the decision is recorded, read `scenario-meta.syncTarget`. Unset → skip.
 - generate-report — owns `scenario.html`; triggered to render the Summarize view and to write the acceptance state (accepted flag + Acceptance History round) on both accept and reject. This stage never writes `scenario.html` itself.
 - self-report — an out-of-scenario anomaly (steps 4–5) is handed over as a `kind: issue` entry, and any closing process feedback (step 6) as a new `occurrence`.
 - define-task — on a **fix-now**, out-of-scenario anomaly (steps 4–5), triggered on that issue entry's `id` to co-design and stage the fix; skipped when the user parks it for later, or when the anomaly belongs to this scenario (that loops back through workflow instead).
-- sync-task — a parent-only sync to `scenario-meta.syncTarget`'s board (step 8), reflecting the final accepted state + history, when set. Added to `file-map.html` only when a sync-task skill exists.
+- sync-task — a parent-only sync to `scenario-meta.syncTarget`'s board (step 8), reflecting the final accepted state + history, when set.
 
 ## Role & Boundary (Read Before Editing)
 

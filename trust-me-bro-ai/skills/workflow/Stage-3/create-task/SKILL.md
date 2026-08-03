@@ -89,7 +89,7 @@ On approval, read `scenario-meta.syncTarget` (selected at Stage 1). Unset → sk
 ## Trigger Skill
 - generate-report — refresh `scenario.html` after the task list is staged (step 8).
 - self-report — when something needed to author a task isn't available (missing contract / endpoint / error_code, or a conflict); silent, aggregated in step 7.
-- sync-task — on approval, a full topic sync to `scenario-meta.syncTarget`'s board (step 10), when set. Added to `file-map.html` only when a sync-task skill exists.
+- sync-task — on approval, a full topic sync to `scenario-meta.syncTarget`'s board (step 10), when set.
 
 ## Writes To
 - `02-Task/01-Setup/` + `02-Backlog/` — Setup + Backlog task files (one per function).

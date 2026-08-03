@@ -84,7 +84,7 @@ There is **no report** for an issue run — no `scenario.html` exists; status is
 
 - `agent-skill/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `agent-skill/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
 - self-report — non-blocking **improvement** observations (step 6): a recurring code pattern as a `candidate`, other issues as a `problem`. Silent, aggregated; blocking gaps ask the user instead.
-- sync-task — at a task's close-out / failure, push that one task to the board named by `issue.md`'s `syncTarget` marker (define-task records it) via its `sync-task-*` engine. Added to `file-map.html` only when a sync-task skill exists.
+- sync-task — at a task's close-out / failure, push that one task to the board named by `issue.md`'s `syncTarget` marker (define-task records it) via its `sync-task-*` engine; skipped when no sync-task skill is installed.
 
 ## Writes To
 

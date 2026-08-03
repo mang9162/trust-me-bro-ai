@@ -84,7 +84,7 @@ On approval, find the `sync-task-*` skills in `skills/sync-task/`. None → skip
 
 ## Trigger Skill
 
-- sync-task — a full topic sync of the staged issue + tasks to the selected board via its `sync-task-*` skill (step 9), when one exists in `skills/sync-task/`. Added to `file-map.html` only when a sync-task skill exists.
+- sync-task — a full topic sync of the staged issue + tasks to the selected board via its `sync-task-*` skill (step 9), when one exists in `skills/sync-task/`.
 
 ## Writes To
 

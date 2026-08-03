@@ -64,7 +64,7 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
 ## Trigger Skill
 - self-report — when something needed isn't catalogued or contradicts the dictionary (new variable / conflict / missing gateway or entity); silent, aggregated once in step 5.
 - generate-report — refresh `scenario.html` after staging, per step 6.
-- sync-task — a parent-only sync to `scenario-meta.syncTarget`'s board (step 8), when set. Added to `file-map.html` only when a sync-task skill exists.
+- sync-task — a parent-only sync to `scenario-meta.syncTarget`'s board (step 8), when set.
 
 ## Writes To
 - `01-Testdata/` — `Datatest.md`, DB seeds (`db/`), and stubs (`stubs/`) for this scenario.
