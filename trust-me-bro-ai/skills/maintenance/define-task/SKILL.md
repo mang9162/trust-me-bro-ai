@@ -62,15 +62,23 @@ Author every task JSON to the shared schema in `task-schema.md` (this component)
 - `type` ∈ `unit-test` / `integration-test` / `component-test` / `code-task` / `regression` — no Setup or api-test authoring types here
 - `cases` values are concrete, from the agreed fix; there is no test data in this pipeline — no `uses` field
 
-### 7. Close the entry
+### 7. Design self-review
+
+Before closing the entry, run this checklist over the agreed fix + the functions it impacts (step 5). Any item that fails is a flag — surface it at the pause:
+- **Intent match** — each function the fix calls is meant to do what the fix needs there, not merely a same-looking name.
+- **No orphan / dangling** — every function the fix adds/changes is actually reached, and every call it makes lands on a function that exists.
+- **Alternate outcomes have a path** — miss / empty / error outcomes have a branch, not a silent gap.
+- **Test level fits** — each impacted function's level matches what it does, exactly one per function (re-affirms step 5).
+
+### 8. Close the entry
 
 Move the entry out of `tech-debt.js` and append it to `log.js` with `status: done` and `issueFolder` — the folder it became (`work/Issue/<NN>-<slug>/`), which is how `feed-back.html` shows a closed issue. This skill does both writes directly.
 
-### 8. ⏸ PAUSE
+### 9. ⏸ PAUSE
 
-Tell the user the issue is staged — point to `issue.md` + the `Backlog/` task list. Do not run anything. The user reviews; on approval continue to step 9.
+Tell the user the issue is staged — point to `issue.md` + the `Backlog/` task list and any design self-review flags. Do not run anything. The user reviews; on approval continue to step 10.
 
-### 9. Sync to the external tracker
+### 10. Sync to the external tracker
 
 On approval, find the `sync-task-*` skills in `skills/sync-task/`. None → skip. Otherwise select the one for this issue, record it in `issue.md` as a trailing `<!-- syncTarget: <name> -->` marker (a comment, invisible when rendered — `execute-issue` reads it to hit the same board), then open it for a **full topic** sync: the parent issue + one sub-issue per task on that board (`execute-issue` then keeps each card updated per task). Either way, the folder is now ready for the user to hand to `execute-issue`.
 
@@ -84,13 +92,13 @@ On approval, find the `sync-task-*` skills in `skills/sync-task/`. None → skip
 
 ## Trigger Skill
 
-- sync-task — a full topic sync of the staged issue + tasks to the selected board via its `sync-task-*` skill (step 9), when one exists in `skills/sync-task/`.
+- sync-task — a full topic sync of the staged issue + tasks to the selected board via its `sync-task-*` skill (step 10), when one exists in `skills/sync-task/`.
 
 ## Writes To
 
-- `work/Issue/<NN>-<slug>/` — `issue.md` (+ a trailing `<!-- syncTarget: <name> -->` marker at step 9 when a sync board is selected) + the `Backlog/` TDD task files (the staged fix).
-- `self-learn/tech-debt.js` — the defined entry is removed (step 7).
-- `self-learn/log.js` — the closed entry is appended with `status: done` + `issueFolder` (step 7).
+- `work/Issue/<NN>-<slug>/` — `issue.md` (+ a trailing `<!-- syncTarget: <name> -->` marker at step 10 when a sync board is selected) + the `Backlog/` TDD task files (the staged fix).
+- `self-learn/tech-debt.js` — the defined entry is removed (step 8).
+- `self-learn/log.js` — the closed entry is appended with `status: done` + `issueFolder` (step 8).
 
 ## Role & Boundary (Read Before Editing)
 
