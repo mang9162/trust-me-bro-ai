@@ -99,6 +99,13 @@ Outputs copy-paste PR title + body (Problems / Solutions / Changes); it does not
 Write the PR text for this branch.
 ```
 
+### `update-kit` — move this kit to a newer version
+Compares the installed `.kit-version.json` with the upstream tags, shows what each version fixed and added, then steps up **one version at a time** — asking before it overwrites anything you edited.
+
+```
+Is there a newer version of the kit? Walk me up to it.
+```
+
 _Examples are in English to match the docs — the agent takes any language, so ask however you'd naturally type._
 
 ---
