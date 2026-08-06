@@ -7,7 +7,8 @@
 #   Issue    branch → <topic>/issue.md
 #   Scenario branch → <topic>/scenario.html  (parent data in <script id="scenario-meta">)
 #
-# Remote id is written back so a resync knows update-vs-create:
+# Every remote handle is written back — so a resync knows update-vs-create and never has
+# to search the tracker for what it already created:
 #   task   → `sync` field inside the task JSON
 #   parent → issue.md: trailing HTML-comment marker  |  scenario: scenario-meta.sync
 #
@@ -132,22 +133,26 @@ edit_issue() {  # $1=number  $2=title  $3=body_file
   gh issue edit "$1" --repo "$OWNER/$REPO" --title "$2" --body-file "$3" >/dev/null
 }
 
+sub_linked() {  # $1=parent_num  $2=child_db_id -> 0 if the child is already a sub-issue
+  # match on the DATABASE id, never `.number`: an issue number is unique inside one repo
+  # only. --paginate because the API pages at 30 and the newest child is on the last page.
+  local ids; ids=$(gh api --paginate "repos/$OWNER/$REPO/issues/$1/sub_issues" --jq '.[].id')
+  grep -qx "$2" <<<"$ids"
+}
 link_sub() {  # $1=parent_num  $2=child_num  (sub_issue_id must be the numeric db id, sent as integer)
   local cid; cid=$(issue_db_id "$2")
-  gh api --method POST "repos/$OWNER/$REPO/issues/$1/sub_issues" -F "sub_issue_id=$cid" >/dev/null
+  if ! sub_linked "$1" "$cid"; then
+    gh api --method POST "repos/$OWNER/$REPO/issues/$1/sub_issues" -F "sub_issue_id=$cid" >/dev/null
+  fi
   # verify — the link API fails SILENTLY on a bad id type, so confirm it took
-  gh api "repos/$OWNER/$REPO/issues/$1/sub_issues" --jq '.[].number' | grep -qx "$2" \
-    || { echo "sub-issue link failed: #$2 -> #$1" >&2; exit 1; }
+  sub_linked "$1" "$cid" || { echo "sub-issue link failed: #$2 (id $cid) -> #$1" >&2; exit 1; }
 }
 
-board_item_id() {  # $1=issue_number -> project item id ("" if not on board)
-  gh project item-list "$PROJECT_NUMBER" --owner "$OWNER" --limit 200 --format json \
-    | jq -r --arg n "$1" '.items[] | select(.content.number == ($n|tonumber)) | .id' | head -1
-}
-ensure_on_board() {  # $1=issue_url  $2=issue_number -> prints item id (adds if missing)
-  local id; id=$(board_item_id "$2")
-  [[ -n "$id" ]] || id=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$1" --format json | jq -r '.id')
-  printf '%s' "$id"
+ensure_on_board() {  # $1=issue_url  $2=cached_item_id -> prints the board item id
+  # never search the board for the card: the board is org-wide while issue numbers are
+  # per-repo, so a search matches another repo's card. The id is kept on our side instead.
+  [[ -z "${2:-}" ]] || { printf '%s' "$2"; return 0; }
+  gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$1" --format json | jq -r '.id'
 }
 set_status() {  # $1=item_id  $2=board_option_name  (item must already be on board)
   local opt; opt=$(status_option_id "$2")
@@ -175,7 +180,7 @@ task_body() {  # $1=task_json  $2=rel_path -> stdout
 }
 
 process_task() {  # $1=task_json
-  local f="$1" rel tp title status status_name sync_id url num bodyfile item started finished
+  local f="$1" rel tp title status status_name sync_id url num bodyfile item cached_item started finished
   rel="${f#"$ROOT"/}"
   tp=$(jq -r '.type // "task"' "$f")
   title="[$(type_label "$tp")] $(jq -r '.title // .id // "task"' "$f")"
@@ -192,12 +197,16 @@ process_task() {  # $1=task_json
     url=$(create_issue "$title" "$bodyfile")
     num=$(issue_num_from_url "$url")
     link_sub "$PARENT_NUM" "$num"
-    jq --argjson s "{\"id\":$num,\"url\":\"$url\"}" '.sync=$s' "$f" >"$f.tmp" && mv "$f.tmp" "$f"
+    jq --argjson s "{\"id\":$num,\"ref\":\"$REPO#$num\",\"url\":\"$url\"}" '.sync=$s' "$f" >"$f.tmp" && mv "$f.tmp" "$f"
     CREATED=$((CREATED+1))
   fi
   rm -f "$bodyfile"
 
-  item=$(ensure_on_board "$url" "$num")
+  cached_item=$(jq -r '.sync.itemId // empty' "$f")
+  item=$(ensure_on_board "$url" "$cached_item")
+  if [[ "$item" != "$cached_item" ]]; then   # first time on the board — keep the handle
+    jq --arg i "$item" --arg r "$REPO#$num" '.sync.itemId=$i | .sync.ref=$r' "$f" >"$f.tmp" && mv "$f.tmp" "$f"
+  fi
   set_status "$item" "$status_name"
   if [[ "$status" == done ]]; then assign_syncer "$num"; fi
   started=$(jq -r '.startedAt // empty' "$f"); finished=$(jq -r '.finishedAt // empty' "$f")
@@ -226,25 +235,31 @@ rollup_status() {  # parent status derived from child task statuses
 }
 
 # ---------------------------------------------------------------- parent: Issue branch
+write_parent_marker() {  # $1=board item id (may be empty) — (re)write issue.md's trailing marker
+  local doc="$TOPIC/issue.md"
+  grep -v -E '<!-- sync: \{.*\} -->' "$doc" >"$doc.tmp" && mv "$doc.tmp" "$doc"
+  printf '\n<!-- sync: {"id":%s,"ref":"%s","url":"%s","itemId":"%s","board":"%s"} -->\n' \
+    "$PARENT_NUM" "$REPO#$PARENT_NUM" "$PARENT_URL" "${1:-}" "$BOARD_URL" >>"$doc"
+}
 parent_issue_md() {
-  local doc="$TOPIC/issue.md" title marker bodyfile json url
+  local doc="$TOPIC/issue.md" title marker sync_json bodyfile
   title="[Issue] $SCENARIO_NAME"
   marker=$(grep -oE '<!-- sync: \{.*\} -->' "$doc" | head -1 || true)
   bodyfile=$(mktemp)
-  # strip both kit-internal markers from the pushed body: the sync id and define-task's syncTarget
+  # strip both kit-internal markers from the pushed body: the sync marker and define-task's syncTarget
   grep -v -E '<!-- sync: \{.*\} -->|<!-- syncTarget: .* -->' "$doc" >"$bodyfile"
   printf '\n---\n_Synced from Trust me bro ai · %s_\n' "$SCENARIO_NAME" >>"$bodyfile"
   if [[ -n "$marker" ]]; then
-    PARENT_NUM=$(sed -E 's/^<!-- sync: (.*) -->$/\1/' <<<"$marker" | jq -r '.id')
+    sync_json=$(sed -E 's/^<!-- sync: (.*) -->$/\1/' <<<"$marker")
+    PARENT_NUM=$(jq -r '.id' <<<"$sync_json")
+    PARENT_ITEM_CACHED=$(jq -r '.itemId // empty' <<<"$sync_json")   # read before overwriting
     edit_issue "$PARENT_NUM" "$title" "$bodyfile"
-    url="https://github.com/$OWNER/$REPO/issues/$PARENT_NUM"
   else
-    url=$(create_issue "$title" "$bodyfile" "$LABEL"); PARENT_NUM=$(issue_num_from_url "$url")
+    PARENT_NUM=$(issue_num_from_url "$(create_issue "$title" "$bodyfile" "$LABEL")")
   fi
-  # (re)write the marker so its url/board stay current
-  grep -v -E '<!-- sync: \{.*\} -->' "$doc" >"$doc.tmp" && mv "$doc.tmp" "$doc"
-  printf '\n<!-- sync: {"id":%s,"url":"%s","board":"%s"} -->\n' "$PARENT_NUM" "$url" "$BOARD_URL" >>"$doc"
   PARENT_URL="https://github.com/$OWNER/$REPO/issues/$PARENT_NUM"
+  # write the handles we have now; main rewrites once more if the board hands back a new item id
+  write_parent_marker "$PARENT_ITEM_CACHED"
   rm -f "$bodyfile"
 }
 
@@ -252,9 +267,9 @@ parent_issue_md() {
 meta_json() {  # extract the JSON inside <script id="scenario-meta">
   awk '/<script[^>]*id="scenario-meta"/{f=1;next} f&&/<\/script>/{f=0} f' "$TOPIC/scenario.html"
 }
-write_meta_sync() {  # $1=id  $2=url — add .sync into the scenario-meta block, rebuild scenario.html
+write_meta_sync() {  # $1=id  $2=url  $3=board item id (may be empty) — rebuild scenario.html's .sync
   local metaf; metaf=$(mktemp)
-  meta_json | jq --argjson s "{\"id\":$1,\"url\":\"$2\",\"board\":\"$BOARD_URL\"}" '.sync=$s' >"$metaf"
+  meta_json | jq --argjson s "{\"id\":$1,\"ref\":\"$REPO#$1\",\"url\":\"$2\",\"itemId\":\"${3:-}\",\"board\":\"$BOARD_URL\"}" '.sync=$s' >"$metaf"
   awk -v METAF="$metaf" '
     /<script[^>]*id="scenario-meta"/{print; while((getline l < METAF)>0) print l; close(METAF); skip=1; next}
     skip&&/<\/script>/{skip=0; print; next}
@@ -267,6 +282,7 @@ parent_scenario() {
   meta=$(meta_json)
   title="[Scenario] $SCENARIO_NAME"
   sync_id=$(jq -r '.sync.id // empty' <<<"$meta")
+  PARENT_ITEM_CACHED=$(jq -r '.sync.itemId // empty' <<<"$meta")   # read before overwriting
 
   # --- gather the rich body's data (from the scenario folder) ---
   cat=$(jq -r '.category // ""' <<<"$meta")
@@ -297,12 +313,12 @@ parent_scenario() {
     -f "$TPL_DIR/scenario-parent.jq" >"$bodyfile"
   if [[ -n "$sync_id" ]]; then
     PARENT_NUM="$sync_id"; edit_issue "$PARENT_NUM" "$title" "$bodyfile"
-    write_meta_sync "$PARENT_NUM" "https://github.com/$OWNER/$REPO/issues/$PARENT_NUM"
   else
     url=$(create_issue "$title" "$bodyfile" "$LABEL"); PARENT_NUM=$(issue_num_from_url "$url")
-    write_meta_sync "$PARENT_NUM" "$url"
   fi
   PARENT_URL="https://github.com/$OWNER/$REPO/issues/$PARENT_NUM"
+  # write the handles we have now; main rewrites once more if the board hands back a new item id
+  write_meta_sync "$PARENT_NUM" "$PARENT_URL" "$PARENT_ITEM_CACHED"
   rm -f "$bodyfile"
 }
 
@@ -319,7 +335,7 @@ else
   [[ -n "$SCENARIO_NAME" ]] || SCENARIO_NAME=$(basename "$TOPIC")
 fi
 
-CREATED=0; UPDATED=0; TASK_STATUSES=()
+CREATED=0; UPDATED=0; TASK_STATUSES=(); PARENT_ITEM_CACHED=""
 
 # ---- single task: update just this one (must already be synced with the topic) ----
 if [[ "$MODE" == task ]]; then
@@ -336,7 +352,11 @@ fi
 echo "sync ($KIND$([[ $PARENT_ONLY == 1 ]] && echo ', parent-only')): $TOPIC  →  $OWNER/$REPO  project #$PROJECT_NUMBER"
 if [[ "$KIND" == issue ]]; then parent_issue_md; else parent_scenario; fi
 echo "  parent #$PARENT_NUM"
-PARENT_ITEM=$(ensure_on_board "$PARENT_URL" "$PARENT_NUM")
+PARENT_ITEM=$(ensure_on_board "$PARENT_URL" "$PARENT_ITEM_CACHED")
+if [[ "$PARENT_ITEM" != "$PARENT_ITEM_CACHED" ]]; then   # first time on the board — keep the handle
+  if [[ "$KIND" == issue ]]; then write_parent_marker "$PARENT_ITEM"
+  else                            write_meta_sync "$PARENT_NUM" "$PARENT_URL" "$PARENT_ITEM"; fi
+fi
 
 while IFS= read -r taskfile; do
   [[ -n "$taskfile" ]] || continue

@@ -36,7 +36,7 @@ Every task is one JSON file that meets the **self-sufficiency bar**: a fresh age
 
 **Tool-managed fields** *(optional — not authored; written by tooling as the task moves)*:
 
-- `sync` — `sync-task` writes `{ id, url }` back after the first push: `id` = the tracker handle used to update the item on resync (GitHub = issue number), `url` = human link. Present → update on resync; absent → create.
+- `sync` — `sync-task` writes `{ id, ref, url, itemId }` back after the first push: `id` = the tracker handle used to update the item on resync (GitHub = issue number), `ref` = the same item qualified by its repo/project so it stays unique tracker-wide (GitHub = `repo#number`), `url` = human link, `itemId` = the board card's own id. Present → update on resync; absent → create. What each handle is for and when it is written is `sync-task`'s to define.
 - `startedAt` / `finishedAt` — ISO 8601 timestamps the runner (`execute-tdd` / `execute-issue`) stamps when the task starts and finishes; `sync-task` maps them onto the board's date fields. Actual duration is derived (`finishedAt` − `startedAt`), not stored.
 
 Author skills (`create-task`, `define-task`) leave all of these absent.

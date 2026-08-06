@@ -54,6 +54,12 @@ It reads `config.json` + `templates/` next to it and `owner/repo` from `git remo
 
 **Re-running is the sync loop** — every run is idempotent (a synced task is updated in place, never duplicated, via the `sync` id written back into each task / the parent doc). Run it again whenever the state changes: a full topic run to refresh everything, or a single-task run right after `execute-tdd` / `execute-issue` advances one task.
 
+### Handles are stored, never searched for
+
+Each sync writes back every handle it got from GitHub — the issue number (`id`), the repo-qualified `ref`, the issue `url`, and the board card's `itemId` — into the task JSON's `sync` field / the parent doc's marker. The next run reuses them instead of looking anything up.
+
+Never find something by issue number: a Projects board belongs to the **org** and holds cards from many repos, but an issue number is unique **within one repo** — the same number exists in every sibling repo, so a number match lands on the wrong repo's card or sub-issue. Sub-issues are matched by their **database id**; a board card is only ever found by the stored `itemId`, or, if a lookup is truly unavoidable, by `.content.url`. Reading a paged list (`sub_issues` returns 30 per page) needs `--paginate`, or the newest entries are missed.
+
 ### 5. Verify
 
 The script prints created/updated counts + the parent issue number. Open the board to check. On any error it stops and prints why (it never half-writes a topic) — fix and re-run.
@@ -63,7 +69,7 @@ The script prints created/updated counts + the parent issue number. Open the boa
 
 ## Writes To
 - (no file-map edge) the GitHub repo + <PROJECT_TITLE> board — creates/updates the parent issue, sub-issues, and their board items.
-- (no file-map edge) each synced task JSON + the parent doc (`issue.md` / `scenario-meta`) — writes back the `sync` id so a re-run updates in place.
+- (no file-map edge) each synced task JSON + the parent doc (`issue.md` / `scenario-meta`) — writes back the `sync` handles (`id`, `ref`, `url`, `itemId`, board url on the parent) so a re-run updates in place without searching.
 
 ## Role & Boundary (Read Before Editing)
 This skill pushes staged work to the **<PROJECT_TITLE>** board only (vendor: GitHub Projects); sibling `sync-task-*` skills push to other boards / vendors. It does NOT author or execute tasks (`create-task` / `define-task` / `execute-tdd` / `execute-issue`) or set up the board (`initialize-sync-task`). For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
