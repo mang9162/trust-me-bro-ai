@@ -18,7 +18,7 @@ Read the scenario folder per the workflow `## Layout` — it owns the folder str
 
 | Source | What to extract |
 |--------|----------------|
-| `scenario.html` → `<script id="scenario-meta">` block | `scenario`, `category`, `description`, `steps[]`, `accepted`, `acceptanceHistory[]`, `sync` (written by sync-task: `{ id, url, board? }`), `syncTarget` (which `sync-task-*` board, written by get-requirement). **Preserve the tool-written `sync` / `syncTarget` verbatim when re-emitting the block** — never drop them. |
+| `scenario.html` → `<script id="scenario-meta">` block | `scenario`, `category`, `description`, `steps[]`, `accepted`, `acceptanceHistory[]`, `sync` (written by sync-task: `{ id, ref, url, itemId, board? }`), `syncTarget` (which `sync-task-*` board, written by get-requirement). **Preserve the tool-written `sync` / `syncTarget` verbatim when re-emitting the block** — never drop them. |
 | `scenario.html` → functional-design section (if present) | preserve as-is; do NOT regenerate — it is authored by `create-task` |
 | Test-data table file (`Datatest.md`) | all markdown tables → variable name + value + notes |
 | Task files (Setup / Backlog / Api-test groups) | each task **by its own `type` field** — render its tag/group from the task data, whatever the type (incl. project-custom ones) |

@@ -31,7 +31,7 @@ Given a topic folder (or a single task file), reading `config.json` + templates:
 
 - **Map** — topic → a parent work item (from `issue.md` / `scenario-meta`); each task JSON → a child work item; link each child to its parent; add both to the board.
 - **Set the fields** — onto the fields the user mapped: status (via the status map), start / finish dates (from `startedAt` / `finishedAt`), actual-time hours (their difference). Skip any field left unmapped.
-- **Write back the remote id** — into each task's `sync` field and the parent doc — so a re-run is **idempotent**: an already-synced item is updated, never duplicated.
+- **Write back every remote handle** — into each task's `sync` field and the parent doc: the work item's id, whatever qualifies it uniquely tracker-wide, its url, and the id of its card on the board. A re-run is then **idempotent** — an already-synced item is updated, never duplicated — and it reuses the stored handles instead of searching for what it created. Don't search by a number that is only unique inside one repo/project: a board is usually wider than that, so the match lands on someone else's item.
 - **Single-task mode** — given one task file, update just that item (for pushing one task's new status/time during execution).
 - **Editable body** — render each item's body from templates the user owns.
 - **Fail loud** — on any API error, stop and report; never half-write a topic.
