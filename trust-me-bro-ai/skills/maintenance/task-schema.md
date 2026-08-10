@@ -28,7 +28,7 @@ Every task is one JSON file that meets the **self-sufficiency bar**: a fresh age
   - verifies **this task's own `targets`** against its `contract` — not behaviour other tasks produce
   - every tool it invokes comes from `assume` or a task in `depends_on`
   - other tasks share the same `targets` path → also pin a literal from this task's `cases`
-  - exception: a **gate task** (baseline / dependency install / `regression`) verifies system-wide, and says so in `purpose`
+  - exception: a **gate task** (baseline / dependency install / `regression` / the task carrying the run `command` for a whole chain) verifies system-wide, and says so in `purpose`
 - `acceptance` — done criteria + expected result of `command` (red / green / compiles)
 - `effort` (`low` / `med` / `high`, sized below) · `notes`
 
