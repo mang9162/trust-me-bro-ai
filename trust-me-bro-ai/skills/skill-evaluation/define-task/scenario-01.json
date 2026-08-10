@@ -100,6 +100,17 @@
         "The task types used come from define-task's own type list (no Setup or api-test authoring types)",
         "No uses field appears — this pipeline carries no test data"
       ]
+    },
+    {
+      "id": 6,
+      "title": "Each command proves what its own task changed",
+      "prompt": "Author the command and acceptance for every task in the 20260716-order-total-rounding breakdown. Both agreed test cases live in the same spec file.",
+      "expectations": [
+        "The two test tasks carry different commands — each keyed on a literal from its own cases (the .5 boundary amount vs the non-boundary one), so finishing one does not satisfy the other's acceptance",
+        "Each test task's acceptance names the expected result of its own case — the .5 boundary case red against the current half-down rounding — rather than one blanket colour copied onto both",
+        "The code task's command verifies its own targets (PriceHelper.round / OrderService.calcGrandTotal) rather than resting on the whole suite's result",
+        "00-check-test and the regression task keep the full test suite + api-test suite command, each stating in purpose that it is a system-wide gate — neither is narrowed to one file or one case"
+      ]
     }
   ]
 }

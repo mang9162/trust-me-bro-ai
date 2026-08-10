@@ -24,7 +24,12 @@ Every task is one JSON file that meets the **self-sufficiency bar**: a fresh age
 - `purpose` — what this task achieves + why, and the scenario / issue it sits under (scope: handle only in-scope inputs)
 - `targets` — `[{ path, mode: create|modify, at }]` — `create` = write new code/test, `modify` = change/refactor existing. For a test task, `at` = its place within the test file's structure — from `testing-guide.md` `## Test Levels`: the owning `### <service>`, then that level's `layout`.
 - `depends_on` — task ids (ordering only) · `assume` — the pre-state it may rely on, in plain words
-- `command` — exact command to run/verify · `acceptance` — done criteria + expected result of `command` (red / green / compiles)
+- `command` — exact command to run/verify:
+  - verifies **this task's own `targets`** against its `contract` — not behaviour other tasks produce
+  - every tool it invokes comes from `assume` or a task in `depends_on`
+  - other tasks share the same `targets` path → also pin a literal from this task's `cases`
+  - exception: a **gate task** (baseline / dependency install / `regression` / the task carrying the run `command` for a whole chain) verifies system-wide, and says so in `purpose`
+- `acceptance` — done criteria + expected result of `command` (red / green / compiles)
 - `effort` (`low` / `med` / `high`, sized below) · `notes`
 
 **Conditional fields (by type):**
