@@ -95,9 +95,9 @@ def cmd_list(path_str):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    if len(args) < 2 or args[0] not in {"add", "list"}:
+    if not args or any(a in ("-h", "--help") for a in args) or args[0] not in {"add", "list"}:
         print(__doc__)
-        sys.exit(1)
+        raise SystemExit(0 if args else 1)
     op, rest = args[0], args[1:]
     if op == "add":
         path = rest[0]

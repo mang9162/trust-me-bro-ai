@@ -77,6 +77,9 @@ def process(kit_root: Path, dry_run: bool):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if not args or any(a in ("-h", "--help") for a in args):
+        print(__doc__)
+        raise SystemExit(0 if args else 1)
     dry = "--dry-run" in args
     roots = [a for a in args if not a.startswith("--")]
     if not roots:

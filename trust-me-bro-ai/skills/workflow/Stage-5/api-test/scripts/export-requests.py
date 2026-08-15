@@ -36,7 +36,10 @@ def export(folder: Path, out_dir: Path):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    if not args or (args[0] == "--all" and len(args) < 3) or (args[0] != "--all" and len(args) < 2):
+    if not args or any(a in ("-h", "--help") for a in args):
+        print(__doc__)
+        raise SystemExit(0 if args else 1)
+    if (args[0] == "--all" and len(args) < 3) or (args[0] != "--all" and len(args) < 2):
         print(__doc__)
         sys.exit(1)
     if args[0] == "--all":
