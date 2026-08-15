@@ -30,6 +30,7 @@ Their strength is *rock-solid TDD discipline* — we force them to follow the pl
 
 ## What's new
 
+- **v1.5.0** — scripting the mechanical steps: `generate-report.py` (programmatic `scenario.html` renderer — dynamic stage detection, escaped output, fn-tree preservation, structural self-check), `init-kit.py` (knowledge-target bootstrap from the `*-format.md` templates), `taskctl.py` (task scaffold / status / validate / deps — schema enforcement + deadlock detection), `export-requests.py` (api-test request definitions from authored tasks), `self-report.py` (self-learn entry writer with dedup). Every script is stdlib-only, idempotent, and documented in its skill.
 - **v1.0.0** — the foundation: the 6-stage TDD loop, `self-learn`, and a human gate at every stage.
 - **v1.1.0** — maintenance lane: turn a logged bug / tech-debt / hotfix into staged TDD fix tasks (`define-task` → `execute-issue`).
 - **v1.2.0** — `sync-task`: push staged work to an external tracker (GitHub Projects) as a parent + sub-issues (opt-in).
