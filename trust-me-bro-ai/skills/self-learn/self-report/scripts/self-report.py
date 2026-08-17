@@ -34,8 +34,8 @@ def read_entries(path: Path):
         return None, [], "", text
     var, arr = m.group(1), m.group(2)
     entries = json.loads(arr)
-    head = text[:m.start(2)]
-    tail = text[m.end(2):]
+    head = text[:m.start()]
+    tail = text[m.end():]
     return var, entries, head, tail
 
 

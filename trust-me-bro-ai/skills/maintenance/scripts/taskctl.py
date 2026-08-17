@@ -41,7 +41,6 @@ FOLDER_BY_TYPE = {"unit-test": "02-Backlog", "integration-test": "02-Backlog", "
 CONDITIONAL = {"contract": {"interface", "code-task", "unit-test", "integration-test", "component-test", "api-test"},
                "cases": {"unit-test", "integration-test", "component-test", "api-test"},
                "pseudocode": {"unit-test", "integration-test", "component-test", "code-task"},
-               "uses": {"unit-test", "integration-test", "component-test", "api-test", "seed", "stub"},
                "command": set(TYPES) - {"interface"},
                "acceptance": set(TYPES) - {"interface", "error_code", "seed", "stub", "env-config"}}
 REQUIRED = {"id", "type", "status", "title", "purpose", "targets", "depends_on", "assume"}
@@ -105,7 +104,7 @@ def expand(spec, lane="scenario"):
     t = dict(spec)
     typ = t.get("type", "")
     if "folder" not in t:
-        t["folder"] = FOLDER_BY_TYPE.get(typ, "02-Backlog")
+        t["folder"] = FOLDER_BY_TYPE.get(typ, "02-Backlog") if lane == "scenario" else "Backlog"
     if "status" not in t:
         t["status"] = "pending"
     if "depends_on" not in t:
