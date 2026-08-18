@@ -75,6 +75,30 @@
         "copies the format into the target except the Target line and ## How to scan",
         "does not guess unknown shapes/errors — asks instead"
       ]
+    },
+    {
+      "id": 4,
+      "conversation": [
+        { "user": "I just dropped this skill kit into my project — can you set it up so the AI is ready to work?" },
+        { "ai": "Sure — starting initialize. First, optional: prefer to map this project with Graphify into a knowledge graph? (default: prefer)" },
+        { "user": "Sure." },
+        { "ai": "Checked — Graphify is installed, so I'm mapping the project root now; I'll use its graphify-out/GRAPH_REPORT.md as one more source in the scan. Do you want a light scan (skeleton first) or a full scan (fill in all the detail)?" },
+        { "user": "Full." },
+        { "ai": "Scanned the repo using the code plus the Graphify report: it's a NestJS monorepo with two apps — live-service and live-consumer — on Postgres. Inbound: each app's routes/controllers; Outbound: the gateway/client calls. Quick check — is the domain a live-selling system?" },
+        { "user": "Yes, live selling." },
+        { "ai": "Done — created context/gateway-directory.md from the format. Anything the scan couldn't fully resolve is left for self-learn to fill during real workflow runs." }
+      ],
+      "expected_output": "AI enters initialize, offers the optional Graphify map first (default prefer), triggers graphify-map when the user doesn't decline, then proceeds with the normal Phase 1 light/full scan using the graph report as an extra source",
+      "expectations": [
+        "AI enters the initialize skill (doesn't just do it ad-hoc)",
+        "Phase 0 comes before the light/full question: asks whether to map the project with Graphify (default: prefer)",
+        "treats a non-clear-no ('Sure') as prefer — no explicit yes required",
+        "checks Graphify is installed before running; only triggers graphify-map when installed (or when the user accepts an install offer)",
+        "still asks light vs full scan after Phase 0 (Phase 1 is not skipped)",
+        "uses the graphify report (graphify-out/GRAPH_REPORT.md) as one more scan source alongside reading the code",
+        "reports what it scanned itself — doesn't make the user provide everything",
+        "writes to context/gateway-directory.md per the Target in the format"
+      ]
     }
   ]
 }

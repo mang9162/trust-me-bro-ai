@@ -15,12 +15,14 @@ description: Master index of all shared team skills. Use when starting any task 
   path: `trust-me-bro-ai/skills/create-skill/SKILL.md`
 - **generate-report**: Regenerate scenario.html inside the scenario folder (under work/). Reads the scenario-meta JSON block from the existing scenario.html, Datatest.md, and all task JSON files. Produces an interactive HTML with a 6-stage progress indicator, a scrollable E2E flow, a Functional Design tree, collapsible Test Data and Tasks sections, expandable task cards, and an Acceptance History log. Re-run after any stage to refresh.
   path: `trust-me-bro-ai/skills/generate-report/SKILL.md`
-- **initialize-sync-task-github-project**: Installs sync-task for one repo against a GitHub Projects board — preflight auth, pick the board, ensure its Status/Date fields, generate a sync-task-<name> skill from skill-format.md, then a test-loop until the user accepts. Re-run to add another board.
-  path: `trust-me-bro-ai/skills/initialize/initialize-sync-task/github-project/SKILL.md`
-- **initialize-sync-task**: Router for setting up external task sync — asks which tracker, then hands off to that vendor's installer. Today: GitHub Projects; other trackers fall back to a DIY template. Re-run to add another board / vendor.
-  path: `trust-me-bro-ai/skills/initialize/initialize-sync-task/SKILL.md`
+- **graphify-map**: Map the whole project into a queryable knowledge graph with Graphify — check whether Graphify is installed, ask the user if they prefer it (default: prefer), and when opted in run it on the project root to produce graphify-out/ (graph.json + GRAPH_REPORT.md + HTML viz) that later questions can query first.
+  path: `trust-me-bro-ai/skills/graphify-map/SKILL.md`
 - **initialize**: First-run bootstrap and re-sync. Scan the repo (light or full), migrate any existing docs, and create/update the context/tech-stack knowledge files from the format templates under initialize/ — using a target's own format when it already exists.
   path: `trust-me-bro-ai/skills/initialize/SKILL.md`
+- **initialize-sync-task**: Router for setting up external task sync — asks which tracker, then hands off to that vendor's installer. Today: GitHub Projects; other trackers fall back to a DIY template. Re-run to add another board / vendor.
+  path: `trust-me-bro-ai/skills/initialize/initialize-sync-task/SKILL.md`
+- **initialize-sync-task-github-project**: Installs sync-task for one repo against a GitHub Projects board — preflight auth, pick the board, ensure its Status/Date fields, generate a sync-task-<name> skill from skill-format.md, then a test-loop until the user accepts. Re-run to add another board.
+  path: `trust-me-bro-ai/skills/initialize/initialize-sync-task/github-project/SKILL.md`
 - **define-task**: Task author for recorded issues (tech debt / bug / hotfix / upkeep) — turns a `kind: issue` entry from `tech-debt.js` into TDD fix tasks under `work/Issue/` that execute-issue runs.
   path: `trust-me-bro-ai/skills/maintenance/define-task/SKILL.md`
 - **execute-issue**: Runs one issue-fix folder's TDD tasks. Invoked pointed at a `work/Issue/<NN>-<slug>/` that define-task staged; drains its `Backlog/` in dependency order, dispatching each task to an engineer agent (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) and accepting by the task's own acceptance (red / green / all-green). It is the loop / dispatcher — it does not implement code. Halts and asks the user on any blocking gap; there is no report, and when the queue is drained the run simply ends (no next stage).
