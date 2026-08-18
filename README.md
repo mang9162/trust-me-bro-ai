@@ -109,8 +109,8 @@ Compares the installed `.kit-version.json` with the upstream tags, shows what ea
 Is there a newer version of the kit? Walk me up to it.
 ```
 
-### `graphify-map` — map the whole project into a knowledge graph (optional)
-Checks Graphify is installed, asks whether you prefer it (default: prefer), then maps the project root into `graphify-out/` (`graph.json` + `GRAPH_REPORT.md` + HTML viz). Later codebase questions query the graph first. Offered automatically at `initialize` Phase 0; re-runnable anytime.
+### `graphify-map` — map the project (or several repos) into one knowledge graph (optional)
+Checks Graphify is installed, asks whether you prefer it (default: prefer), then maps the project root into `graphify-out/` (`graph.json` + `GRAPH_REPORT.md` + HTML viz). Extra targets — GitHub URLs or sibling folders — merge into one cross-repo graph (`merge-graphs`, nodes tagged with `repo`). Later codebase questions query the graph first. Offered automatically at `initialize` Phase 0; re-runnable anytime.
 
 ```
 Map this project with Graphify so I can query it.
@@ -137,7 +137,7 @@ Grouped the same as `create-skill/file-map.html` — the single source of truth 
 | **maintenance** (C8) | the issue-fix pipeline: `define-task` stages TDD tasks from a logged issue, `execute-issue` runs them. |
 | **agent-skill** (C9) | engineer playbooks `execute-tdd` dispatches (e.g. `default-tdd`). |
 | **sync-task** (C10) | opt-in external-tracker sync: `initialize-sync-task` installs a per-board `sync-task-<name>` skill that pushes work as a parent + sub-issues. |
-| **graphify-map** (C11) | opt-in whole-project knowledge graph (Graphify): checks the tool is installed, asks the user's preference (default prefer), then maps the repo into `graphify-out/` — later codebase questions query the graph first. |
+| **graphify-map** (C11) | opt-in knowledge-graph map (Graphify): checks the tool is installed, asks the user's preference (default prefer), then maps the repo — plus any extra GitHub URLs / sibling folders, merged into one cross-repo graph — into `graphify-out/`; later codebase questions query the graph first. |
 
 Utilities: `create-pr` (PR text) · `skill-sync` (index refresh).
 

@@ -21,7 +21,7 @@ Run it before Phase 1 so the agent only fills the scan data instead of re-emitti
 Before the scan, offer the whole-project knowledge-graph map — it feeds the Phase 1 scan with `graphify-out/GRAPH_REPORT.md`:
 1. Check Graphify is installed (per `graphify-map` step 1).
 2. Ask: "Prefer to map this project with Graphify? (default: prefer)". Default is prefer; only a clear no skips it.
-3. Opted in → trigger `graphify-map` on the project root; then read its `graphify-out/GRAPH_REPORT.md` as one more source during the Phase 1 scan.
+3. Opted in → trigger `graphify-map` on the project root; then read its `graphify-out/GRAPH_REPORT.md` as one more source during the Phase 1 scan. If the system spans more repos, the user may name extra targets (GitHub URLs or sibling folders) — `graphify-map` merges them into one cross-repo graph.
 4. Not installed and the user declines install, or user says no → skip; the scan proceeds without it. Never block initialize on the map.
 
 ## Phase 1 — Scan  (ask the user: light or full?)

@@ -15,7 +15,7 @@ description: Master index of all shared team skills. Use when starting any task 
   path: `trust-me-bro-ai/skills/create-skill/SKILL.md`
 - **generate-report**: Regenerate scenario.html inside the scenario folder (under work/). Reads the scenario-meta JSON block from the existing scenario.html, Datatest.md, and all task JSON files. Produces an interactive HTML with a 6-stage progress indicator, a scrollable E2E flow, a Functional Design tree, collapsible Test Data and Tasks sections, expandable task cards, and an Acceptance History log. Re-run after any stage to refresh.
   path: `trust-me-bro-ai/skills/generate-report/SKILL.md`
-- **graphify-map**: Map the whole project into a queryable knowledge graph with Graphify — check whether Graphify is installed, ask the user if they prefer it (default: prefer), and when opted in run it on the project root to produce graphify-out/ (graph.json + GRAPH_REPORT.md + HTML viz) that later questions can query first.
+- **graphify-map**: Map the project — or several repos/folders at once — into one queryable knowledge graph with Graphify — check whether Graphify is installed, ask the user if they prefer it (default: prefer), and when opted in map the project root (optionally plus extra GitHub URLs / sibling folders, merged via merge-graphs) to produce graphify-out/ that later questions can query first.
   path: `trust-me-bro-ai/skills/graphify-map/SKILL.md`
 - **initialize**: First-run bootstrap and re-sync. Scan the repo (light or full), migrate any existing docs, and create/update the context/tech-stack knowledge files from the format templates under initialize/ — using a target's own format when it already exists.
   path: `trust-me-bro-ai/skills/initialize/SKILL.md`

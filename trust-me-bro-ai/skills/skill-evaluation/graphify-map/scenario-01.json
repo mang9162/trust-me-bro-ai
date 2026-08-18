@@ -37,6 +37,17 @@
         "it says the map is skipped and can be re-run anytime (no blocking, no error)",
         "it does not install or configure anything"
       ]
+    },
+    {
+      "id": 4,
+      "title": "Multiple targets — clone/extract each, merge into one cross-repo graph",
+      "prompt": "The user prefers the map and names two extra targets: a GitHub URL (a sibling service) and a local folder ./libs/. Graphify is installed.",
+      "expectations": [
+        "the GitHub URL is handled via `graphify clone` (clones into ~/.graphify/repos/<owner>/<repo>, reused on repeat runs)",
+        "the local folder is handled via `graphify extract <path>` per folder — NOT the skill pipeline per folder (which writes to the CWD's graphify-out/ and clobbers)",
+        "all targets' graph.json files are merged with `graphify merge-graphs ... --out graphify-out/graph.json` at the project root — exactly that out path, since the query fast path checks it",
+        "the report mentions merged nodes carry a `repo` attribute so queries can filter by origin"
+      ]
     }
   ]
 }
