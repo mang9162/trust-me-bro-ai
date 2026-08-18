@@ -448,9 +448,9 @@ def find_scenarios(work_root):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    if not args:
+    if not args or any(a in ("-h", "--help") for a in args):
         print(__doc__)
-        raise SystemExit(1)
+        raise SystemExit(0 if args else 1)
     if args[0] == "--all":
         targets = find_scenarios(args[1] if len(args) > 1 else ".")
     elif args[0] == "--check":

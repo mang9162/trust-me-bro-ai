@@ -8,6 +8,15 @@ description: First-run bootstrap and re-sync. Scan the repo (light or full), mig
 ## When to invoke
 - First time the kit is dropped into a repo (create the `context/`/`tech-stack/` knowledge files), or to re-sync them after the repo has changed.
 
+## Script
+`scripts/init-kit.py` performs the Phase-3 mechanics (stdlib only, idempotent): for each `*-format.md` under `initialize/{context,tech-stack}/` it parses the `Target:` line, strips the `Target:` line and the `## How to scan (when filling this file)` section, and writes the target if it does not exist (existing targets are left untouched — updates follow the target's own format).
+
+```bash
+python3 skills/initialize/scripts/init-kit.py <kit-root> [--dry-run]
+```
+
+Run it before Phase 1 so the agent only fills the scan data instead of re-emitting each template's boilerplate. `<kit-root>` is the folder that contains `skills/` (e.g. `trust-me-bro-ai/`).
+
 ## Phase 1 — Scan  (ask the user: light or full?)
 For each format template under `initialize/context/` and `initialize/tech-stack/` (each `*-format.md` declares a `Target:` path + its format), scan the repo for the data that target needs, then fill it per the chosen mode:
 - light — seed a skeleton (names + structure only); leave the rest to self-learn during real workflow runs.

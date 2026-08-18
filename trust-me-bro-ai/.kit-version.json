@@ -1,7 +1,13 @@
 {
-  "version": "1.4.1",
+  "version": "1.5.0",
   "source": "mang9162/trust-me-bro-ai",
   "path": "trust-me-bro-ai",
-  "updatedAt": "2026-08-10",
-  "history": []
+  "updatedAt": "2026-08-13",
+  "history": [
+    {
+      "version": "1.5.0",
+      "date": "2026-08-13",
+      "note": "Scripting the mechanical workflow steps: generate-report.py (programmatic scenario.html renderer with dynamic stage detection + structural self-check), init-kit.py (knowledge-target bootstrap from format templates), taskctl.py (task scaffold/status/deps with schema validation and deadlock detection), export-requests.py (api-test request definitions), self-report.py (self-learn entry writer with dedup). All stdlib-only, idempotent; each skill documents its script."
+    }
+  ]
 }

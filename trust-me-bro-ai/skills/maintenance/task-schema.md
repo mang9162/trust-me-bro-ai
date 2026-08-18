@@ -59,6 +59,18 @@ Depth recap: `contract` carries referenced type shapes (no "see source") · `cas
   - `medium` — 5–15 assertions OR first-in-chain (must bootstrap the chain's shared variables) OR one new stub.
   - `high` — novel scenario (no sibling), long request chain, multiple new downstream stubs, complex body templating.
 
+## Script
+
+`scripts/taskctl.py` enforces this schema mechanically (stdlib only):
+
+```bash
+python3 skills/maintenance/scripts/taskctl.py scaffold <spec.json> <out-dir>   # expand a minimal spec into a full task file
+python3 skills/maintenance/scripts/taskctl.py status <task.json> <status>      # pending -> in_progress -> done|failed, stamps timestamps
+python3 skills/maintenance/scripts/taskctl.py validate <task.json>             # schema check, exit 1 on problems
+```
+
+`scaffold` infers `folder` from `type`, defaults `status`/`depends_on`/`assume`/`effort`, and validates before writing. Author skills (create-task / define-task) run it instead of hand-writing every field.
+
 ## Role & Boundary
 
 This file owns the task JSON schema — the self-sufficiency bar, common fields, conditional fields, the tool-managed fields (`sync`, `startedAt`, `finishedAt`), and effort sizing every authored task follows. It does NOT own any author's type list, group folders, or ordering rules (`create-task`, `define-task` — each defines its own on top), how tasks are executed (`execute-tdd` / `execute-issue`), or how the tool-managed fields are written (`sync-task` writes `sync`; the runner stamps the timestamps).

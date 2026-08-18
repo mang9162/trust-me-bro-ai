@@ -11,6 +11,16 @@ Stage 5. Take the api-test tasks create-task authored into `03-Api-test/` and tu
 
 The agent running this skill authors each file itself; it does not dispatch to a separate engineer agent. Reading `gateway-contract.md` for a line's request/response shape is fine when it helps write the `cases` asserts without guessing fields.
 
+## Script
+`scripts/export-requests.py` emits the project-side request definitions from the authored `03-Api-test/` task files (task id, title, contract, cases, uses) — nothing is re-typed:
+
+```bash
+python3 skills/workflow/Stage-5/api-test/scripts/export-requests.py <scenario-folder> <out-dir>
+python3 skills/workflow/Stage-5/api-test/scripts/export-requests.py --all work/ <out-dir>
+```
+
+Run it during Step 3 (Author) after the tasks are staged; a future api-test harness consumes the exported files.
+
 ## Procedure
 
 ### The loop

@@ -76,6 +76,7 @@ flowchart LR
     s3["Stage-3<br/>create-task"]
     s4["Stage-4<br/>execute-tdd<br/>(loop-dispatch)"]
     s5["Stage-5<br/>api-test"]
+    s5Script["Stage-5/api-test/scripts/<br/>export-requests.py"]
     s6["Stage-6<br/>acceptance-review"]
     skillFiles["skills/**/SKILL.md<br/>(self — reviewed out-of-band)"]
 
@@ -96,6 +97,7 @@ flowchart LR
   end
 
   gr["4 · generate-report<br/>(scenario.html templates)"]
+  grScript["generate-report/scripts/<br/>generate-report.py"]
 
   subgraph C2["2 · Context Project Knowledge"]
     direction TB
@@ -118,6 +120,7 @@ flowchart LR
     direction TB
     init["initialize<br/>(first-run bootstrap / re-sync)"]
     initFmt["initialize/{context,tech-stack}/<br/>*-format.md (templates)"]
+    initScript["initialize/scripts/<br/>init-kit.py"]
   end
 
   subgraph C6["6 · self-learn"]
@@ -127,6 +130,7 @@ flowchart LR
     techDebtJson["tech-debt.js<br/>(kind: issue entries)"]
     feedback["feed-back.html"]
     selfReport["self-report/SKILL.md"]
+    srScript["self-report/scripts/<br/>self-report.py"]
     selfImprove["self-improve/SKILL.md"]
   end
 
@@ -143,6 +147,7 @@ flowchart LR
     direction TB
     defineTask["define-task/SKILL.md"]
     taskSchema["task-schema.md<br/>(shared task JSON schema)"]
+    taskctl["maintenance/scripts/<br/>taskctl.py"]
     executeIssue["execute-issue/SKILL.md<br/>(issue-run loop-dispatch)"]
   end
 
@@ -325,7 +330,7 @@ flowchart LR
   </div>
 
   <h2>Node Colors</h2>
-  <div class="legend-item"><span class="swatch hardf"></span> <b>hard component</b> — workflow control (<code>wf</code>, Stage-1..6), <code>generate-report</code>, self-learn skill machinery (<code>self-report/SKILL.md</code>, <code>self-improve/SKILL.md</code>, <code>feed-back.html</code>), and the Control Skill (<code>create-skill/SKILL.md</code>, <code>file-map.html</code>). Edited rarely; invoked/read constantly.</div>
+  <div class="legend-item"><span class="swatch hardf"></span> <b>hard component</b> — workflow control (<code>wf</code>, Stage-1..6), <code>generate-report</code> (+ its <code>scripts/generate-report.py</code>), self-learn skill machinery (<code>self-report/SKILL.md</code> + <code>scripts/self-report.py</code>, <code>self-improve/SKILL.md</code>, <code>feed-back.html</code>), <code>initialize</code> (+ <code>scripts/init-kit.py</code>), <code>maintenance</code> (<code>task-schema.md</code> + <code>scripts/taskctl.py</code>, <code>define-task</code>, <code>execute-issue</code>), api-test (<code>scripts/export-requests.py</code>), and the Control Skill (<code>create-skill/SKILL.md</code>, <code>file-map.html</code>). Edited rarely; invoked/read constantly.</div>
   <div class="legend-item"><span class="swatch softf"></span> <b>soft component</b> — <code>context/</code> + <code>tech-stack/</code> content files, plus <code>{small,medium,heavy}-learn.js</code> and <code>log.js</code> (project-specific self-learn data, written frequently by skill machinery). Includes files that don't exist yet at fresh install (e.g. <code>error-codes.md</code>, root <code>AGENTS.md</code>). Edited/updated often, per-project.</div>
   <p class="note">This matches the hard/soft component split in <code>self-learn/self-report/SKILL.md</code>'s Tier definitions — use that file as the source of truth if a node's classification is unclear.</p>
 

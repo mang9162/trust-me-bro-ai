@@ -152,6 +152,16 @@ Files live per fix option (`fixOptions[].files`), never as a top-level field —
 - `{small,medium,heavy}-learn.js` — create a new entry, or append an occurrence to an existing one, per the tier classified above.
 - `tech-debt.js` — create a new `kind: issue` entry, or append an occurrence (+ places) to an existing one.
 
+## Script
+`scripts/self-report.py` performs the entry write + dedup mechanics (stdlib only):
+
+```bash
+python3 skills/self-learn/self-report/scripts/self-report.py add <file.js> --kind issue --title T --problem P [--places a,b] [--reported-by NAME] [--note TEXT]
+python3 skills/self-learn/self-report/scripts/self-report.py list <file.js>
+```
+
+`<file.js>` is `tech-debt.js` for `kind: issue`, or the tier file (`{small,medium,heavy}-learn.js`) for `problem` / `candidate`. Dedup matches the skill's rule: same `problem` text appends an `occurrences` entry instead of a new entry. The agent still owns classification (kind, tier, wording) — the script only emits consistently.
+
 ## Role & Boundary (Read Before Editing)
 
 This skill is the sole writer of `{small,medium,heavy}-learn.js` **and** `tech-debt.js`. Any skill that notices a self-learn-worthy issue triggers this skill instead of writing the JSON itself — this keeps entry format and tiering consistent no matter who reports. All three kinds — `problem`, `candidate`, `issue` — run through the same dedup + write here.

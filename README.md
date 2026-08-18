@@ -30,6 +30,9 @@ Their strength is *rock-solid TDD discipline* — we force them to follow the pl
 
 ## What's new
 
+- **v1.5.0** — scripting the mechanical steps: `generate-report.py` (programmatic `scenario.html` renderer — dynamic stage detection, escaped output, fn-tree preservation, structural self-check), `init-kit.py` (knowledge-target bootstrap from the `*-format.md` templates), `taskctl.py` (task scaffold / status / validate / deps — schema enforcement + deadlock detection), `export-requests.py` (api-test request definitions from authored tasks), `self-report.py` (self-learn entry writer with dedup). Every script is stdlib-only, idempotent, and documented in its skill.
+- **v1.4.1** — a task's `command` binds to its own targets (a chain's command-carrying task counts as a gate); `define-task` evals cover per-task command authoring; new `release-kit` skill cuts a kit version and keeps the version marker truthful.
+- **v1.3.0** — `sync-task` stores every remote handle instead of searching by issue number; `create-pr` documents Test Result / Reference artifacts; `update-kit` steps an installed kit one upstream version at a time (tracked in `.kit-version.json`).
 - **v1.0.0** — the foundation: the 6-stage TDD loop, `self-learn`, and a human gate at every stage.
 - **v1.1.0** — maintenance lane: turn a logged bug / tech-debt / hotfix into staged TDD fix tasks (`define-task` → `execute-issue`).
 - **v1.2.0** — `sync-task`: push staged work to an external tracker (GitHub Projects) as a parent + sub-issues (opt-in).
@@ -129,3 +132,14 @@ Grouped the same as `create-skill/file-map.html` — the single source of truth 
 | **sync-task** (C10) | opt-in external-tracker sync: `initialize-sync-task` installs a per-board `sync-task-<name>` skill that pushes work as a parent + sub-issues. |
 
 Utilities: `create-pr` (PR text) · `skill-sync` (index refresh).
+
+## Development
+
+`scripts/selftest.sh` is the regression gauntlet for the 5 python tools — `generate-report`, `init-kit`, `taskctl`, `export-requests`, `self-report`. Run it after touching any tool script:
+
+```bash
+bash scripts/selftest.sh        # all tools, isolated temp dir; exit 0 = all pass
+bash scripts/selftest.sh -v     # echo outputs on passing checks too
+```
+
+It exercises each tool's real CLI on generated fixtures (render + idempotence, 9-target bootstrap + boilerplate strip + dry-run, scaffold/validate/status/lane/deps, request export with `refId` preservation, self-report add/dedup) and never modifies the kit payload — `init-kit` runs against a copy, everything else on a throwaway temp dir.
