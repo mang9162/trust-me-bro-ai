@@ -13,6 +13,16 @@ Triggered to (re)render `scenario.html` for a scenario folder — it acts on wha
 ## Output
 `scenario.html` inside the scenario folder (path owned by the workflow `## Layout` — see `## References`) — self-contained, no external dependencies, opens directly in a browser.
 
+## Script
+`scripts/generate-report.py` implements this skill's rules programmatically (stdlib only, idempotent, structural self-check):
+
+```bash
+python3 skills/generate-report/scripts/generate-report.py <scenario-folder> [...]   # one or more scenarios
+python3 skills/generate-report/scripts/generate-report.py --all work/               # every scenario under work/
+```
+
+Run it after any stage instead of hand-rendering: it reads `scenario-meta`, `Datatest.md`, and the task JSONs, detects stage progress from what exists, preserves the Functional Design tree verbatim, and exits non-zero on structural errors.
+
 ## Inputs to read
 Read the scenario folder per the workflow `## Layout` — it owns the folder structure and file paths (see `## References`). From the files it defines, extract:
 
