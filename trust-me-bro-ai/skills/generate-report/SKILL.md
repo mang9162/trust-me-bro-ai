@@ -1,6 +1,6 @@
 ---
 name: generate-report
-description: Regenerate scenario.html inside the scenario folder (under work/). Reads the scenario-meta JSON block from the existing scenario.html, Datatest.md, and all task JSON files. Produces an interactive HTML with a 6-stage progress indicator, a scrollable E2E flow, a Functional Design tree, collapsible Test Data and Tasks sections, expandable task cards, and an Acceptance History log. Re-run after any stage to refresh.
+description: Regenerate scenario.html inside the scenario folder (under work/) or aggregate cross-service feature scenarios into a unified feature dashboard HTML. Reads the scenario-meta JSON block, Datatest.md, and all task JSON files. Produces an interactive HTML with a 6-stage progress indicator, a scrollable E2E flow, a Functional Design tree, collapsible Test Data and Tasks sections, expandable task cards, and an Acceptance History log. Re-run after any stage to refresh.
 ---
 
 # Generate Report
@@ -14,15 +14,21 @@ Triggered to (re)render `scenario.html` for a scenario folder — it acts on wha
 `scenario.html` inside the scenario folder (path owned by the workflow `## Layout` — see `## References`) — self-contained, no external dependencies, opens directly in a browser.
 
 ## Script
-`scripts/generate-report.py` implements this skill's rules programmatically (stdlib only, idempotent, structural self-check):
+`scripts/generate-report.py` renders single-scenario `scenario.html` files, and `scripts/generate-feature-dashboard.py` aggregates cross-service feature scenarios into a unified multi-tab dashboard (stdlib only, idempotent, structural self-check):
 
 ```bash
-python3 skills/generate-report/scripts/generate-report.py <scenario-folder> [...]   # one or more scenarios
-python3 skills/generate-report/scripts/generate-report.py --all work/               # every scenario under work/
-```
+# Single scenario or all scenarios in repo
+python3 skills/generate-report/scripts/generate-report.py <scenario-folder> [...]
+python3 skills/generate-report/scripts/generate-report.py --all work/
 
-Run it after any stage instead of hand-rendering: it reads `scenario-meta`, `Datatest.md`, and the task JSONs, detects stage progress from what exists, preserves the Functional Design tree verbatim, and exits non-zero on structural errors.
+# Cross-service feature dashboard (static generation)
+python3 skills/generate-report/scripts/generate-feature-dashboard.py --feature BIZ_AI
 
+# Cross-service live development with auto-reload (zero-dependencies)
+python3 skills/generate-report/scripts/generate-feature-dashboard.py --feature BIZ_AI --serve 8080
+python3 skills/generate-report/scripts/generate-feature-dashboard.py --feature BIZ_AI --watch
+
+Run `generate-report.py` after any stage instead of hand-rendering: it reads `scenario-meta`, `Datatest.md`, and the task JSONs, detects stage progress from what exists, preserves the Functional Design tree verbatim, and exits non-zero on structural errors.
 ## Inputs to read
 Read the scenario folder per the workflow `## Layout` — it owns the folder structure and file paths (see `## References`). From the files it defines, extract:
 
