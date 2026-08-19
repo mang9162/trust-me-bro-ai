@@ -153,6 +153,9 @@ else
 fi
 run "$PY" "$GR" --check "$WORK"
 check "--check exits 0" 0
+run "$PY" "$GR" --text "$WORK"
+check "--text digest exits 0" 0
+contains "--text names scenario" 'SELFTEST_DEMO'
 run "$PY" "$GR" "$TMP/does-not-exist"
 check "missing scenario exits non-zero" 1
 run "$PY" "$GR" --help
@@ -330,6 +333,9 @@ T6_OUT="$TMP/feature-demo.html"
 run "$PY" "$GFD" --services-dir "$TMP/services" --feature FEATURE_DEMO --output "$T6_OUT"
 check "output file written exits 0" 0
 file_exists "dashboard HTML file written" "$T6_OUT"
+run "$PY" "$GFD" --services-dir "$TMP/services" --feature FEATURE_DEMO --text
+check "--text digest exits 0" 0
+contains "--text names scenario" 'DEMO_SCENARIO'
 run "$PY" "$GFD" --help
 check "--help exits 0" 0
 # ------------------------------------------------------------------ result

@@ -414,6 +414,48 @@ def scan_feature_scenarios(services_dir, feature_keyword):
     return scenarios
 
 
+def text_digests(scenarios):
+    """Compact plain-text summaries of all scenarios, grouped by service — token-cheap alternative to reading scenario.html."""
+    from collections import OrderedDict
+    groups = OrderedDict()
+    for sc in scenarios:
+        groups.setdefault(sc["service"], []).append(sc)
+
+    out = []
+    for svc, sc_list in groups.items():
+        out.append(f"=== {svc} ({len(sc_list)} scenarios) ===")
+        for sc in sc_list:
+            meta = sc["meta"]
+            lines = [f"[{sc['category']}] {sc['scenario']} — {sc['stages_done']}/6 stages, {sc['done_tasks']}/{sc['total_tasks']} tasks done"
+                     + (" [ACCEPTED]" if sc["accepted"] else "")]
+            if meta.get("description"):
+                lines.append(f"  DESC: {meta['description']}")
+            steps = meta.get("steps", [])
+            if steps:
+                lines.append(f"  STEPS ({len(steps)}):")
+                for i, s in enumerate(steps, 1):
+                    lines.append(f"    {i}. {s}")
+            for grp, label in [("01-Setup", "SETUP"), ("02-Backlog", "BACKLOG"), ("03-Api-test", "API TEST")]:
+                tasks = sc["tasks_by_group"].get(grp, [])
+                if tasks:
+                    done = sum(1 for t in tasks if t.get("status") == "done")
+                    lines.append(f"  {label} ({done}/{len(tasks)} done):")
+                    for t in tasks:
+                        lines.append(f"    [{t.get('status')}] {t.get('id')}: {t.get('title', '')}")
+            sections = sc["testdata_sections"]
+            if sections:
+                lines.append(f"  TEST DATA ({len(sections)} sections):")
+                for s in sections:
+                    lines.append(f"    - {s['title']} ({len(s['rows'])} rows)")
+            rounds = meta.get("acceptanceHistory") or []
+            if rounds:
+                for r in rounds:
+                    lines.append(f"  ACCEPTANCE round {r.get('round')}: {r.get('result')} — {r.get('feedback', '')}")
+            out.append("\n".join(lines))
+            out.append("")
+    return "\n".join(out).rstrip()
+
+
 def render_feature_dashboard(scenarios, feature_name, title=None, subtitle=None):
     # Group by service
     services = {}
@@ -984,6 +1026,11 @@ def main():
         help="Verify the generated dashboard HTML without writing",
     )
     parser.add_argument(
+        "--text",
+        action="store_true",
+        help="Print compact plain-text digests of all matched scenarios instead of rendering HTML",
+    )
+    parser.add_argument(
         "--watch",
         action="store_true",
         help="Watch work/Scenario/ across services and regenerate output on disk on changes",
@@ -1019,6 +1066,10 @@ def main():
     if not scenarios:
         print(f"No scenarios found for feature: {args.feature} in {args.services_dir}")
         sys.exit(1)
+
+    if args.text:
+        print(text_digests(scenarios))
+        return
 
     print(
         f"Found {len(scenarios)} scenarios across {len(set(s['service'] for s in scenarios))} services for feature '{args.feature}'."

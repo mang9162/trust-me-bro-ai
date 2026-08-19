@@ -24,6 +24,10 @@ python3 skills/generate-report/scripts/generate-report.py --all work/
 # Cross-service feature dashboard (static generation)
 python3 skills/generate-report/scripts/generate-feature-dashboard.py --feature BIZ_AI
 
+# Token-cheap text digests (read these instead of raw scenario.html)
+python3 skills/generate-report/scripts/generate-report.py --text <scenario-folder>
+python3 skills/generate-report/scripts/generate-feature-dashboard.py --feature BIZ_AI --text
+
 # Cross-service live development with auto-reload (zero-dependencies)
 python3 skills/generate-report/scripts/generate-feature-dashboard.py --feature BIZ_AI --serve 8080
 python3 skills/generate-report/scripts/generate-feature-dashboard.py --feature BIZ_AI --watch

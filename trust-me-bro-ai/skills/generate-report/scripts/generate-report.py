@@ -325,11 +325,69 @@ def find_scenarios(work_root):
     return sorted(out)
 
 
+def text_digest(base):
+    """Compact plain-text summary of a scenario — token-cheap alternative to reading scenario.html."""
+    hp = base / "scenario.html"
+    if not hp.exists():
+        raise SystemExit(f"no scenario.html at {base}")
+    m = re.search(r'<script id="scenario-meta" type="application/json">(.*?)</script>', hp.read_text(), re.S)
+    if not m:
+        raise SystemExit(f"no scenario-meta block at {base}/scenario.html")
+    meta = json.loads(m.group(1))
+    states = stage_states(meta, base)
+    lines = [f"SCENARIO: {meta.get('scenario', base.name)}",
+             f"CATEGORY: {meta.get('category', '')}",
+             f"STAGES: {sum(states)}/6"]
+    for i, (d, label) in enumerate(zip(states, STAGE_LABELS), 1):
+        status = "done" if d else ("active" if i == 1 or states[i - 2] else "todo")
+        lines.append(f"  {i}. {label}: {status}")
+    if meta.get("description"):
+        lines.append(f"DESC: {meta['description']}")
+    steps = meta.get("steps", [])
+    if steps:
+        lines.append(f"STEPS ({len(steps)}):")
+        for i, s in enumerate(steps, 1):
+            lines.append(f"  {i}. {s}")
+    tdir = base / "02-Task"
+    if tdir.exists():
+        for grp, label in [("01-Setup", "SETUP"), ("02-Backlog", "BACKLOG"), ("03-Api-test", "API TEST")]:
+            gdir = tdir / grp
+            files = sorted(gdir.glob("*.json")) if gdir.exists() else []
+            if files:
+                done = sum(1 for f in files if json.loads(f.read_text()).get("status") == "done")
+                lines.append(f"{label} ({done}/{len(files)} done):")
+                for f in files:
+                    t = json.loads(f.read_text())
+                    lines.append(f"  [{t.get('status')}] {t.get('id')}: {t.get('title', '')}")
+    dt = base / "01-Testdata" / "Datatest.md"
+    if dt.exists():
+        sections = parse_datatest(dt.read_text())
+        if sections:
+            lines.append(f"TEST DATA ({len(sections)} sections):")
+            for s in sections:
+                lines.append(f"  - {s['title']} ({len(s['rows'])} rows)")
+    rounds = meta.get("acceptanceHistory") or []
+    if rounds:
+        lines.append("ACCEPTANCE:")
+        for r in rounds:
+            lines.append(f"  round {r.get('round')}: {r.get('result')} — {r.get('feedback', '')}")
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
     if not args or any(a in ("-h", "--help") for a in args):
         print(__doc__)
         raise SystemExit(0 if args else 1)
+    if args[0] == "--text":
+        if len(args) > 1 and args[1] == "--all":
+            targets = find_scenarios(args[2] if len(args) > 2 else ".")
+        else:
+            targets = [Path(a) for a in args[1:]] or find_scenarios(".")
+        for t in targets:
+            print(text_digest(t))
+            print()
+        raise SystemExit(0)
     if args[0] == "--all":
         targets = find_scenarios(args[1] if len(args) > 1 else ".")
     elif args[0] == "--check":
