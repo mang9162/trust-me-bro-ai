@@ -25,138 +25,17 @@ from pathlib import Path
 esc = html_mod.escape
 VOID_TAGS = {"meta", "br", "img", "link", "input", "hr"}
 
-CSS = """*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh}
-.container{max-width:980px;margin:0 auto;padding:32px 16px;display:flex;flex-direction:column;gap:16px}
-.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,0.07)}
-.header{border-left:5px solid #6366f1}
-.scenario-name{font-size:1.45rem;font-weight:800;color:#0f172a;margin-bottom:8px}
-.category{display:inline-block;padding:3px 12px;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:.05em;margin-bottom:10px}
-.cat-success{background:#dcfce7;color:#166534}
-.cat-alternative{background:#fef9c3;color:#854d0e}
-.desc{color:#475569;font-size:0.88rem;line-height:1.65}
-.section-title{font-size:0.78rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
-.stage-track{display:flex;align-items:flex-start}
-.stage-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
-.stage-circle{width:100%;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;position:relative;z-index:1}
-.s-done .stage-circle{background:#6366f1;color:#fff}
-.s-active .stage-circle{background:#fff;border:2.5px solid #6366f1;color:#6366f1;box-shadow:0 0 0 4px #e0e7ff}
-.s-todo .stage-circle{background:#f8fafc;border:2px solid #cbd5e1;color:#94a3b8}
-.stage-label{font-size:0.65rem;color:#64748b;text-align:center;max-width:72px;line-height:1.3}
-.stage-connector{flex:1;height:2px;margin-top:16px;align-self:flex-start}
-.conn-done{background:#6366f1}
-.conn-todo{background:#e2e8f0}
-.flow-hint{font-size:0.75rem;color:#94a3b8;margin-bottom:14px}
-.flow-scroll{overflow-x:auto;padding-bottom:8px}
-.flow-row{display:flex;align-items:flex-start;gap:0;min-width:max-content;padding:4px 2px 12px}
-.flow-step{display:flex;flex-direction:column;align-items:center;gap:6px}
-.step-num{font-size:0.65rem;font-weight:700;color:#6366f1;background:#e0e7ff;padding:1px 7px;border-radius:10px}
-.flow-box{background:#f8fafc;border:2px solid #e2e8f0;border-radius:10px;padding:10px 12px;width:155px;text-align:center;font-size:0.78rem;line-height:1.45;cursor:pointer;transition:border-color .15s,background .15s,transform .15s,box-shadow .15s;color:#334155}
-.flow-box:hover{border-color:#818cf8;background:#eef2ff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(99,102,241,.15)}
-.flow-box.active{border-color:#6366f1;background:#e0e7ff;box-shadow:0 0 0 3px rgba(99,102,241,.25);color:#1e293b}
-.flow-arrow{display:flex;align-items:center;padding:0 6px;margin-top:28px;color:#a5b4fc;font-size:1.1rem;flex-shrink:0}
-.empty-note{color:#94a3b8;font-size:0.83rem;font-style:italic}
-.data-table{width:100%;border-collapse:collapse;font-size:0.82rem}
-.data-table th{text-align:left;padding:8px 14px;background:#f8fafc;color:#475569;font-weight:600;border-bottom:2px solid #e2e8f0}
-.data-table td{padding:7px 14px;border-bottom:1px solid #f1f5f9;vertical-align:top}
-.data-table tr:last-child td{border-bottom:none}
-.data-table .section-row td{padding:10px 14px 4px;font-size:0.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;background:#f8fafc;border-bottom:1px solid #e2e8f0}
-code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-family:'SFMono-Regular',Consolas,monospace;font-size:0.77rem;color:#0f172a}
-.task-group{margin-bottom:20px}
-.task-group:last-child{margin-bottom:0}
-.group-label{font-size:0.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.group-label::after{content:'';flex:1;height:1px;background:#f1f5f9}
-details.task-card{border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:6px;transition:border-color .15s,background .15s,box-shadow .15s;background:#fff}
-details.task-card>summary{display:flex;gap:12px;padding:11px 14px;cursor:pointer;list-style:none;align-items:flex-start;user-select:none}
-details.task-card>summary::-webkit-details-marker{display:none}
-details.task-card>summary::marker{display:none}
-details.task-card.highlighted{border-color:#6366f1;background:#f0f4ff;box-shadow:0 0 0 2px rgba(99,102,241,.18)}
-details.task-card[open]{border-color:#818cf8}
-details.task-card[open]>summary{border-bottom:1px solid #e2e8f0}
-.expand-icon{margin-left:auto;font-size:0.72rem;color:#94a3b8;transition:transform .18s;flex-shrink:0;margin-top:5px;line-height:1}
-details.task-card[open] .expand-icon{transform:rotate(180deg)}
-.task-detail{padding:12px 14px 14px 34px;display:flex;flex-direction:column;gap:10px}
-.detail-section{display:flex;flex-direction:column;gap:4px}
-.detail-label{font-size:0.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em}
-.detail-pre{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;font-family:'SFMono-Regular',Consolas,monospace;font-size:0.74rem;color:#334155;white-space:pre-wrap;word-break:break-word;line-height:1.55;margin:0}
-.assert-list{list-style:none;display:flex;flex-direction:column;gap:3px;padding:0;margin:0}
-.assert-list li{font-family:'SFMono-Regular',Consolas,monospace;font-size:0.74rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:3px 8px;color:#334155}
-.dep-tags{display:flex;flex-wrap:wrap;gap:4px}
-.dep-tag{background:#f1f5f9;color:#475569;font-size:0.67rem;padding:2px 8px;border-radius:10px;font-family:monospace}
-.target-path{font-family:'SFMono-Regular',Consolas,monospace;font-size:0.72rem;color:#6366f1;word-break:break-all;line-height:1.7}
-.detail-text{font-size:0.8rem;color:#475569;line-height:1.55}
-.dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0}
-.dot-pending{background:#cbd5e1}
-.dot-in_progress{background:#f59e0b}
-.dot-done{background:#22c55e}
-.dot-failed{background:#ef4444}
-.task-body{flex:1;min-width:0}
-.task-id{font-size:0.67rem;color:#94a3b8;font-family:monospace;margin-bottom:2px}
-.task-title{font-size:0.84rem;font-weight:500;color:#1e293b;margin-bottom:6px;line-height:1.4}
-.tags{display:flex;flex-wrap:wrap;gap:5px}
-.tag{font-size:0.63rem;font-weight:700;padding:1px 7px;border-radius:10px}
-.t-unit-test{background:#ede9fe;color:#5b21b6}
-.t-integration-test{background:#dbeafe;color:#1e40af}
-.t-component-test{background:#fce7f3;color:#9d174d}
-.t-code-task{background:#dcfce7;color:#166534}
-.t-api-test{background:#ffedd5;color:#9a3412}
-.t-env-setup{background:#f1f5f9;color:#475569}
-.t-interface{background:#e2e8f0;color:#334155}
-.t-existing{background:#f1f5f9;color:#64748b}
-.e-low{background:#dcfce7;color:#166534}
-.e-medium{background:#fef9c3;color:#854d0e}
-.e-high{background:#fee2e2;color:#991b1b}
-.status-badge{background:#f1f5f9;color:#64748b}
-.status-done-badge{background:#dcfce7;color:#166534}
-.status-progress-badge{background:#fef9c3;color:#854d0e}
-.status-failed-badge{background:#fee2e2;color:#991b1b}
-.ah-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid #e2e8f0}
-.cat-reject{background:#fee2e2;color:#991b1b}
-.fn-copy-btn{padding:5px 14px;background:#6366f1;color:#fff;border:none;border-radius:6px;font-size:0.73rem;font-weight:600;cursor:pointer;transition:background .15s}
-.fn-copy-btn:hover{background:#4f46e5}"""
+ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
 
-JS = """var _dragged=null;
-function _isAnc(anc,el){var c=el;while(c){if(c===anc)return true;c=c.parentElement;}return false;}
-function _clearDrop(){document.querySelectorAll('.fn-item').forEach(function(i){i.classList.remove('drop-before','drop-inside','drop-after');});var t=document.querySelector('.fn-tree');if(t)t.classList.remove('drag-over');}
-function _getPos(e,nodeEl){var r=nodeEl.getBoundingClientRect(),y=e.clientY-r.top,h=r.height;return y<h*0.3?'before':y>h*0.7?'after':'inside';}
-function initFnDnD(){
-  var tree=document.querySelector('.fn-tree');if(!tree)return;
-  function setupItem(item){
-    item.setAttribute('draggable','true');
-    item.addEventListener('dragstart',function(e){e.stopPropagation();_dragged=item;e.dataTransfer.effectAllowed='move';setTimeout(function(){item.classList.add('dragging');},0);});
-    item.addEventListener('dragend',function(){item.classList.remove('dragging');_clearDrop();_dragged=null;});
-    var node=item.querySelector(':scope > .fn-node');if(!node)return;
-    if(!node.querySelector('.fn-delete')){var del=document.createElement('button');del.className='fn-delete';del.textContent='×';del.title='Remove from tree';del.onclick=function(e){e.stopPropagation();item.remove();};node.appendChild(del);}
-    node.addEventListener('dragover',function(e){if(!_dragged||_dragged===item||_isAnc(_dragged,item))return;e.preventDefault();e.stopPropagation();_clearDrop();_getPos(e,node);item.classList.add('drop-'+_getPos(e,node));});
-    node.addEventListener('dragleave',function(e){if(!node.contains(e.relatedTarget))item.classList.remove('drop-before','drop-inside','drop-after');});
-    node.addEventListener('drop',function(e){e.preventDefault();e.stopPropagation();_clearDrop();if(!_dragged||_dragged===item||_isAnc(_dragged,item))return;var pos=_getPos(e,node),parent=item.parentElement;if(pos==='before')parent.insertBefore(_dragged,item);else if(pos==='after')parent.insertBefore(_dragged,item.nextElementSibling);else{var ch=item.querySelector(':scope > .fn-children');if(ch)ch.appendChild(_dragged);}});
-  }
-  tree.addEventListener('dragover',function(e){if(!_dragged||e.target!==tree)return;e.preventDefault();_clearDrop();tree.classList.add('drag-over');});
-  tree.addEventListener('drop',function(e){if(e.target!==tree)return;e.preventDefault();_clearDrop();if(_dragged)tree.appendChild(_dragged);});
-  document.querySelectorAll('.fn-item').forEach(setupItem);
-}
-function copyFnTree(){var tree=document.querySelector('.fn-tree');if(!tree)return;navigator.clipboard.writeText(tree.outerHTML).then(function(){var el=document.getElementById('fn-copy-confirm');if(el){el.style.display='inline';setTimeout(function(){el.style.display='none';},2500);}});}
-initFnDnD();
-function activateFn(el,taskIds){
-  var isAlreadyActive=el.classList.contains('fn-active');
-  document.querySelectorAll('.fn-node').forEach(function(n){n.classList.remove('fn-active');});
-  document.querySelectorAll('details.task-card').forEach(function(c){c.classList.remove('highlighted');});
-  if(isAlreadyActive)return;
-  el.classList.add('fn-active');
-  taskIds.forEach(function(id){document.querySelectorAll('.task-id').forEach(function(tid){if(tid.textContent.trim()===id){var card=tid.closest('details.task-card');if(card){card.classList.add('highlighted');card.open=true;}}});});
-  var first=document.querySelector('details.task-card.highlighted');if(first)first.scrollIntoView({behavior:'smooth',block:'center'});
-}
-function activateStep(n){
-  var box=document.querySelector('.flow-box[data-step="'+n+'"]');
-  var isAlreadyActive=box&&box.classList.contains('active');
-  document.querySelectorAll('.flow-box').forEach(function(b){b.classList.remove('active');});
-  document.querySelectorAll('details.task-card').forEach(function(c){c.classList.remove('highlighted');});
-  if(isAlreadyActive)return;
-  if(box)box.classList.add('active');
-  document.querySelectorAll('details.task-card').forEach(function(card){var s=card.dataset.step;if(s==='all'||s===String(n))card.classList.add('highlighted');});
-  var target=document.querySelector('details.task-card[data-step="'+n+'"]');
-  if(target){target.open=true;target.scrollIntoView({behavior:'smooth',block:'center'});}
-}"""
+
+def load_asset(name):
+    return (ASSETS_DIR / name).read_text(encoding="utf-8")
+
+
+CSS = load_asset("scenario-report.css")
+JS = load_asset("scenario-report.js")
+
+
 
 STAGE_LABELS = ["Get Requirement", "Create Test Data", "Create Task", "Execute Backlog", "Api Test", "Acceptance Review"]
 TYPE_TAGS = {"unit-test": "t-unit-test", "integration-test": "t-integration-test", "component-test": "t-component-test",
@@ -446,11 +325,69 @@ def find_scenarios(work_root):
     return sorted(out)
 
 
+def text_digest(base):
+    """Compact plain-text summary of a scenario — token-cheap alternative to reading scenario.html."""
+    hp = base / "scenario.html"
+    if not hp.exists():
+        raise SystemExit(f"no scenario.html at {base}")
+    m = re.search(r'<script id="scenario-meta" type="application/json">(.*?)</script>', hp.read_text(), re.S)
+    if not m:
+        raise SystemExit(f"no scenario-meta block at {base}/scenario.html")
+    meta = json.loads(m.group(1))
+    states = stage_states(meta, base)
+    lines = [f"SCENARIO: {meta.get('scenario', base.name)}",
+             f"CATEGORY: {meta.get('category', '')}",
+             f"STAGES: {sum(states)}/6"]
+    for i, (d, label) in enumerate(zip(states, STAGE_LABELS), 1):
+        status = "done" if d else ("active" if i == 1 or states[i - 2] else "todo")
+        lines.append(f"  {i}. {label}: {status}")
+    if meta.get("description"):
+        lines.append(f"DESC: {meta['description']}")
+    steps = meta.get("steps", [])
+    if steps:
+        lines.append(f"STEPS ({len(steps)}):")
+        for i, s in enumerate(steps, 1):
+            lines.append(f"  {i}. {s}")
+    tdir = base / "02-Task"
+    if tdir.exists():
+        for grp, label in [("01-Setup", "SETUP"), ("02-Backlog", "BACKLOG"), ("03-Api-test", "API TEST")]:
+            gdir = tdir / grp
+            files = sorted(gdir.glob("*.json")) if gdir.exists() else []
+            if files:
+                done = sum(1 for f in files if json.loads(f.read_text()).get("status") == "done")
+                lines.append(f"{label} ({done}/{len(files)} done):")
+                for f in files:
+                    t = json.loads(f.read_text())
+                    lines.append(f"  [{t.get('status')}] {t.get('id')}: {t.get('title', '')}")
+    dt = base / "01-Testdata" / "Datatest.md"
+    if dt.exists():
+        sections = parse_datatest(dt.read_text())
+        if sections:
+            lines.append(f"TEST DATA ({len(sections)} sections):")
+            for s in sections:
+                lines.append(f"  - {s['title']} ({len(s['rows'])} rows)")
+    rounds = meta.get("acceptanceHistory") or []
+    if rounds:
+        lines.append("ACCEPTANCE:")
+        for r in rounds:
+            lines.append(f"  round {r.get('round')}: {r.get('result')} — {r.get('feedback', '')}")
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
     if not args or any(a in ("-h", "--help") for a in args):
         print(__doc__)
         raise SystemExit(0 if args else 1)
+    if args[0] == "--text":
+        if len(args) > 1 and args[1] == "--all":
+            targets = find_scenarios(args[2] if len(args) > 2 else ".")
+        else:
+            targets = [Path(a) for a in args[1:]] or find_scenarios(".")
+        for t in targets:
+            print(text_digest(t))
+            print()
+        raise SystemExit(0)
     if args[0] == "--all":
         targets = find_scenarios(args[1] if len(args) > 1 else ".")
     elif args[0] == "--check":

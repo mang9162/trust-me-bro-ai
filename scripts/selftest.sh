@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# selftest.sh — regression gauntlet for the kit's 5 python tools.
+# selftest.sh — regression gauntlet for the kit's python tools.
 #
 # Usage: scripts/selftest.sh        # run all tests, isolated temp dir
 #        scripts/selftest.sh -v     # also echo output on passing checks
@@ -14,8 +14,8 @@
 #                       id/type mismatch), deps deadlock detector, --help
 #   T4 export-requests  --all emits one .requests.json per scenario with
 #                       task_id + uses preserved
-#   T5 self-report      add / dedup / list, header + ids preserved, --help
-#
+#   T5 self-report                  add / dedup / list, header + ids preserved, --help
+#   T6 generate-feature-dashboard   scan --services-dir / --feature, --check, --output
 # Exit 0 only if every check passes. Never modifies the kit repo: init-kit
 # runs against a copy of the payload, all other tools run on generated
 # fixtures. Requires python3 only.
@@ -32,7 +32,7 @@ INIT="$PAYLOAD/skills/initialize/scripts/init-kit.py"
 TASKCTL="$PAYLOAD/skills/maintenance/scripts/taskctl.py"
 EXPORT="$PAYLOAD/skills/workflow/Stage-5/api-test/scripts/export-requests.py"
 SELF="$PAYLOAD/skills/self-learn/self-report/scripts/self-report.py"
-
+GFD="$PAYLOAD/skills/generate-report/scripts/generate-feature-dashboard.py"
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/kit-selftest.XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -153,6 +153,9 @@ else
 fi
 run "$PY" "$GR" --check "$WORK"
 check "--check exits 0" 0
+run "$PY" "$GR" --text "$WORK"
+check "--text digest exits 0" 0
+contains "--text names scenario" 'SELFTEST_DEMO'
 run "$PY" "$GR" "$TMP/does-not-exist"
 check "missing scenario exits non-zero" 1
 run "$PY" "$GR" --help
@@ -304,6 +307,37 @@ fi
 run "$PY" "$SELF" --help
 check "--help exits 0" 0
 
+
+# -------------------------------------------------------------------- T6
+
+say "T6 generate-feature-dashboard"
+T6_SVC="$TMP/services/service-a/work/Scenario/FEATURE_DEMO/Success/01-DEMO_SCENARIO"
+mkdir -p "$T6_SVC/01-Testdata" "$T6_SVC/02-Task/02-Backlog"
+cat > "$T6_SVC/scenario.html" <<'EOF'
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>demo</title></head>
+<body><script id="scenario-meta" type="application/json">{"scenario":"DEMO_SCENARIO","category":"Success","description":"selftest","steps":["s1"],"accepted":true}</script></body></html>
+EOF
+cat > "$T6_SVC/01-Testdata/Datatest.md" <<'EOF'
+## Data
+| Name | Value |
+|---|---|
+| user | 1001 |
+EOF
+cat > "$T6_SVC/02-Task/02-Backlog/01-t.json" <<'EOF'
+{"id":"01-t","type":"code-task","status":"done","title":"t","effort":"low"}
+EOF
+run "$PY" "$GFD" --services-dir "$TMP/services" --feature FEATURE_DEMO --check
+check "scan and --check exits 0" 0
+contains "reports scenario found" 'DEMO_SCENARIO'
+T6_OUT="$TMP/feature-demo.html"
+run "$PY" "$GFD" --services-dir "$TMP/services" --feature FEATURE_DEMO --output "$T6_OUT"
+check "output file written exits 0" 0
+file_exists "dashboard HTML file written" "$T6_OUT"
+run "$PY" "$GFD" --services-dir "$TMP/services" --feature FEATURE_DEMO --text
+check "--text digest exits 0" 0
+contains "--text names scenario" 'DEMO_SCENARIO'
+run "$PY" "$GFD" --help
+check "--help exits 0" 0
 # ------------------------------------------------------------------ result
 
 say ""
