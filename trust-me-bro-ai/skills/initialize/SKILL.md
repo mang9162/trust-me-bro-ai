@@ -17,6 +17,13 @@ python3 skills/initialize/scripts/init-kit.py <kit-root> [--dry-run]
 
 Run it before Phase 1 so the agent only fills the scan data instead of re-emitting each template's boilerplate. `<kit-root>` is the folder that contains `skills/` (e.g. `trust-me-bro-ai/`).
 
+## Phase 0 — Optional Graphify project map (ask first, default prefer)
+Before the scan, offer the whole-project knowledge-graph map — it feeds the Phase 1 scan with `graphify-out/GRAPH_REPORT.md`:
+1. Check Graphify is installed (per `graphify-map` step 1).
+2. Ask: "Prefer to map this project with Graphify? (default: prefer)". Default is prefer; only a clear no skips it.
+3. Opted in → trigger `graphify-map` on the project root; then read its `graphify-out/GRAPH_REPORT.md` as one more source during the Phase 1 scan. If the system spans more repos, the user may name extra targets (GitHub URLs or sibling folders) — `graphify-map` merges them into one cross-repo graph.
+4. Not installed and the user declines install, or user says no → skip; the scan proceeds without it. Never block initialize on the map.
+
 ## Phase 1 — Scan  (ask the user: light or full?)
 For each format template under `initialize/context/` and `initialize/tech-stack/` (each `*-format.md` declares a `Target:` path + its format), scan the repo for the data that target needs, then fill it per the chosen mode:
 - light — seed a skeleton (names + structure only); leave the rest to self-learn during real workflow runs.
@@ -69,9 +76,10 @@ Collect everything still needing setup but not done (from Phase 3 + items 6/7). 
 ## Trigger Skill
 - self-report — record each `INITIALIZE_<NameOfWork>` setup concern (with its fix) so the user can action it via `self-learn/feed-back.html`.
 - initialize-sync-task — set up external task sync (Phase 4 item 8), when the user opts in.
+- graphify-map — optional whole-project knowledge-graph map (Phase 0), when the user opts in.
 
 ## Writes To
 - each template's `Target:` file (e.g. `context/gateway-directory.md`, `tech-stack/database-schema.md`) — created on first run, or updated/extended when it already exists.
 
 ## Role & Boundary (Read Before Editing)
-initialize bootstraps and re-syncs the `context/`/`tech-stack/` files from the `*-format.md` templates by scanning the repo (light or full) and migrating existing docs. On create it follows the template's format; on update it follows the target file's own (inherited) format. It does NOT own the formats (each `*-format.md` / target file does) and does NOT fill fine detail in light mode — that's self-learn during workflow runs. It also does not continuously keep the files up to date during workflow runs — that ongoing job belongs to self-learn; initialize runs only on explicit first-run / re-sync, so redirect such requests there. For where any other change belongs, see the Responsibility map in workflow/SKILL.md.
+initialize bootstraps and re-syncs the `context/`/`tech-stack/` files from the `*-format.md` templates by scanning the repo (light or full) and migrating existing docs. On create it follows the template's format; on update it follows the target file's own (inherited) format. It does NOT own the formats (each `*-format.md` / target file does) and does NOT fill fine detail in light mode — that's self-learn during workflow runs. It also does not continuously keep the files up to date during workflow runs — that ongoing job belongs to self-learn; initialize runs only on explicit first-run / re-sync, so redirect such requests there. It offers the optional Graphify map (Phase 0) but does NOT run or own it — that is `graphify-map`. For where any other change belongs, see the Responsibility map in workflow/SKILL.md.

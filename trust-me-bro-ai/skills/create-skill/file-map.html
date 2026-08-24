@@ -166,6 +166,11 @@ flowchart LR
     syncGen["sync-task/sync-task-&lt;name&gt;/<br/>(installer-GENERATED per install:<br/>engine + templates + config)"]
   end
 
+  subgraph C11["11 · graphify-map (whole-project / cross-repo knowledge graph · opt-in)"]
+    direction TB
+    graphifyMap["graphify-map/SKILL.md<br/>(check install → ask prefer<br/>(default prefer) → run / merge pipeline)"]
+  end
+
   %% ===== 1: LIGHT-BLUE DASHED = cross-ref (one-way read, no key to match) =====
   agents -.->|"13"| techstack
   techstack -.->|"14 · ref: stub/mock + test-file layout"| testguide
@@ -320,12 +325,15 @@ flowchart LR
   syncGen -->|"110 · write: sync id back (scenario-meta)"| scenarioHtml
   syncGen -->|"111 · write: sync id back (issue.md marker)"| workIssue
 
-  class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd,defineTask,taskSchema,executeIssue,initSyncRouter,ghInstaller,syncDefault,syncGen hardf
+  %% ===== graphify-map component (112): initialize Phase 0 optional whole-project map =====
+  init -.->|"112 · trigger: Phase 0 'map with Graphify?' (opt-in)"| graphifyMap
+
+  class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd,defineTask,taskSchema,executeIssue,initSyncRouter,ghInstaller,syncDefault,syncGen,graphifyMap hardf
   class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson,techDebtJson,scenarioHtml,testdata,setupBacklog,apiTestT,workIssue softf
 
   linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66,69,70,71,72,79,80,81,82,83,84,90,92,93,97 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
   linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64,67,73,98 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
-  linkStyle 26,27,28,29,30,31,32,33,34,35,36,37,47,52,63,88,91,95,96,99,100,101,103,104,105,106,107,108,109 stroke:#dc2626,stroke-width:2px,color:#dc2626
+  linkStyle 26,27,28,29,30,31,32,33,34,35,36,37,47,52,63,88,91,95,96,99,100,101,103,104,105,106,107,108,109,112 stroke:#dc2626,stroke-width:2px,color:#dc2626
   linkStyle 38,39,50,51,65,68,74,75,76,77,78,85,86,87,89,94,102,110,111 stroke:#16a34a,stroke-width:2px,color:#16a34a
   </div>
 

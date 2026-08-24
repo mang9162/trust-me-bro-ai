@@ -1,0 +1,53 @@
+{
+  "skill_name": "graphify-map",
+  "context": {
+    "scenario": "Optionally mapping a fresh repo into a Graphify knowledge graph",
+    "description": "The user just dropped the kit into a repo. initialize Phase 0 offers the whole-project map; the user's answer (and whether Graphify is installed) decides whether graphify-map runs. Default is prefer.",
+    "note": "graphify-map is strictly optional: it must check installation before running, must not install Graphify without asking, and must treat a non-clear-no as prefer."
+  },
+  "evals": [
+    {
+      "id": 1,
+      "title": "Graphify not installed — check first, offer install, never silently install",
+      "prompt": "The user prefers to map the project with Graphify, but `command -v graphify` finds nothing and no Graphify skill exists on the host.",
+      "expectations": [
+        "the skill detects Graphify is missing before attempting to run anything",
+        "it shows the user the project URL (https://github.com/Graphify-Labs/graphify) and offers to install (uv tool install graphifyy or pip install graphifyy)",
+        "it does NOT install without the user's explicit go-ahead, and does NOT pretend to run the map",
+        "if the user declines the install, the map is skipped cleanly with no error state"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Default is prefer — a non-clear-no proceeds",
+      "prompt": "Graphify is installed. The user answers the preference question with 'whatever, your call' (not a clear no).",
+      "expectations": [
+        "the skill treats a non-clear-no as prefer (the default) — it does not require an explicit yes",
+        "it runs the Graphify pipeline on the project root (the repo being mapped, not the kit folder)",
+        "output is written under graphify-out/ at the project root (graph.json + GRAPH_REPORT.md + HTML viz)",
+        "it reports where the map lives and points later codebase questions at `graphify query`"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Clear no — stop cleanly, never block",
+      "prompt": "The user answers the preference question with 'no thanks'. Graphify is installed.",
+      "expectations": [
+        "the skill stops without running the pipeline",
+        "it says the map is skipped and can be re-run anytime (no blocking, no error)",
+        "it does not install or configure anything"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Multiple targets — clone/extract each, merge into one cross-repo graph",
+      "prompt": "The user prefers the map and names two extra targets: a GitHub URL (a sibling service) and a local folder ./libs/. Graphify is installed.",
+      "expectations": [
+        "the GitHub URL is handled via `graphify clone` (clones into ~/.graphify/repos/<owner>/<repo>, reused on repeat runs)",
+        "the local folder is handled via `graphify extract <path>` per folder — NOT the skill pipeline per folder (which writes to the CWD's graphify-out/ and clobbers)",
+        "all targets' graph.json files are merged with `graphify merge-graphs ... --out graphify-out/graph.json` at the project root — exactly that out path, since the query fast path checks it",
+        "the report mentions merged nodes carry a `repo` attribute so queries can filter by origin"
+      ]
+    }
+  ]
+}
