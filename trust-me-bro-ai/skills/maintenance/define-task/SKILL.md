@@ -80,9 +80,9 @@ Before closing the entry, run this checklist over the agreed fix + the functions
 
 ### 8. Close the entry
 
+Skip this step for an `upgrade-lib` handoff; it has no `tech-debt.js` / `log.js` entry.
 Move the entry out of `tech-debt.js` and append it to `log.js` with `status: done` and `issueFolder` — the folder it became (`work/Issue/<NN>-<slug>/`), which is how `feed-back.html` shows a closed issue. This skill does both writes directly.
 
-Skip this step for an `upgrade-lib` handoff; it has no `tech-debt.js` / `log.js` entry.
 
 ### 9. ⏸ PAUSE
 
