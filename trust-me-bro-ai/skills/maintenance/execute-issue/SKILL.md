@@ -67,13 +67,29 @@ There is **no report** for an issue run — no `scenario.html` exists; status is
 | Outcome | When | Action |
 | --- | --- | --- |
 | **DRAINED** | no task left (step 1) | tell the user the run is done (all tasks green) and list this run's self-learn items (headlines + tier). **The run ends — there is no next stage**: the `regression` task already ran the full suite + api-test as its `command`. |
-| **DEADLOCK** | tasks remain but none runnable — every `pending` has an unmet or `failed` `depends_on` (step 1) | tell the user which task is blocked and why; wait — don't guess |
-| **BLOCKED** | an `assume` doesn't hold (step 2) | tell the user to supply/repair the missing pre-state; wait — don't guess it |
-| **FAILURE** | result ≠ the task's `acceptance` (step 5) | set the task `failed`; tell the user and wait — downstream depends on it, barrelling ahead spreads the break |
+| **DEADLOCK** | tasks remain but none runnable — every `pending` has an unmet or `failed` `depends_on` (step 1) | do **6.1 Problems and Decisions**; tell the user which task is blocked and why; wait — don't guess |
+| **BLOCKED** | an `assume` doesn't hold, or the command cannot produce its declared verdict because a prerequisite is unavailable (steps 2 / 5) | do **6.1 Problems and Decisions**; tell the user to supply/repair the missing pre-state; wait — don't guess it |
+| **FAILURE — baseline red** | `00-check-test` actually completes before any dependency/source change and the existing suite is red (step 5) | invoke `self-report(kind: issue)` with the failing baseline evidence; do **6.1 Problems and Decisions**; tell the human and wait |
+| **FAILURE** | any later task result ≠ that task's `acceptance` (step 5) | do **6.1 Problems and Decisions**; tell the human and wait — this is current issue work, not Tech Debt |
+
+**6.1. Problems and Decisions** — before reporting DEADLOCK / BLOCKED / FAILURE, append one entry under the issue's single `## Problems and Decisions` section:
+
+- `Timestamp` — ISO 8601
+- `Task` — task id
+- `Outcome` — DEADLOCK / BLOCKED / FAILURE
+- `Problem` — what stopped the task
+- `Evidence` — concise evidence, no secrets
+- `Decision` — `Pending human decision`
+- `Reason` — `Pending human decision`
+- `Tech debt` — returned entry id; completed red `00-check-test` only
+
+After the human decides, update `Decision` and `Reason` in the same entry. Do not add `Resume Context`, put error text in task JSON, or automatically retry / resume / re-plan.
 
 ### `self-report` is improve, not fix
 
 `self-report` carries **non-blocking improvement** observations only — e.g. "this pattern keeps getting hand-written; promote it to a `code-standard`?" or "this type recurs and needs special handling; add an `agent-skill/<type>/` handler?". **Blocking** outcomes (DEADLOCK / BLOCKED / FAILURE above) are never silently logged — they halt the run and ask the user right away.
+
+The exception is a completed red `00-check-test`: invoke `self-report(kind: issue)` because the baseline was broken before this issue made a change, record its id in `issue.md`, then halt. A missing prerequisite is BLOCKED; a later failure belongs to the current issue — neither becomes Tech Debt automatically.
 
 ## References
 
@@ -83,15 +99,16 @@ There is **no report** for an issue run — no `scenario.html` exists; status is
 ## Trigger Skill
 
 - `agent-skill/default-tdd` — the engineer skill the agent follows; the always-present default. A project may add a type-specific `agent-skill/<task.type>/` handler that overrides it for that type (step 3) — that handler is added to `file-map.html` only when it actually exists.
-- self-report — non-blocking **improvement** observations (step 6): a recurring code pattern as a `candidate`, other issues as a `problem`. Silent, aggregated; blocking gaps ask the user instead.
+- self-report — non-blocking **improvement** observations (step 6): a recurring code pattern as a `candidate`, other issues as a `problem`; a completed red `00-check-test` is reported as pre-existing app-code Tech Debt (`kind: issue`).
 - sync-task — at a task's close-out / failure, push that one task to the board named by `issue.md`'s `syncTarget` marker (define-task records it) via its `sync-task-*` engine; skipped when no sync-task skill is installed.
 
 ## Writes To
 
 - define-task's task files in `work/Issue/<NN>-<slug>/Backlog/` — advances each task's `status` (`pending` → `in_progress` → `done` / `failed`) and stamps `startedAt` (pickup) / `finishedAt` (close-out) as the loop runs; touches no other field.
+- define-task's `work/Issue/<NN>-<slug>/issue.md` — records blocking evidence and the human's decision / reason.
 
 ## Role & Boundary (Read Before Editing)
 
-This skill owns the **issue-fix execution loop**: pointed at one `work/Issue/<NN>-<slug>/`, it drains that folder's `Backlog/` — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / all-green). It does NOT author tasks (`define-task`), does NOT implement code itself (the engineer agent does, guided entirely by the task), does NOT stage test data / seeds / stubs (anything needing them belongs to the workflow loop), and does NOT own the `work/Issue/` layout (`define-task`). It stamps `startedAt` / `finishedAt` and, when `issue.md` names a `syncTarget`, pushes each finished task to that board (`sync-task-*`), but does NOT own the sync mechanics (`sync-task`). There is no report and no stage handoff — a DRAINED run simply ends.
+This skill owns the **issue-fix execution loop**: pointed at one `work/Issue/<NN>-<slug>/`, it drains that folder's `Backlog/` — pick the topmost runnable task, run the pre-flight / dispatch / close-out checklist, dispatch the task + a skill (`agent-skill/<task.type>/` handler, else `agent-skill/default-tdd`) to an engineer agent, and accept each task by its own `acceptance` (red / green / all-green). It does NOT author tasks (`define-task`), does NOT implement code itself (the engineer agent does, guided entirely by the task), does NOT stage test data / seeds / stubs (anything needing them belongs to the workflow loop), and does NOT own the `work/Issue/` layout (`define-task`). It stamps `startedAt` / `finishedAt` and, when `issue.md` names a `syncTarget`, pushes each finished task to that board (`sync-task-*`), but does NOT own the sync mechanics (`sync-task`). There is no report and no stage handoff — a DRAINED run simply ends. On a blocking halt, it records the problem and the human's decision in `issue.md` and never resumes or re-plans automatically.
 
 For anything outside this boundary, see the Responsibility map in `workflow/SKILL.md`.
