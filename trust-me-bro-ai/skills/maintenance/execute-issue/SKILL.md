@@ -60,9 +60,19 @@ Read the `<!-- syncTarget: <name> -->` marker in `issue.md` (define-task records
 
 It updates only that card (idempotent). **Don't** sync on pickup (`in_progress`) — one sync per task, not per transition.
 
-### Problems and Decisions
+### Stop & end
 
-Before reporting DEADLOCK / BLOCKED / FAILURE, append one entry under the issue's single `## Problems and Decisions` section:
+There is **no report** for an issue run — no `scenario.html` exists; status is read straight from the task files. So none of these refreshes anything — each halt just does its row's action and waits for the user. The core rule is *while a runnable task remains, run it* — these are the cases where the run is **done** or **can't proceed**.
+
+| Outcome | When | Action |
+| --- | --- | --- |
+| **DRAINED** | no task left (step 1) | tell the user the run is done (all tasks green) and list this run's self-learn items (headlines + tier). **The run ends — there is no next stage**: the `regression` task already ran the full suite + api-test as its `command`. |
+| **DEADLOCK** | tasks remain but none runnable — every `pending` has an unmet or `failed` `depends_on` (step 1) | do **6.1 Problems and Decisions**; tell the user which task is blocked and why; wait — don't guess |
+| **BLOCKED** | an `assume` doesn't hold, or the command cannot produce its declared verdict because a prerequisite is unavailable (steps 2 / 5) | do **6.1 Problems and Decisions**; tell the user to supply/repair the missing pre-state; wait — don't guess it |
+| **FAILURE — baseline red** | `00-check-test` actually completes before any dependency/source change and the existing suite is red (step 5) | invoke `self-report(kind: issue)` with the failing baseline evidence; do **6.1 Problems and Decisions**; tell the human and wait |
+| **FAILURE** | any later task result ≠ that task's `acceptance` (step 5) | do **6.1 Problems and Decisions**; tell the human and wait — this is current issue work, not Tech Debt |
+
+**6.1. Problems and Decisions** — before reporting DEADLOCK / BLOCKED / FAILURE, append one entry under the issue's single `## Problems and Decisions` section:
 
 - `Timestamp` — ISO 8601
 - `Task` — task id
@@ -74,18 +84,6 @@ Before reporting DEADLOCK / BLOCKED / FAILURE, append one entry under the issue'
 - `Tech debt` — returned entry id; completed red `00-check-test` only
 
 After the human decides, update `Decision` and `Reason` in the same entry. Do not add `Resume Context`, put error text in task JSON, or automatically retry / resume / re-plan.
-
-### Stop & end
-
-There is **no report** for an issue run — no `scenario.html` exists; status is read straight from the task files. So none of these refreshes anything — each halt just does its row's action and waits for the user. The core rule is *while a runnable task remains, run it* — these are the cases where the run is **done** or **can't proceed**.
-
-| Outcome | When | Action |
-| --- | --- | --- |
-| **DRAINED** | no task left (step 1) | tell the user the run is done (all tasks green) and list this run's self-learn items (headlines + tier). **The run ends — there is no next stage**: the `regression` task already ran the full suite + api-test as its `command`. |
-| **DEADLOCK** | tasks remain but none runnable — every `pending` has an unmet or `failed` `depends_on` (step 1) | record the problem in `issue.md`; tell the user which task is blocked and why; wait — don't guess |
-| **BLOCKED** | an `assume` doesn't hold, or the command cannot produce its declared verdict because a prerequisite is unavailable (steps 2 / 5) | record the problem in `issue.md`; tell the user to supply/repair the missing pre-state; wait — don't guess it |
-| **FAILURE — baseline red** | `00-check-test` actually completes before any dependency/source change and the existing suite is red (step 5) | invoke `self-report(kind: issue)` with the failing baseline evidence; record its id in `issue.md`; tell the human and wait |
-| **FAILURE** | any later task result ≠ that task's `acceptance` (step 5) | record the problem in `issue.md`; tell the human and wait — this is current issue work, not Tech Debt |
 
 ### `self-report` is improve, not fix
 
