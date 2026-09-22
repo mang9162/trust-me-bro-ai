@@ -8,7 +8,7 @@ import html
 OUT_W, GRP_W, LAB_W = 30, 30, 70          # คอลัมน์ซ้าย: bracket รวม / กลุ่ม / ชื่อ lane
 X0 = OUT_W + GRP_W + LAB_W                  # ซ้ายสุดของพื้นที่ lane
 COLW = 200
-NCOL = 25
+NCOL = 28
 TITLE_H = 118
 PAD_R = 30
 W = X0 + NCOL * COLW + PAD_R
@@ -17,7 +17,7 @@ LANES = [
     # key,      ชื่อ,                        สูง,  สีพื้น,     กลุ่ม
     ("cust",   ["ลูกค้า"],                   150, "#CFE9D4", "front"),
     ("pubsub", ["Pub/Sub"],                  100, "#C5DCF2", "back"),
-    ("svc",    ["live-stream", "consumer"],  560, "#F7DCBE", "back"),
+    ("svc",    ["live-stream", "consumer"],  700, "#F7DCBE", "back"),
     ("mongo",  ["MongoDB"],                  120, "#FBF1C2", "back"),
     ("redis",  ["Redis"],                    104, "#CFE6E8", "back"),
     ("fb",     ["3rd", "Facebook"],          210, "#D6CFEA", "back"),
@@ -44,6 +44,8 @@ ROW_DOWN = ROW_MAIN + 104
 ROW_DOWN2 = ROW_MAIN + 208
 ROW_DOWN3 = ROW_MAIN + 312
 LOOP_BACK = ROW_MAIN + 392
+SKIP_FWD  = ROW_MAIN + 452
+BOT_BACK  = ROW_MAIN + 512
 ROW_END = SVC_TOP + 300
 
 FB_TOP = LY["fb"][0]
@@ -254,20 +256,34 @@ def data(a, b, label=None):
     if label:
         A(f'<text x="{x1 + 7}" y="{(y1 + y2)/2 + 4}" class="t-data">{html.escape(label)}</text>')
 
-def loopback(a, b, label=None, corridor=None, hops=None, branch=None):
+def loopback(a, b, label=None, corridor=None, hops=None, branch=None, enter=None):
     """วนกลับไปต้นลูป: ออกใต้ a ลงช่องเดิน ย้อนซ้ายไปเลยเป้า แล้วขึ้นเข้าทางซ้ายของเป้า
     เข้าทางซ้ายเพื่อไม่ให้ไปชนเส้นอื่นที่พุ่งเข้าด้านล่างของเป้าอยู่แล้ว"""
     x1, y1 = a[0], a[1] + a[3]/2
     bx, by, bw = b[0], b[1], b[2]
     _c, _m = _ink(branch=branch)
-    turn = bx - bw/2 - 46
+    turn = bx if enter == "bottom" else bx - bw/2 - 46
     seg = f"M{x1},{y1} L{x1},{corridor}"
     for hx in sorted([h for h in (hops or []) if turn < h < x1], reverse=True):
         seg += f" L{hx + 9},{corridor} A 9 9 0 0 1 {hx - 9},{corridor}"   # สะพานข้าม
-    seg += f" L{turn},{corridor} L{turn},{by} L{bx - bw/2},{by}"
+    seg += (f" L{turn},{corridor} L{turn},{by + b[3]/2}" if enter == "bottom"
+            else f" L{turn},{corridor} L{turn},{by} L{bx - bw/2},{by}")
     A(f'<path d="{seg}" class="{_c}" marker-end="url(#{_m})"/>')
     if label:
         A(f'<text x="{(x1 + turn)/2}" y="{corridor - 8}" class="t-edge">{html.escape(label)}</text>')
+
+def forward_under(a, b, label=None, corridor=None, hops=None, branch=None):
+    """ลงใต้ผัง วิ่งไปขวา แล้วขึ้นเข้าทางใต้ของเป้า"""
+    _c, _m = _ink(branch=branch)
+    x1, y1 = a[0], a[1] + a[3]/2
+    x2, y2 = b[0], b[1] + b[3]/2
+    seg = f"M{x1},{y1} L{x1},{corridor}"
+    for hx in sorted([h for h in (hops or []) if x1 < h < x2]):
+        seg += f" L{hx - 9},{corridor} A 9 9 0 0 1 {hx + 9},{corridor}"
+    seg += f" L{x2},{corridor} L{x2},{y2}"
+    A(f'<path d="{seg}" class="{_c}" marker-end="url(#{_m})"/>')
+    if label:
+        A(f'<text x="{x1 + 150}" y="{corridor - 8}" class="t-edge">{html.escape(label)}</text>')
 
 # ---------- nodes ----------
 CUST = lane_mid("cust", -8)
@@ -282,61 +298,65 @@ n_ps = task(2, PS, ["แจ้งระบบว่า", "มีคอมเม�
 d_real = decision(3, ROW_MAIN, ["เป็นคอมเมนต์", "จริงไหม"])
 d_page = decision(4, ROW_MAIN, ["เพจเปิดใช้งาน", "อยู่ไหม"])
 d_who = decision(5, ROW_MAIN, ["คนคอมเมนต์เป็น", "ลูกค้าใช่ไหม"])
-n_bots = task(6, ROW_MAIN, ["ไล่ดูบอทของร้าน", "ทีละตัว"])
-d_again = decision(7, ROW_MAIN, ["ตอบคนเดิม", "ซ้ำได้ไหม"])
-d_post = decision(8, ROW_MAIN, ["ดูแลโพสต์นี้", "ไหม"])
-d_spec = decision(9, ROW_MAIN, ["มีบอทเฉพาะโพสต์", "คุมอยู่ไหม"])
-d_kw = decision(10, ROW_MAIN, ["ตรงคำที่ตั้ง", "ให้ตอบไหม"])
-d_ban = decision(11, ROW_MAIN, ["มีคำต้องห้าม", "ไหม"])
-n_prep = task(12, ROW_MAIN, ["เตรียมคำตอบ", "สุ่มจากชุดที่ตั้งไว้"])
+n_bots = task(7, ROW_MAIN, ["หยิบบอทของร้าน", "มาทีละตัว"])
+d_again = decision(8, ROW_MAIN, ["ตอบคนเดิม", "ซ้ำได้ไหม"])
+d_post = decision(9, ROW_MAIN, ["ดูแลโพสต์นี้", "ไหม"])
+d_spec = decision(10, ROW_MAIN, ["มีบอทเฉพาะโพสต์", "คุมอยู่ไหม"])
+d_kw = decision(11, ROW_MAIN, ["ตรงคำที่ตั้ง", "ให้ตอบไหม"])
+d_ban = decision(12, ROW_MAIN, ["มีคำต้องห้าม", "ไหม"])
+n_prep = task(13, ROW_MAIN, ["เตรียมคำตอบ", "สุ่มจากชุดที่ตั้งไว้"])
 
 # บอททำได้หลายอย่างพร้อมกัน ไม่ได้เลือกอย่างใดอย่างหนึ่ง -> แถบ fork ไม่ใช่ข้าวหลามตัด
 # เงื่อนไขว่าร้านตั้งอะไรไว้บ้าง แปะไว้บนลูกศรแต่ละเส้น
-f_split = forkbar(13, ROW_UP - 22, ROW_DOWN + 22, "แยกทำพร้อมกัน", dx=-46)
+f_split = forkbar(14, ROW_UP - 22, ROW_DOWN + 22, "แยกทำพร้อมกัน", dx=-46)
 
-n_like = task(14, ROW_UP, ["กดไลก์คอมเมนต์"], h=40)
-n_reply = task(14, ROW_MAIN, ["ตอบใต้คอมเมนต์", "ข้อความ หรือรูป"], h=48)
-n_chat = task(14, ROW_DOWN, ["ทักแชทส่วนตัว"], h=40)
+n_like = task(15, ROW_UP, ["กดไลก์คอมเมนต์"], h=40)
+n_reply = task(15, ROW_MAIN, ["ตอบใต้คอมเมนต์", "ข้อความ หรือรูป"], h=48)
+n_chat = task(15, ROW_DOWN, ["ทักแชทส่วนตัว"], h=40)
 
-f_join = forkbar(15, ROW_UP - 22, ROW_DOWN + 22, "รวมเป็นชุดเดียว", dx=-52)
-n_hint = note(13, ROW_END - 26, ["ตั้งอย่างเดียว หลายอย่าง", "หรือครบทั้งสามก็ได้"], dx=40)
+f_join = forkbar(16, ROW_UP - 22, ROW_DOWN + 22, "รวมเป็นชุดเดียว", dx=-52)
+n_hint = note(14, ROW_END - 26, ["ตั้งอย่างเดียว หลายอย่าง", "หรือครบทั้งสามก็ได้"], dx=40)
 
-e_stop = endpoint(6, ROW_END, "จบ ไม่ตอบ", dx=-78)
-e_skip = endpoint(12, ROW_END, "ข้ามบอทตัวนี้ ไปดูตัวถัดไป")
+e_stop = endpoint(5, ROW_END, "จบ ไม่ตอบ", dx=40)
+m_bot = merge(6, ROW_MAIN, dx=-82)
+e_skip = merge(12, ROW_END)
+A(f'<text x="{e_skip[0]}" y="{ROW_END + 30}" class="t-edge">ข้ามบอทตัวนี้</text>')
 
 s_page = store(4, MG, ["ข้อมูลเพจที่ผูกไว้"])
-s_bots = store(6, MG, ["รายการบอทที่เปิดใช้"])
-s_log = store(7, MG, ["ประวัติการตอบลูกค้า"])
-s_logw = store(23, MG, ["ประวัติการตอบลูกค้า"])
-s_img = store(14, RD, ["รูปที่เคยส่งเข้าแชท"])
-s_imgw = store(20, RD, ["รูปที่เคยส่งเข้าแชท"])
+s_bots = store(7, MG, ["รายการบอทที่เปิดใช้"])
+s_log = store(8, MG, ["ประวัติการตอบลูกค้า"])
+s_logw = store(24, MG, ["ประวัติการตอบลูกค้า"])
+s_img = store(15, RD, ["รูปที่เคยส่งเข้าแชท"])
+s_imgw = store(21, RD, ["รูปที่เคยส่งเข้าแชท"])
 
-n_send = task(16, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลกลับมาเป็นรายการ"], w=196)
+n_send = task(17, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลกลับมาเป็นรายการ"], w=196)
 
 # จุดรวมทางเข้าลูป: เส้นแรกจาก Facebook กับเส้นวนกลับมารวมกันที่นี่
 # แล้วค่อยเข้าข้าวหลามตัดเส้นเดียว (ข้าวหลามตัดมี 4 มุม รับได้เข้า 1 ออก 3)
-m_in = merge(17, ROW_MAIN)
+m_in = merge(18, ROW_MAIN)
 
 # ทุกข้าวหลามตัดถามคำถามใช่/ไม่ใช่ข้อเดียว แตกได้ 2 ทางเท่านั้น
 # เงื่อนไขมาจากโค้ดจริงใน handleBatchResponse
-d_ok   = decision(18, ROW_MAIN,  ["คำสั่งนี้", "สำเร็จไหม"])
-d_img  = decision(19, ROW_MAIN,  ["เป็นการส่งรูป", "ทางแชทไหม"])
-a_keep = task(20, ROW_UP, ["เก็บรูปไว้ใช้ซ้ำ", "ครั้งหน้า"], w=158, h=48)
+d_ok   = decision(19, ROW_MAIN,  ["คำสั่งนี้", "สำเร็จไหม"])
+d_img  = decision(20, ROW_MAIN,  ["เป็นการส่งรูป", "ทางแชทไหม"])
+a_keep = task(21, ROW_UP, ["เก็บรูปไว้ใช้ซ้ำ", "ครั้งหน้า"], w=158, h=48)
 
-d_live = decision(18, ROW_DOWN,  ["ไลฟ์ยังไม่จบ", "อยู่ใช่ไหม"], w=158)
-a_pass = task(19, ROW_DOWN, ["ตอบรูปใต้ไลฟ์ไม่ได้", "ปล่อยผ่าน ไม่ถือว่าล้มเหลว"], w=178, h=48)
+d_live = decision(19, ROW_DOWN,  ["ไลฟ์ยังไม่จบ", "อยู่ใช่ไหม"], w=158)
+a_pass = task(20, ROW_DOWN, ["ตอบรูปใต้ไลฟ์ไม่ได้", "ปล่อยผ่าน ไม่ถือว่าล้มเหลว"], w=178, h=48)
 
-d_img2 = decision(18, ROW_DOWN2, ["เป็นการส่งรูป", "ทางแชทไหม"])
-d_exp  = decision(19, ROW_DOWN2, ["รูปที่เคยส่ง", "หมดอายุไหม"])
-a_fail = task(19, ROW_DOWN3, ["บันทึกว่า", "คำสั่งนี้ล้มเหลว"], w=158, h=48)
-a_new  = task(20, FB_MAIN, ["ส่งรูปใหม่", "ด้วยลิงก์รูปจริง"], w=158)
+d_img2 = decision(19, ROW_DOWN2, ["เป็นการส่งรูป", "ทางแชทไหม"])
+d_exp  = decision(20, ROW_DOWN2, ["รูปที่เคยส่ง", "หมดอายุไหม"])
+a_fail = task(20, ROW_DOWN3, ["บันทึกว่า", "คำสั่งนี้ล้มเหลว"], w=158, h=48)
+a_new  = task(21, FB_MAIN, ["ส่งรูปใหม่", "ด้วยลิงก์รูปจริง"], w=158)
 
-n_hint2 = note(22, ROW_DOWN3, ["ถ้าอ่านผลของคำสั่งไม่ออก", "นับเป็นล้มเหลวเหมือนกัน"], w=196)
+n_hint2 = note(23, ROW_DOWN3, ["ถ้าอ่านผลของคำสั่งไม่ออก", "นับเป็นล้มเหลวเหมือนกัน"], w=196)
 
-f_res = forkbar(21, ROW_UP - 22, ROW_DOWN3 + 22, "รวมทาง", dx=-62)
-d_more = decision(22, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"])
-n_note = task(23, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
-n_seen = task(24, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
+f_res = forkbar(22, ROW_UP - 22, ROW_DOWN3 + 22, "รวมทาง", dx=-62)
+d_more = decision(23, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"])
+n_note = task(24, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
+m_end = merge(25, ROW_MAIN)
+d_bot = decision(26, ROW_MAIN, ["ดูบอทครบ", "ทุกตัวแล้วไหม"])
+n_seen = task(27, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
 
 # ---------- edges ----------
 right(n_actor, n_comment)
@@ -345,7 +365,8 @@ drop(n_ps, d_real)
 
 right(d_real, d_page, "ใช่", branch="true")
 right(d_page, d_who, "ใช่ เปิดอยู่", branch="true")
-right(d_who, n_bots, "ใช่", branch="true")
+right(d_who, m_bot, "ใช่", branch="true")
+right(m_bot, n_bots)
 right(n_bots, d_again)
 right(d_again, d_post, "ได้", branch="true")
 right(d_post, d_spec, "ดูแล", branch="true")
@@ -412,14 +433,22 @@ drop(d_img2, a_fail, "ไม่ใช่", enter="left", branch="false")
 right(d_exp, a_new, "ใช่ ส่งใหม่", branch="true")
 drop(d_exp, a_fail, "ไม่ใช่", branch="false")
 rise(a_new, f_res)
-right(a_fail, f_res, by=ROW_DOWN3, hops=[(cx(19) + cx(20))/2 - 2])
+right(a_fail, f_res, by=ROW_DOWN3, hops=[(cx(20) + cx(21))/2 - 2])
 
 right(f_res, d_more)
 loopback(d_more, m_in, "ไม่ ยังไม่ครบ ตรวจคำสั่งถัดไป", branch="false", corridor=LOOP_BACK,
-         hops=[cx(18), cx(19), cx(20)])
+         hops=[cx(19), cx(20), cx(21)])
 right(d_more, n_note, "ใช่ ครบแล้ว", branch="true")
 data(n_note, s_logw, "บันทึก")
-rise(n_note, n_seen)
+
+# --- ลูปนอก: ร้านตั้งบอทได้หลายตัว ต้องวนดูให้ครบทุกตัว ---
+CROSS = [f_join[0], m_in[0], f_res[0], (cx(20) + cx(21))/2 - 2, a_new[0]]
+right(n_note, m_end)
+forward_under(e_skip, m_end, "ข้ามมารอที่จุดตรวจบอท", corridor=SKIP_FWD, hops=CROSS)
+right(m_end, d_bot)
+loopback(d_bot, m_bot, "ไม่ ยังดูไม่ครบ หยิบบอทตัวถัดไป", branch="false",
+         corridor=BOT_BACK, enter="bottom", hops=CROSS)
+rise(d_bot, n_seen, "ใช่ ครบแล้ว", branch="true")
 
 A("</svg>")
 svg = "\n".join(out)
