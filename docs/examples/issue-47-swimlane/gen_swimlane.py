@@ -7,8 +7,8 @@ import html
 # ---------- geometry ----------
 OUT_W, GRP_W, LAB_W = 30, 30, 70          # คอลัมน์ซ้าย: bracket รวม / กลุ่ม / ชื่อ lane
 X0 = OUT_W + GRP_W + LAB_W                  # ซ้ายสุดของพื้นที่ lane
-COLW = 170
-NCOL = 23
+COLW = 186
+NCOL = 27
 TITLE_H = 118
 PAD_R = 30
 W = X0 + NCOL * COLW + PAD_R
@@ -168,31 +168,40 @@ def endpoint(col, y, label, above=False):
     return (X, y, r*2, r*2)
 
 # ---------- arrows ----------
-def right(a, b, label=None, stop=False):
-    """ลูกศรตรงแนวนอน หรือหักขึ้น/ลงแบบตั้งฉาก"""
-    x1 = a[0] + a[2]/2; y1 = a[1]
-    x2 = b[0] - b[2]/2; y2 = b[1]
+def right(a, b, label=None, stop=False, turn=None, ay=None, by=None):
+    """ลูกศรตรงแนวนอน หรือหักขึ้น/ลงแบบตั้งฉาก
+    turn = x ที่จะหักแนวตั้ง (กันหักไปชนกล่องที่ขวางอยู่กลางทาง)"""
+    x1 = a[0] + a[2]/2; y1 = ay if ay is not None else a[1]
+    x2 = b[0] - b[2]/2; y2 = by if by is not None else b[1]
     m = "arS" if stop else "ar"
     c = "fl-stop" if stop else "fl"
     if abs(y1 - y2) < 1:
         A(f'<path d="M{x1},{y1} L{x2},{y2}" class="{c}" marker-end="url(#{m})"/>')
         lx, ly = (x1 + x2)/2, y1 - 8
     else:
-        midx = (x1 + x2) / 2
+        midx = turn if turn is not None else (x1 + x2) / 2
         A(f'<path d="M{x1},{y1} L{midx},{y1} L{midx},{y2} L{x2},{y2}" '
           f'class="{c}" marker-end="url(#{m})"/>')
         lx, ly = midx + 6, (y1 + y2)/2
     if label:
         A(f'<text x="{lx}" y="{ly}" class="t-edge">{html.escape(label)}</text>')
 
-def drop(a, b, label=None, stop=False, corridor=None, lab_x=None):
+def drop(a, b, label=None, stop=False, corridor=None, lab_x=None, enter=None):
     """ออกจากด้านล่างแล้วลงไปหาเป้าด้านบน
     corridor = ระดับ y ที่ให้วิ่งแนวนอน (แยกช่องกันไม่ให้เส้นทับ)
     lab_x    = ตำแหน่ง x ของป้าย (กันป้ายทับกัน)"""
     x1, y1 = a[0], a[1] + a[3]/2
-    x2, y2 = b[0], b[1] - b[3]/2
     m = "arS" if stop else "ar"
     c = "fl-stop" if stop else "fl"
+    if enter == "left":
+        # ลงมาถึงระดับเป้าแล้วเลี้ยวเข้าทางซ้าย ไม่ชนเส้นที่ออกจากด้านบนของเป้า
+        by = b[1]; bx = b[0] - b[2]/2
+        A(f'<path d="M{x1},{y1} L{x1},{by} L{bx},{by}" class="{c}" marker-end="url(#{m})"/>')
+        if label:
+            # วางป้ายติดต้นทาง จะได้รู้ว่าเป็นทางออกไหนของกล่องต้นทาง
+            A(f'<text x="{x1 + 54}" y="{y1 + 32}" class="t-edge">{html.escape(label)}</text>')
+        return
+    x2, y2 = b[0], b[1] - b[3]/2
     if abs(x1 - x2) < 1 and corridor is None:
         A(f'<path d="M{x1},{y1} L{x2},{y2}" class="{c}" marker-end="url(#{m})"/>')
         lx, ly = x1 + 6, (y1 + y2)/2
@@ -227,14 +236,19 @@ def data(a, b, label=None):
     if label:
         A(f'<text x="{x1 + 7}" y="{(y1 + y2)/2 + 4}" class="t-data">{html.escape(label)}</text>')
 
-def loopback(a, b, label=None, corridor=None):
-    """วนกลับไปต้นลูป: ออกใต้ a ลงช่องเดิน ย้อนซ้าย แล้วขึ้นเข้าใต้ b"""
+def loopback(a, b, label=None, corridor=None, hops=None):
+    """วนกลับไปต้นลูป: ออกใต้ a ลงช่องเดิน ย้อนซ้ายไปเลยเป้า แล้วขึ้นเข้าทางซ้ายของเป้า
+    เข้าทางซ้ายเพื่อไม่ให้ไปชนเส้นอื่นที่พุ่งเข้าด้านล่างของเป้าอยู่แล้ว"""
     x1, y1 = a[0], a[1] + a[3]/2
-    x2, y2 = b[0], b[1] + b[3]/2
-    A(f'<path d="M{x1},{y1} L{x1},{corridor} L{x2},{corridor} L{x2},{y2}" '
-      f'class="fl" marker-end="url(#ar)"/>')
+    bx, by, bw = b[0], b[1], b[2]
+    turn = bx - bw/2 - 46
+    seg = f"M{x1},{y1} L{x1},{corridor}"
+    for hx in sorted([h for h in (hops or []) if turn < h < x1], reverse=True):
+        seg += f" L{hx + 9},{corridor} A 9 9 0 0 1 {hx - 9},{corridor}"   # สะพานข้าม
+    seg += f" L{turn},{corridor} L{turn},{by} L{bx - bw/2},{by}"
+    A(f'<path d="{seg}" class="fl" marker-end="url(#ar)"/>')
     if label:
-        A(f'<text x="{(x1+x2)/2}" y="{corridor - 7}" class="t-edge">{html.escape(label)}</text>')
+        A(f'<text x="{(x1 + turn)/2}" y="{corridor - 8}" class="t-edge">{html.escape(label)}</text>')
 
 # ---------- nodes ----------
 CUST = lane_mid("cust", -8)
@@ -274,23 +288,24 @@ e_skip = endpoint(12, ROW_END, "ข้ามบอทตัวนี้ ไป�
 s_page = store(4, MG, ["ข้อมูลเพจที่ผูกไว้"])
 s_bots = store(6, MG, ["รายการบอทที่เปิดใช้"])
 s_log = store(7, MG, ["ประวัติการตอบลูกค้า"])
-s_logw = store(20, MG, ["ประวัติการตอบลูกค้า"])
+s_logw = store(25, MG, ["ประวัติการตอบลูกค้า"])
 s_img = store(14, RD, ["รูปที่เคยส่งเข้าแชท"])
-s_imgw = store(18, RD, ["รูปที่เคยส่งเข้าแชท"])
+s_imgw = store(19, RD, ["รูปที่เคยส่งเข้าแชท"])
 
-n_send = task(16, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลของแต่ละคำสั่งกลับมา"], w=192)
+n_send = task(16, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลกลับมาเป็นรายการ"], w=196)
 
-# ระบบเราไล่ตรวจผลทีละคำสั่ง ไม่ใช่เช็คทีเดียวจบ -> เป็นลูป เช็คว่าหมดยังก่อนออก
-d_res = decision(17, ROW_MAIN, ["ผลของคำสั่งนี้", "เป็นยังไง"], w=158)
+# จุดรวมทางเข้าลูป: เส้นแรกจาก Facebook กับเส้นวนกลับมารวมกันที่นี่
+# แล้วค่อยเข้าข้าวหลามตัดเส้นเดียว (ข้าวหลามตัดมี 4 มุม รับได้เข้า 1 ออก 3)
+m_in = merge(17, ROW_MAIN)
+d_res = decision(18, ROW_MAIN, ["ผลของคำสั่งนี้", "เป็นยังไง"], w=152)
+n_ok = task(19, ROW_UP, ["สำเร็จ", "รูปในแชทเก็บไว้ใช้ซ้ำ"], w=158, h=48)
+n_quiet = task(21, ROW_MAIN, ["ข้ามเงียบ", "ไม่นับว่าพัง"], w=140, h=44)
+n_resend = task(20, FB_MAIN, ["ส่งรูปใหม่แทน", "รูปที่หมดอายุ"], w=150)
 
-n_ok = task(18, ROW_MAIN, ["สำเร็จ", "ถ้าเป็นรูปในแชท เก็บไว้ใช้ซ้ำ"], w=182, h=48)
-n_quiet = task(18, ROW_DOWN, ["ข้ามเงียบ", "ไม่นับว่าพัง"], h=44)
-n_resend = task(18, FB_MAIN, ["ส่งรูปใหม่แทน", "รูปที่หมดอายุ"])
-
-m_loop = merge(19, ROW_MAIN)
-d_more = decision(20, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"])
-n_note = task(21, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
-n_seen = task(22, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
+f_res = forkbar(22, ROW_UP - 22, ROW_DOWN + 22, "รวมทาง", dx=-56)
+d_more = decision(23, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"])
+n_note = task(24, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
+n_seen = task(25, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
 
 # ---------- edges ----------
 right(n_actor, n_comment)
@@ -309,13 +324,13 @@ right(d_ban, n_prep, "ไม่มี")
 right(n_prep, f_split)
 
 # ออกจากแถบ fork ไปพร้อมกันทุกเส้นที่ร้านตั้งไว้ เงื่อนไขอยู่บนลูกศร
-right(f_split, n_like, "ถ้าตั้งให้กดไลก์")
-right(f_split, n_reply, "ถ้าตั้งค่าตอบใต้คอมเมนต์")
-right(f_split, n_chat, "ถ้าตั้งค่าทักแชท")
+right(f_split, n_like, "ถ้าตั้งให้กดไลก์", ay=ROW_UP)
+right(f_split, n_reply, "ถ้าตั้งค่าตอบใต้คอมเมนต์", ay=ROW_MAIN)
+right(f_split, n_chat, "ถ้าตั้งค่าทักแชท", ay=ROW_DOWN)
 
-right(n_like, f_join)
-right(n_reply, f_join)
-right(n_chat, f_join)
+right(n_like, f_join, by=ROW_UP)
+right(n_reply, f_join, by=ROW_MAIN)
+right(n_chat, f_join, by=ROW_DOWN)
 
 # แต่ละเส้นได้ช่องเดินของตัวเอง ป้ายวางเหนือช่องนั้น ไม่ทับกัน
 LANE_STOP = [ROW_MAIN + 62, ROW_MAIN + 88, ROW_MAIN + 114]
@@ -343,22 +358,23 @@ data(n_bots, s_bots, "ขอรายการ")
 data(d_again, s_log, "เช็ก")
 data(n_chat, s_img, "หารูปเดิม")
 
-drop(f_join, n_send)
+drop(f_join, n_send, enter="left")     # เข้าทางซ้าย ไม่ทับเส้นที่ออกทางด้านบน
 
-# --- ลูปไล่ตรวจผลทีละคำสั่งในชุด ---
-rise(n_send, d_res)
-
-right(d_res, n_ok, "สำเร็จ")
-drop(d_res, n_quiet, "ไลฟ์ยังไม่จบ ตอบรูปไม่ได้", corridor=ROW_MAIN + 48)
-drop(d_res, n_resend, "รูปหมดอายุ")
+# --- ลูปไล่ตรวจผลทีละคำสั่ง: ทุกเส้นมีจุดออก/จุดเข้าเป็นของตัวเอง ---
+rise(n_send, m_in)                                    # ออกด้านบนกล่อง ขึ้นเข้าใต้จุดรวมทาง
+right(m_in, d_res)                                    # จากจุดรวมทาง เข้ามุมซ้ายของข้าวหลามตัด
+rise(d_res, n_ok, "สำเร็จ")                             # ออกมุมบน
+right(d_res, n_quiet, "ไลฟ์ยังไม่จบ ตอบรูปไม่ได้")         # ออกมุมขวา
+drop(d_res, n_resend, "รูปหมดอายุ", enter="left")   # ออกมุมล่าง เข้ากล่องทางซ้าย
 data(n_ok, s_imgw, "เก็บรูปไว้ใช้ซ้ำ")
 
-right(n_ok, m_loop)
-right(n_quiet, m_loop)
-rise(n_resend, m_loop)
+right(n_ok, f_res, by=ROW_UP)
+right(n_quiet, f_res, by=ROW_MAIN)
+rise(n_resend, f_res)
 
-right(m_loop, d_more)
-loopback(d_more, d_res, "ยังไม่ครบ ตรวจคำสั่งถัดไป", corridor=ROW_DOWN + 86)
+right(f_res, d_more)
+loopback(d_more, m_in, "ยังไม่ครบ ตรวจคำสั่งถัดไป", corridor=ROW_DOWN + 92,
+         hops=[cx(18), cx(19), cx(20)])   # ข้ามเส้นลงของ รูปหมดอายุ / เส้นประ Redis / เส้นขึ้นของ ส่งรูปใหม่
 right(d_more, n_note, "ครบแล้ว")
 data(n_note, s_logw, "บันทึก")
 rise(n_note, n_seen)
