@@ -108,8 +108,8 @@
 <text x="1230.0" y="482.5" class="t-dec">ลูกค้าใช่ไหม</text>
 </g>
 <g data-el="e_stop">
-<circle cx="1270.0" cy="752" r="15" class="n-end"/>
-<text x="1270.0" y="784" class="t-end">จบ ไม่ตอบ</text>
+<circle cx="1270.0" cy="820" r="15" class="n-end"/>
+<text x="1270.0" y="852" class="t-end">จบ ไม่ตอบ</text>
 </g>
 <g data-el="m_bot">
 <circle cx="1348.0" cy="472" r="13" class="n-merge"/>
@@ -150,9 +150,9 @@
 <text x="2830.0" y="482.5" class="t-dec">ให้ตอบไหม</text>
 </g>
 <g data-el="d_type">
-<polygon points="2830.0,742.0 2918.0,784 2830.0,826.0 2742.0,784" class="n-dec"/>
-<text x="2830.0" y="781.5" class="t-dec">บอทตั้งรับคอมเมนต์</text>
-<text x="2830.0" y="794.5" class="t-dec">แบบนี้ไหม</text>
+<polygon points="2830.0,860.0 2918.0,902 2830.0,944.0 2742.0,902" class="n-dec"/>
+<text x="2830.0" y="899.5" class="t-dec">บอทตั้งรับคอมเมนต์</text>
+<text x="2830.0" y="912.5" class="t-dec">แบบนี้ไหม</text>
 </g>
 <g data-el="d_ban">
 <polygon points="3030.0,430.0 3105.0,472 3030.0,514.0 2955.0,472" class="n-dec"/>
@@ -170,8 +170,8 @@
 <text x="3630.0" y="482.5" class="t-dec">ไหม</text>
 </g>
 <g data-el="e_skip">
-<circle cx="3230.0" cy="752" r="13" class="n-merge"/>
-<text x="3230.0" y="782" class="t-edge">ข้ามบอทตัวนี้</text>
+<circle cx="3230.0" cy="820" r="13" class="n-merge"/>
+<text x="3252.0" y="824" class="t-edge" style="text-anchor:start">ข้ามบอทตัวนี้</text>
 </g>
 <g data-el="f_split">
 <rect x="3779.0" y="370" width="10" height="332" rx="2" class="n-fork"/>
@@ -240,8 +240,8 @@
 <text x="3630.0" y="795.5" class="t-note">หรือครบทั้งสามก็ได้</text>
 </g>
 <g data-el="f_join">
-<rect x="5973.0" y="370" width="10" height="540" rx="2" class="n-fork"/>
-<text x="5978.0" y="928" class="t-edge">รวมเป็นชุดเดียว</text>
+<rect x="5173.0" y="370" width="10" height="540" rx="2" class="n-fork"/>
+<text x="5178.0" y="928" class="t-edge">รวมเป็นชุดเดียว</text>
 </g>
 <g data-el="s_page">
 <rect x="957.0" y="1202.0" width="146" height="52" rx="14" class="n-store"/>
@@ -332,8 +332,8 @@
 <text x="7030.0" y="795.5" class="t-note">นับเป็นล้มเหลวเหมือนกัน</text>
 </g>
 <g data-el="f_res">
-<rect x="7563.0" y="336" width="10" height="470" rx="2" class="n-fork"/>
-<text x="7568.0" y="824" class="t-edge">รวมทาง</text>
+<rect x="6763.0" y="336" width="10" height="470" rx="2" class="n-fork"/>
+<text x="6768.0" y="824" class="t-edge">รวมทาง</text>
 </g>
 <g data-el="d_more">
 <polygon points="7030.0,430.0 7105.0,472 7030.0,514.0 6955.0,472" class="n-dec"/>
@@ -410,8 +410,8 @@
 <text x="2730.0" y="464" class="t-edge">ใช่</text>
 </g>
 <g data-el="d_text>d_type">
-<path d="M2630.0,514.0 L2630.0,734 L2830.0,734 L2830.0,742.0" class="fl-false" marker-end="url(#arF)"/>
-<text x="2726.0" y="727" class="t-edge">ไม่ใช่ เป็นรูป/สติกเกอร์</text>
+<path d="M2630.0,514.0 L2630.0,902 L2742.0,902" class="fl-false" marker-end="url(#arF)"/>
+<text x="2684.0" y="546.0" class="t-edge">ไม่ใช่ เป็นรูป/สติกเกอร์</text>
 </g>
 <g data-el="d_kw>d_ban">
 <path d="M2905.0,472 L2955.0,472" class="fl-true" marker-end="url(#arT)"/>
@@ -422,8 +422,8 @@
 <text x="3232.0" y="464" class="t-edge">ไม่มี</text>
 </g>
 <g data-el="d_type>n_prep">
-<path d="M2830.0,742.0 L2830.0,734 L3430.0,734 L3430.0,499.0" class="fl-true" marker-end="url(#arT)"/>
-<text x="3130.0" y="727" class="t-edge">ใช่ รับแบบนี้</text>
+<path d="M2830.0,860.0 L2830.0,850 L3430.0,850 L3430.0,499.0" class="fl-true" marker-end="url(#arT)"/>
+<text x="3130.0" y="843" class="t-edge">ใช่ รับแบบนี้</text>
 </g>
 <g data-el="n_prep>d_has">
 <path d="M3501.0,472 L3555.0,472" class="fl" marker-end="url(#ar)"/>
@@ -433,48 +433,48 @@
 <text x="3749.0" y="463" class="t-edge">ใช่</text>
 </g>
 <g data-el="d_real>e_stop">
-<path d="M830.0,514.0 L830.0,534 L1270.0,534 L1270.0,737.0" class="fl-false" marker-end="url(#arF)"/>
+<path d="M830.0,514.0 L830.0,534 L1270.0,534 L1270.0,805.0" class="fl-false" marker-end="url(#arF)"/>
 <text x="926.0" y="527" class="t-edge">แค่กดอีโมจิ / แก้คอมเมนต์เดิม</text>
 </g>
 <g data-el="d_page>e_stop">
-<path d="M1030.0,514.0 L1030.0,560 L1270.0,560 L1270.0,737.0" class="fl-false" marker-end="url(#arF)"/>
+<path d="M1030.0,514.0 L1030.0,560 L1270.0,560 L1270.0,805.0" class="fl-false" marker-end="url(#arF)"/>
 <text x="1096.0" y="553" class="t-edge">ปิดอยู่ / ไม่เคยผูก</text>
 </g>
 <g data-el="d_who>e_stop">
-<path d="M1230.0,514.0 L1230.0,586 L1270.0,586 L1270.0,737.0" class="fl-false" marker-end="url(#arF)"/>
+<path d="M1230.0,514.0 L1230.0,586 L1270.0,586 L1270.0,805.0" class="fl-false" marker-end="url(#arF)"/>
 <text x="1282.0" y="579" class="t-edge">ไม่ใช่ ร้านเอง</text>
 </g>
 <g data-el="d_team>e_skip">
-<path d="M1830.0,514.0 L1830.0,534 L3230.0,534 L3230.0,739.0" class="fl-false" marker-end="url(#arF)"/>
+<path d="M1830.0,514.0 L1830.0,534 L3230.0,534 L3230.0,807.0" class="fl-false" marker-end="url(#arF)"/>
 <text x="1900.0" y="527" class="t-edge">ไม่ใช่ คนละทีม</text>
 </g>
 <g data-el="d_again>e_skip">
-<path d="M2030.0,514.0 L2030.0,560 L3230.0,560 L3230.0,739.0" class="fl-false" marker-end="url(#arF)"/>
-<text x="2104.0" y="553" class="t-edge">ไม่ได้ เคยตอบแล้ว</text>
+<path d="M2030.0,514.0 L2030.0,568 L3230.0,568 L3230.0,807.0" class="fl-false" marker-end="url(#arF)"/>
+<text x="2104.0" y="561" class="t-edge">ไม่ได้ เคยตอบแล้ว</text>
 </g>
 <g data-el="d_post>e_skip">
-<path d="M2230.0,514.0 L2230.0,586 L3230.0,586 L3230.0,739.0" class="fl-false" marker-end="url(#arF)"/>
-<text x="2292.0" y="579" class="t-edge">ไม่ใช่โพสต์นี้</text>
+<path d="M2230.0,514.0 L2230.0,602 L3230.0,602 L3230.0,807.0" class="fl-false" marker-end="url(#arF)"/>
+<text x="2292.0" y="595" class="t-edge">ไม่ใช่โพสต์นี้</text>
 </g>
 <g data-el="d_spec>e_skip">
-<path d="M2430.0,514.0 L2430.0,612 L3230.0,612 L3230.0,739.0" class="fl-true" marker-end="url(#arT)"/>
-<text x="2500.0" y="605" class="t-edge">มี และตั้งให้หลบ</text>
+<path d="M2430.0,514.0 L2430.0,636 L3230.0,636 L3230.0,807.0" class="fl-true" marker-end="url(#arT)"/>
+<text x="2500.0" y="629" class="t-edge">มี และตั้งให้หลบ</text>
 </g>
 <g data-el="d_type>e_skip">
-<path d="M2830.0,742.0 L2830.0,752 L3217.0,752" class="fl-false" marker-end="url(#arF)"/>
-<text x="3023.5" y="744" class="t-edge">ไม่ใช่ ไม่ได้ตั้งรับ</text>
+<path d="M2918.0,902 L3067.5,902 L3067.5,820 L3217.0,820" class="fl-false" marker-end="url(#arF)"/>
+<text x="2962.0" y="893" class="t-edge">ไม่ใช่ ไม่ได้ตั้งรับ</text>
 </g>
 <g data-el="d_kw>e_skip">
-<path d="M2830.0,514.0 L2830.0,664 L3230.0,664 L3230.0,739.0" class="fl-false" marker-end="url(#arF)"/>
-<text x="2870.0" y="657" class="t-edge">ไม่ตรง</text>
+<path d="M2830.0,514.0 L2830.0,704 L3230.0,704 L3230.0,807.0" class="fl-false" marker-end="url(#arF)"/>
+<text x="2870.0" y="697" class="t-edge">ไม่ตรง</text>
 </g>
 <g data-el="d_ban>e_skip">
-<path d="M3030.0,514.0 L3030.0,690 L3230.0,690 L3230.0,739.0" class="fl-true" marker-end="url(#arT)"/>
-<text x="3060.0" y="683" class="t-edge">มี</text>
+<path d="M3030.0,514.0 L3030.0,738 L3230.0,738 L3230.0,807.0" class="fl-true" marker-end="url(#arT)"/>
+<text x="3060.0" y="731" class="t-edge">มี</text>
 </g>
 <g data-el="d_has>e_skip">
-<path d="M3630.0,514.0 L3630.0,716 L3230.0,716 L3230.0,739.0" class="fl-false" marker-end="url(#arF)"/>
-<text x="3496.0" y="709" class="t-edge">ไม่มีคำสั่งจะส่ง</text>
+<path d="M3630.0,514.0 L3630.0,772 L3230.0,772 L3230.0,807.0" class="fl-false" marker-end="url(#arF)"/>
+<text x="3496.0" y="765" class="t-edge">ไม่มีคำสั่งจะส่ง</text>
 </g>
 <g data-el="d_page>s_page">
 <path d="M1030.0,514.0 L1030.0,1202.0" class="fl-data" marker-end="url(#arD)"/>
@@ -545,23 +545,23 @@
 <text x="4884.0" y="858.0" class="t-edge">ใช่</text>
 </g>
 <g data-el="n_like>f_join">
-<path d="M4101.0,392 L5973.0,392" class="fl" marker-end="url(#ar)"/>
+<path d="M4101.0,392 L5173.0,392" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="a_txt>f_join">
-<path d="M4305.0,472 L5973.0,472" class="fl" marker-end="url(#ar)"/>
+<path d="M4305.0,472 L5173.0,472" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="a_both>f_join">
-<path d="M4325.0,576 L5973.0,576" class="fl" marker-end="url(#ar)"/>
+<path d="M4325.0,576 L5173.0,576" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="d_quick>f_join">
-<path d="M4905.0,784 L5439.0,784 L5439.0,680 L5973.0,680" class="fl-false" marker-end="url(#arF)"/>
+<path d="M4905.0,784 L5039.0,784 L5039.0,680 L5173.0,680" class="fl-false" marker-end="url(#arF)"/>
 <text x="4949.0" y="775" class="t-edge">ไม่ใช่</text>
 </g>
 <g data-el="a_quick>f_join">
-<path d="M5105.0,888 L5973.0,888" class="fl" marker-end="url(#ar)"/>
+<path d="M5105.0,888 L5173.0,888" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="f_join>n_send">
-<path d="M5978.0,910.0 L5978.0,1466 L5332.0,1466" class="fl" marker-end="url(#ar)"/>
+<path d="M5178.0,910.0 L5178.0,1466 L5332.0,1466" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="n_send>d_sent">
 <path d="M5430.0,1439.0 L5430.0,976.5 L5630.0,976.5 L5630.0,514.0" class="fl" marker-end="url(#ar)"/>
@@ -578,8 +578,8 @@
 <text x="6135.0" y="464" class="t-edge">ไม่ใช่</text>
 </g>
 <g data-el="d_wait>f_res">
-<path d="M6030.0,430.0 L6030.0,352 L7563.0,352" class="fl-true" marker-end="url(#arT)"/>
-<text x="6796.5" y="344" class="t-edge">ใช่ ข้ามไปตรวจใบถัดไป</text>
+<path d="M6030.0,430.0 L6030.0,352 L6763.0,352" class="fl-true" marker-end="url(#arT)"/>
+<text x="6396.5" y="344" class="t-edge">ใช่ ข้ามไปตรวจใบถัดไป</text>
 </g>
 <g data-el="d_ok>d_img">
 <path d="M6305.0,472 L6355.0,472" class="fl-true" marker-end="url(#arT)"/>
@@ -594,15 +594,15 @@
 <text x="6530.0" y="416.0" class="t-edge">ใช่</text>
 </g>
 <g data-el="d_img>f_res">
-<path d="M6505.0,472 L7563.0,472" class="fl-false" marker-end="url(#arF)"/>
-<text x="7034.0" y="464" class="t-edge">ไม่ใช่ ไม่ต้องทำอะไรต่อ</text>
+<path d="M6505.0,472 L6763.0,472" class="fl-false" marker-end="url(#arF)"/>
+<text x="6634.0" y="464" class="t-edge">ไม่ใช่ ไม่ต้องทำอะไรต่อ</text>
 </g>
 <g data-el="a_keep>s_imgw">
 <path d="M6630.0,416.0 L6630.0,1314.0" class="fl-data" marker-end="url(#arD)"/>
 <text x="6637.0" y="869.0" class="t-data">เก็บรูป</text>
 </g>
 <g data-el="a_keep>f_res">
-<path d="M6709.0,392 L7563.0,392" class="fl" marker-end="url(#ar)"/>
+<path d="M6709.0,392 L6763.0,392" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="d_live>a_pass">
 <path d="M6309.0,576 L6341.0,576" class="fl-true" marker-end="url(#arT)"/>
@@ -613,7 +613,7 @@
 <text x="6236.0" y="628.0" class="t-edge">ไม่ใช่</text>
 </g>
 <g data-el="a_pass>f_res">
-<path d="M6519.0,576 L7563.0,576" class="fl" marker-end="url(#ar)"/>
+<path d="M6519.0,576 L6763.0,576" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="d_img2>d_exp">
 <path d="M6305.0,680 L6355.0,680" class="fl-true" marker-end="url(#arT)"/>
@@ -632,13 +632,13 @@
 <text x="6436.0" y="741.0" class="t-edge">ไม่ใช่</text>
 </g>
 <g data-el="a_new>f_res">
-<path d="M6630.0,1439.0 L6630.0,1122.5 L7568.0,1122.5 L7568.0,806.0" class="fl" marker-end="url(#ar)"/>
+<path d="M6630.0,1439.0 L6630.0,1122.5 L6768.0,1122.5 L6768.0,806.0" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="a_fail>f_res">
-<path d="M6509.0,784 L6519.0,784 A 9 9 0 0 1 6537.0,784 L7563.0,784" class="fl" marker-end="url(#ar)"/>
+<path d="M6509.0,784 L6519.0,784 A 9 9 0 0 1 6537.0,784 L6763.0,784" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="f_res>d_more">
-<path d="M7573.0,571.0 L7264.0,571.0 L7264.0,472 L6955.0,472" class="fl" marker-end="url(#ar)"/>
+<path d="M6773.0,571.0 L6864.0,571.0 L6864.0,472 L6955.0,472" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="d_more>m_in">
 <path d="M7030.0,514.0 L7030.0,968 L6639.0,968 A 9 9 0 0 1 6621.0,968 L6439.0,968 A 9 9 0 0 1 6421.0,968 L6239.0,968 A 9 9 0 0 1 6221.0,968 L5771.0,968 L5771.0,472 L5817.0,472" class="fl-false" marker-end="url(#arF)"/>
@@ -656,18 +656,18 @@
 <path d="M7301.0,472 L7417.0,472" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="e_skip>m_end">
-<path d="M3230.0,765.0 L3230.0,1028 L5621.0,1028 A 9 9 0 0 1 5639.0,1028 L5821.0,1028 A 9 9 0 0 1 5839.0,1028 L5969.0,1028 A 9 9 0 0 1 5987.0,1028 L6519.0,1028 A 9 9 0 0 1 6537.0,1028 L6621.0,1028 A 9 9 0 0 1 6639.0,1028 L7430.0,1028 L7430.0,485.0" class="fl" marker-end="url(#ar)"/>
+<path d="M3230.0,833.0 L3230.0,1028 L5169.0,1028 A 9 9 0 0 1 5187.0,1028 L5621.0,1028 A 9 9 0 0 1 5639.0,1028 L5821.0,1028 A 9 9 0 0 1 5839.0,1028 L6519.0,1028 A 9 9 0 0 1 6537.0,1028 L6621.0,1028 A 9 9 0 0 1 6639.0,1028 L6759.0,1028 A 9 9 0 0 1 6777.0,1028 L7430.0,1028 L7430.0,485.0" class="fl" marker-end="url(#ar)"/>
 <text x="3380.0" y="1020" class="t-edge">ข้ามมารอที่จุดตรวจบอท</text>
 </g>
 <g data-el="d_sent>m_end">
-<path d="M5630.0,514.0 L5630.0,1028 L5821.0,1028 A 9 9 0 0 1 5839.0,1028 L5969.0,1028 A 9 9 0 0 1 5987.0,1028 L6519.0,1028 A 9 9 0 0 1 6537.0,1028 L6621.0,1028 A 9 9 0 0 1 6639.0,1028 L7430.0,1028 L7430.0,485.0" class="fl-false" marker-end="url(#arF)"/>
+<path d="M5630.0,514.0 L5630.0,1028 L5821.0,1028 A 9 9 0 0 1 5839.0,1028 L6519.0,1028 A 9 9 0 0 1 6537.0,1028 L6621.0,1028 A 9 9 0 0 1 6639.0,1028 L6759.0,1028 A 9 9 0 0 1 6777.0,1028 L7430.0,1028 L7430.0,485.0" class="fl-false" marker-end="url(#arF)"/>
 <text x="5780.0" y="1020" class="t-edge">ไม่ได้ ยิงไม่ออก</text>
 </g>
 <g data-el="m_end>d_bot">
 <path d="M7443.0,472 L7555.0,472" class="fl" marker-end="url(#ar)"/>
 </g>
 <g data-el="d_bot>m_bot">
-<path d="M7630.0,514.0 L7630.0,1088 L7577.0,1088 A 9 9 0 0 1 7559.0,1088 L6639.0,1088 A 9 9 0 0 1 6621.0,1088 L6537.0,1088 A 9 9 0 0 1 6519.0,1088 L5987.0,1088 A 9 9 0 0 1 5969.0,1088 L5839.0,1088 A 9 9 0 0 1 5821.0,1088 L5639.0,1088 A 9 9 0 0 1 5621.0,1088 L1348.0,1088 L1348.0,485.0" class="fl-false" marker-end="url(#arF)"/>
+<path d="M7630.0,514.0 L7630.0,1088 L6777.0,1088 A 9 9 0 0 1 6759.0,1088 L6639.0,1088 A 9 9 0 0 1 6621.0,1088 L6537.0,1088 A 9 9 0 0 1 6519.0,1088 L5839.0,1088 A 9 9 0 0 1 5821.0,1088 L5639.0,1088 A 9 9 0 0 1 5621.0,1088 L5187.0,1088 A 9 9 0 0 1 5169.0,1088 L1348.0,1088 L1348.0,485.0" class="fl-false" marker-end="url(#arF)"/>
 <text x="4489.0" y="1080" class="t-edge">ไม่ ยังดูไม่ครบ หยิบบอทตัวถัดไป</text>
 </g>
 <g data-el="d_bot>n_seen">

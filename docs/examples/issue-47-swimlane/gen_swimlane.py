@@ -47,7 +47,8 @@ ROW_DOWN4 = ROW_MAIN + 416
 LOOP_BACK = ROW_MAIN + 496
 SKIP_FWD  = ROW_MAIN + 556
 BOT_BACK  = ROW_MAIN + 616
-ROW_END = ROW_MAIN + 280
+ROW_END = ROW_MAIN + 348
+TYPE_ROW = ROW_MAIN + 430
 
 FB_TOP = LY["fb"][0]
 FB_MAIN = FB_TOP + 74
@@ -342,13 +343,15 @@ d_post  = decision(10, ROW_MAIN, ["ดูแลโพสต์นี้", "ไ�
 d_spec  = decision(11, ROW_MAIN, ["มีบอทเฉพาะโพสต์", "คุมอยู่ไหม"], tag="d_spec")
 d_text  = decision(12, ROW_MAIN, ["คอมเมนต์เป็น", "ข้อความไหม"], tag="d_text")
 d_kw    = decision(13, ROW_MAIN, ["ตรงคำที่ตั้ง", "ให้ตอบไหม"], tag="d_kw")
-d_type  = decision(13, ROW_DOWN3, ["บอทตั้งรับคอมเมนต์", "แบบนี้ไหม"], w=176, tag="d_type")
+d_type  = decision(13, TYPE_ROW, ["บอทตั้งรับคอมเมนต์", "แบบนี้ไหม"], w=176, tag="d_type")
 d_ban   = decision(14, ROW_MAIN, ["มีคำต้องห้าม", "ไหม"], tag="d_ban")
 n_prep = task(16, ROW_MAIN, ["เตรียมคำตอบ", "สุ่มจากชุดที่ตั้งไว้"], tag="n_prep")
 d_has = decision(17, ROW_MAIN, ["มีคำสั่งจะส่ง", "ไหม"], tag="d_has")
 e_skip  = merge(15, ROW_END, tag="e_skip")
 e_skip_bar = e_skip
-out.insert(len(out) - 1, f'<text x="{e_skip[0]}" y="{ROW_END + 30}" class="t-edge">ข้ามบอทตัวนี้</text>')
+out.insert(len(out) - 1,
+    f'<text x="{e_skip[0] + 22}" y="{ROW_END + 4}" class="t-edge" '
+    f'style="text-anchor:start">ข้ามบอทตัวนี้</text>')
 
 f_split = forkbar(18, ROW_UP - 22, ROW_DOWN2 + 22, "แยกทำพร้อมกัน", dx=-46, tag="f_split")
 n_like = task(19, ROW_UP, ["กดไลก์คอมเมนต์"], h=40, tag="n_like")
@@ -364,7 +367,7 @@ a_quick   = task(24, ROW_DOWN4, ["แนบปุ่ม", "ดูรูปเพ
 a_txt = task(20, ROW_MAIN, ["ส่งข้อความ", "ชิ้นเดียว"], w=150, h=48, tag="a_txt")
 a_both = task(20, ROW_DOWN, ["ผูกให้รูปขึ้นหลังข้อความ", "แล้วส่งทั้งคู่"], w=190, h=48, tag="a_both")
 n_hint = note(17, ROW_DOWN3, ["ตั้งอย่างเดียว หลายอย่าง", "หรือครบทั้งสามก็ได้"], tag="n_hint")
-f_join = forkbar(29, ROW_UP - 22, ROW_DOWN4 + 22, "รวมเป็นชุดเดียว", dx=-52, tag="f_join")
+f_join = forkbar(25, ROW_UP - 22, ROW_DOWN4 + 22, "รวมเป็นชุดเดียว", dx=-52, tag="f_join")
 
 s_page = store(4, MG, ["ข้อมูลเพจที่ผูกไว้"], tag="s_page")
 s_bots = store(7, MG, ["รายการบอทที่เปิดใช้"], tag="s_bots")
@@ -387,7 +390,7 @@ a_new = task(32, FB_MAIN, ["ส่งรูปใหม่", "ด้วยลิ
 s_imgw = store(32, RD, ["รูปที่เคยส่งเข้าแชท"], tag="s_imgw")
 n_hint2 = note(34, ROW_DOWN3, ["ถ้าอ่านผลของคำสั่งไม่ออก", "นับเป็นล้มเหลวเหมือนกัน"], w=196, tag="n_hint2")
 
-f_res = forkbar(37, ROW_UP - 56, ROW_DOWN3 + 22, "รวมทาง", dx=-62, tag="f_res")
+f_res = forkbar(33, ROW_UP - 56, ROW_DOWN3 + 22, "รวมทาง", dx=-62, tag="f_res")
 d_more = decision(34, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"], tag="d_more")
 n_note = task(35, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"], tag="n_note")
 s_logw = store(35, MG, ["ประวัติการตอบลูกค้า"], tag="s_logw")
@@ -411,10 +414,10 @@ right(d_post, d_spec, "ดูแล", branch="true", tag="d_post>d_spec")
 right(d_spec, d_text, "ไม่มี", branch="false", tag="d_spec>d_text")
 right(d_text, d_kw, "ใช่", branch="true", tag="d_text>d_kw")
 drop(d_text, d_type, "ไม่ใช่ เป็นรูป/สติกเกอร์", branch="false",
-     corridor=ROW_MAIN + 262, lab_x=cx(12) + 96, tag="d_text>d_type")
+     corridor=TYPE_ROW, enter="left", tag="d_text>d_type")
 right(d_kw, d_ban, "ตรง", branch="true", tag="d_kw>d_ban")
 right(d_ban, n_prep, "ไม่มี", branch="false", tag="d_ban>n_prep")
-rise(d_type, n_prep, "ใช่ รับแบบนี้", branch="true", corridor=ROW_MAIN + 262, tag="d_type>n_prep")
+rise(d_type, n_prep, "ใช่ รับแบบนี้", branch="true", corridor=TYPE_ROW - 52, tag="d_type>n_prep")
 right(n_prep, d_has, tag="n_prep>d_has")
 right(d_has, f_split, "ใช่", branch="true", tag="d_has>f_split")
 
@@ -426,12 +429,12 @@ drop(d_page, e_stop, "ปิดอยู่ / ไม่เคยผูก", bran
 drop(d_who, e_stop, "ไม่ใช่ ร้านเอง", branch="false",
      corridor=LANE_STOP[2], lab_x=cx(5) + 52, tag="d_who>e_stop")
 
-SK = [ROW_MAIN + 62 + 26 * k for k in range(8)]
+SK = [ROW_MAIN + 62 + 34 * k for k in range(8)]
 drop(d_team, e_skip, "ไม่ใช่ คนละทีม", branch="false", corridor=SK[0], lab_x=cx(8) + 70, tag="d_team>e_skip")
 drop(d_again, e_skip, "ไม่ได้ เคยตอบแล้ว", branch="false", corridor=SK[1], lab_x=cx(9) + 74, tag="d_again>e_skip")
 drop(d_post, e_skip, "ไม่ใช่โพสต์นี้", branch="false", corridor=SK[2], lab_x=cx(10) + 62, tag="d_post>e_skip")
 drop(d_spec, e_skip, "มี และตั้งให้หลบ", branch="true", corridor=SK[3], lab_x=cx(11) + 70, tag="d_spec>e_skip")
-up_right(d_type, e_skip_bar, "ไม่ใช่ ไม่ได้ตั้งรับ", by=ROW_END, branch="false", tag="d_type>e_skip")
+right(d_type, e_skip, "ไม่ใช่ ไม่ได้ตั้งรับ", branch="false", tag="d_type>e_skip")
 drop(d_kw, e_skip, "ไม่ตรง", branch="false", corridor=SK[5], lab_x=cx(13) + 40, tag="d_kw>e_skip")
 drop(d_ban, e_skip, "มี", branch="true", corridor=SK[6], lab_x=cx(14) + 30, tag="d_ban>e_skip")
 drop(d_has, e_skip, "ไม่มีคำสั่งจะส่ง", branch="false", corridor=SK[7], lab_x=cx(16) + 66, tag="d_has>e_skip")
@@ -540,90 +543,249 @@ print("swimlane.svg standalone ok")
 # ใช้ layout เดิมทุกพิกัด/สี/เส้น แค่ไม่วาดชิ้นที่ไม่อยู่บนเส้นทางนั้น
 # ======================================================================
 
-BASE = ["n_actor", "n_comment", "n_ps", "d_real", "d_page", "d_who", "m_bot", "n_bots",
-        "d_team", "d_again", "d_post", "d_spec", "d_text", "d_kw", "d_ban", "n_prep", "d_has",
-        "s_page", "s_bots", "s_log", "s_logw",
-        "f_split", "f_join", "n_send", "d_sent", "m_in", "d_wait", "d_ok",
-        "f_res", "d_more", "n_note", "m_end", "d_bot", "n_seen",
-        "n_actor>n_comment", "n_comment>n_ps", "n_ps>d_real",
-        "d_real>d_page", "d_page>d_who", "d_who>m_bot", "m_bot>n_bots", "n_bots>d_team",
-        "d_team>d_again", "d_again>d_post", "d_post>d_spec", "d_spec>d_text", "d_text>d_kw",
-        "d_kw>d_ban", "d_ban>n_prep", "n_prep>d_has", "d_has>f_split",
-        "d_page>s_page", "n_bots>s_bots", "d_again>s_log",
+PRE = ["n_actor", "n_comment", "n_ps", "d_real", "d_page", "d_who", "m_bot", "n_bots",
+       "s_page", "s_bots", "n_actor>n_comment", "n_comment>n_ps", "n_ps>d_real",
+       "d_real>d_page", "d_page>d_who", "d_who>m_bot", "m_bot>n_bots", "d_page>s_page", "n_bots>s_bots"]
+GATES = ["d_team", "d_again", "d_post", "d_spec", "d_text", "d_kw", "d_ban", "n_prep", "d_has", "s_log",
+         "n_bots>d_team", "d_team>d_again", "d_again>d_post", "d_post>d_spec", "d_spec>d_text",
+         "d_text>d_kw", "d_kw>d_ban", "d_ban>n_prep", "n_prep>d_has", "d_has>f_split", "d_again>s_log"]
+SEND = ["f_split", "f_join", "n_send", "d_sent", "m_in", "d_wait", "d_ok",
+        "f_res", "d_more", "n_note", "s_logw", "m_end", "d_bot", "n_seen",
         "f_join>n_send", "n_send>d_sent", "d_sent>m_in", "m_in>d_wait", "d_wait>d_ok",
-        "f_res>d_more", "d_more>n_note", "n_note>s_logw", "n_note>m_end",
-        "m_end>d_bot", "d_bot>n_seen"]
-
-# ผลของคำสั่งที่สำเร็จและไม่ใช่รูปทางแชท = จบแค่นั้น
+        "f_res>d_more", "d_more>n_note", "n_note>s_logw", "n_note>m_end", "m_end>d_bot", "d_bot>n_seen"]
+BASE = PRE + GATES + SEND
 OK_PLAIN = ["d_img", "d_ok>d_img", "d_img>f_res"]
+LIKE = ["n_like", "f_split>n_like", "n_like>f_join"]
+CMT_TEXT = ["d_both", "f_split>d_both", "a_txt", "d_both>a_txt", "a_txt>f_join"]
+CMT_IMG = ["d_both", "f_split>d_both", "a_both", "d_both>a_both", "a_both>f_join"]
+CHAT_TEXT = ["f_split>n_chat", "d_chatimg", "a_chattext", "d_chatimg>a_chattext",
+             "m_chat", "a_chattext>m_chat", "d_quick", "m_chat>d_quick", "d_quick>f_join"]
+SKIP_OUT = ["e_skip", "e_skip>m_end", "m_end", "d_bot", "n_seen", "m_end>d_bot", "d_bot>n_seen"]
 
 SCENARIOS = {
-    "COMMENT_BOT_REPLY_SUCCESS_1": {
-        "desc": "บอทกดไลก์และตอบใต้คอมเมนต์เป็นข้อความชิ้นเดียว ทั้งสองคำสั่งสำเร็จ",
-        "note": "ร้านมีบอท 1 ตัว · ชุดคำสั่ง 2 ใบ จึงวนตรวจผล 2 รอบ",
-        "keep": BASE + OK_PLAIN + ["d_more>m_in",
-                 "n_like", "f_split>n_like", "n_like>f_join",
-                 "d_both", "f_split>d_both", "a_txt", "d_both>a_txt", "a_txt>f_join"],
-    },
-    "COMMENT_BOT_REPLY_SUCCESS_2": {
-        "desc": "บอทตอบใต้คอมเมนต์เป็นข้อความพร้อมรูป โดยรูปต้องขึ้นหลังข้อความ",
-        "note": "ชุดคำสั่ง 2 ใบที่ผูกกัน · ใบข้อความจึงได้ผลกลับมาเป็นค่าว่าง ซึ่งเป็นเรื่องปกติ",
-        "keep": BASE + OK_PLAIN + ["d_more>m_in",
-                 "d_both", "f_split>d_both", "a_both", "d_both>a_both", "a_both>f_join",
-                 "d_wait>f_res"],
-    },
-    "COMMENT_BOT_REPLY_SUCCESS_3": {
-        "desc": "ทักแชทเป็นรูป ยิงสองรอบด้วย setup เดียว รอบแรกอัปรูปใหม่ รอบสองต้องใช้รูปที่เก็บไว้",
-        "note": "สองรอบต่างกันที่ เคยส่งรูปนี้แล้วไหม จึงเก็บทั้งสองทางไว้ในผังเดียว",
-        "keep": BASE + ["f_split>n_chat", "d_chatimg", "d_chatimg>d_cached",
-                 "d_cached", "s_img", "n_chat>s_img",
-                 "a_reuse", "d_cached>a_reuse", "a_upload", "d_cached>a_upload",
-                 "m_chat", "a_reuse>m_chat", "a_upload>m_chat",
-                 "d_quick", "m_chat>d_quick", "d_quick>f_join",
-                 "d_img", "d_ok>d_img", "a_keep", "d_img>a_keep",
-                 "s_imgw", "a_keep>s_imgw", "a_keep>f_res"],
-    },
-    "COMMENT_BOT_REPLY_SUCCESS_4": {
-        "desc": "ทักแชทเป็นข้อความพร้อมแนบปุ่มดูรูปเพิ่ม",
-        "note": "คำตอบแชทมีมากกว่าหนึ่งชิ้นและผูก itemId ไว้ จึงต้องแนบปุ่มไปด้วย",
-        "keep": BASE + OK_PLAIN + ["f_split>n_chat", "d_chatimg",
-                 "a_chattext", "d_chatimg>a_chattext",
-                 "m_chat", "a_chattext>m_chat", "d_quick", "m_chat>d_quick",
-                 "a_quick", "d_quick>a_quick", "a_quick>f_join"],
-    },
+ "COMMENT_BOT_REPLY_SUCCESS_1": dict(cat="Success", nn="01",
+  desc="บอทกดไลก์และตอบใต้คอมเมนต์เป็นข้อความชิ้นเดียว ทั้งสองคำสั่งสำเร็จ",
+  note="ร้านมีบอท 1 ตัว · ชุดคำสั่ง 2 ใบ จึงวนตรวจผล 2 รอบ",
+  steps=["ทีมงานผูกเพจ Facebook ของร้านเข้ากับระบบ และเปิดสถานะใช้งาน",
+         "ทีมงานตั้งบอท 1 ตัวแบบใช้กับทุกโพสต์ ให้กดไลก์และตอบใต้คอมเมนต์เป็นข้อความที่เรียกชื่อจริงลูกค้า",
+         "ลูกค้าคอมเมนต์ข้อความใต้โพสต์ของเพจนั้น",
+         "ระบบตรวจว่าคอมเมนต์และเพจถูกต้อง แล้วไล่ดูบอทของร้านพบว่าบอทตัวนี้เข้าเงื่อนไข",
+         "ระบบส่งคำสั่งกดไลก์และตอบคอมเมนต์ไปยัง Facebook ในการยิงครั้งเดียว",
+         "ระบบไล่ตรวจผลทีละคำสั่ง พบว่าสำเร็จทั้งสองใบ",
+         "ระบบบันทึกว่าบอทตัวนี้ตอบลูกค้าคนนี้ในโพสต์นี้แล้ว"],
+  keep=BASE + OK_PLAIN + LIKE + CMT_TEXT + ["d_more>m_in"]),
+
+ "COMMENT_BOT_REPLY_SUCCESS_2": dict(cat="Success", nn="02",
+  desc="บอทตอบใต้คอมเมนต์เป็นข้อความพร้อมรูป โดยรูปต้องขึ้นหลังข้อความ",
+  note="ชุดคำสั่ง 2 ใบที่ผูกกัน · ใบข้อความจึงได้ผลกลับมาเป็นค่าว่าง ซึ่งเป็นเรื่องปกติ",
+  steps=["ทีมงานผูกเพจและเปิดใช้งาน",
+         "ทีมงานตั้งบอทให้ตอบใต้คอมเมนต์เป็นข้อความพร้อมรูป",
+         "ลูกค้าคอมเมนต์ข้อความใต้โพสต์",
+         "ระบบผูกให้คำสั่งส่งรูปรอคำสั่งส่งข้อความก่อน แล้วส่งทั้งคู่ไป Facebook ในครั้งเดียว",
+         "Facebook ไม่ส่งผลของใบข้อความกลับมาเพราะมีใบอื่นรออยู่ ระบบต้องข้ามใบนั้นโดยไม่ถือว่าล้มเหลว",
+         "ระบบยืนยันว่าใบรูปสำเร็จ แล้วบันทึกประวัติการตอบ"],
+  keep=BASE + OK_PLAIN + CMT_IMG + ["d_more>m_in", "d_wait>f_res"]),
+
+ "COMMENT_BOT_REPLY_SUCCESS_3": dict(cat="Success", nn="03",
+  desc="ทักแชทเป็นรูป ยิงสองรอบด้วย setup เดียว รอบแรกอัปรูปใหม่ รอบสองต้องใช้รูปที่เก็บไว้",
+  note="สองรอบต่างกันที่ เคยส่งรูปนี้แล้วไหม จึงเก็บทั้งสองทางไว้ในผังเดียว",
+  steps=["ทีมงานผูกเพจและตั้งบอทให้ทักแชทส่วนตัวเป็นรูป",
+         "ลูกค้าคนแรกคอมเมนต์ ระบบหาไม่พบรูปที่เคยส่ง จึงแนบลิงก์รูปให้ Facebook อัปโหลดใหม่",
+         "ส่งสำเร็จ ระบบเก็บรูปนั้นไว้ใช้ซ้ำเป็นเวลา 90 วัน",
+         "ลูกค้าคนที่สองคอมเมนต์ด้วยเงื่อนไขเดียวกัน",
+         "ระบบหาพบรูปที่เก็บไว้ จึงใช้ของเดิมแทนการอัปโหลดใหม่",
+         "ยืนยันว่ารอบที่สองไม่มีการอัปโหลดรูปซ้ำ"],
+  keep=BASE + ["f_split>n_chat", "d_chatimg", "d_chatimg>d_cached", "d_cached", "s_img", "n_chat>s_img",
+               "a_reuse", "d_cached>a_reuse", "a_upload", "d_cached>a_upload",
+               "m_chat", "a_reuse>m_chat", "a_upload>m_chat", "d_quick", "m_chat>d_quick", "d_quick>f_join",
+               "d_img", "d_ok>d_img", "a_keep", "d_img>a_keep", "s_imgw", "a_keep>s_imgw", "a_keep>f_res"]),
+
+ "COMMENT_BOT_REPLY_SUCCESS_4": dict(cat="Success", nn="04",
+  desc="ทักแชทเป็นข้อความพร้อมแนบปุ่มดูรูปเพิ่ม",
+  note="คำตอบแชทมีมากกว่าหนึ่งชิ้นและผูกสินค้าไว้ จึงต้องแนบปุ่มไปด้วย",
+  steps=["ทีมงานผูกเพจและตั้งบอทให้ทักแชทด้วยคำตอบสองชิ้นพร้อมผูกสินค้า",
+         "ลูกค้าคอมเมนต์ใต้โพสต์",
+         "ระบบเตรียมข้อความแชทและตรวจว่าต้องแนบปุ่มดูรูปเพิ่มด้วย",
+         "ระบบส่งข้อความพร้อมปุ่มไปยัง Facebook",
+         "ยืนยันว่าข้อความที่ส่งมีปุ่มดูรูปเพิ่มแนบไปด้วย"],
+  keep=BASE + OK_PLAIN + ["f_split>n_chat", "d_chatimg", "a_chattext", "d_chatimg>a_chattext",
+               "m_chat", "a_chattext>m_chat", "d_quick", "m_chat>d_quick",
+               "a_quick", "d_quick>a_quick", "a_quick>f_join"]),
+
+ "COMMENT_BOT_REPLY_SUCCESS_5": dict(cat="Success", nn="05",
+  desc="ลูกค้าคอมเมนต์เป็นรูปหรือสติกเกอร์ แล้วบอทตั้งรับคอมเมนต์ประเภทนั้นไว้",
+  note="คอมเมนต์ที่ไม่ใช่ข้อความจะไม่ถูกเช็คคำที่ตั้งไว้เลย แต่ไปดูว่าบอทติ๊กรับประเภทนั้นไหม",
+  steps=["ทีมงานผูกเพจและตั้งบอทโดยติ๊กรับคอมเมนต์ที่เป็นสติกเกอร์",
+         "ลูกค้าส่งสติกเกอร์แทนการพิมพ์ข้อความ",
+         "ระบบพบว่าไม่ใช่ข้อความ จึงข้ามการเช็คคำที่ตั้งไว้ ไปดูว่าบอทรับประเภทนี้ไหม",
+         "บอทติ๊กรับสติกเกอร์ไว้ ระบบจึงตอบใต้คอมเมนต์ตามปกติ",
+         "ยืนยันว่าลูกค้าได้รับคำตอบทั้งที่ไม่มีคำที่ตั้งไว้ในคอมเมนต์"],
+  keep=PRE + SEND + OK_PLAIN + CMT_TEXT + ["d_more>m_in", "s_log", "d_again>s_log",
+        "d_team", "d_again", "d_post", "d_spec", "d_text", "d_type", "n_prep", "d_has",
+        "n_bots>d_team", "d_team>d_again", "d_again>d_post", "d_post>d_spec",
+        "d_spec>d_text", "d_text>d_type", "d_type>n_prep", "n_prep>d_has", "d_has>f_split"]),
+
+ "COMMENT_BOT_REPLY_SUCCESS_6": dict(cat="Success", nn="06",
+  desc="ร้านมีบอทหลายตัวเข้าเงื่อนไขพร้อมกัน ต้องตอบครบทุกตัว",
+  note="ตรวจลูปนอกที่วนบอททีละตัว · คอมเมนต์เดียวทำให้ยิง Facebook หลายรอบ",
+  steps=["ทีมงานผูกเพจและตั้งบอท 3 ตัวที่เข้าเงื่อนไขพร้อมกัน คือ กดไลก์ ตอบใต้คอมเมนต์ และทักแชท",
+         "ลูกค้าคอมเมนต์ข้อความเดียวใต้โพสต์",
+         "ระบบไล่ดูบอททีละตัว แต่ละตัวส่งคำสั่งของตัวเองไป Facebook แยกรอบกัน",
+         "ระบบบันทึกประวัติแยกรายบอท",
+         "ยืนยันว่าลูกค้าได้รับครบทั้งสามอย่างจากคอมเมนต์เดียว"],
+  keep=BASE + OK_PLAIN + LIKE + CMT_TEXT + CHAT_TEXT + ["d_more>m_in", "d_bot>m_bot"]),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_1": dict(cat="Alternative", nn="01",
+  desc="ของที่ส่งเข้ามาแล้วไม่ควรตอบ กดอีโมจิ แก้คอมเมนต์เดิม ร้านคอมเมนต์เอง และบอทคนละทีมกับเพจ",
+  note="ใช้ setup เดียว seed บอทปกติและบอทคนละทีมไว้ด้วยกัน แล้วยิงหลาย payload",
+  steps=["ทีมงานผูกเพจ ตั้งบอทปกติ 1 ตัว และบอทที่เป็นของทีมอื่นอีก 1 ตัว",
+         "ยิงเหตุการณ์กดอีโมจิเข้ามา ระบบต้องไม่ตอบ",
+         "ยิงเหตุการณ์แก้ไขคอมเมนต์เดิมเข้ามา ระบบต้องไม่ตอบ",
+         "ยิงคอมเมนต์ที่มาจากเพจตัวเอง ระบบต้องไม่ตอบเพื่อกันบอทตอบตัวเอง",
+         "ยิงคอมเมนต์ปกติจากลูกค้า บอทที่เป็นของทีมอื่นต้องถูกข้ามไป",
+         "ยืนยันว่าไม่มีการยิงคำสั่งไป Facebook เลยในสามเคสแรก"],
+  keep=PRE + ["e_stop", "d_real>e_stop", "d_page>e_stop", "d_who>e_stop",
+              "d_team", "n_bots>d_team", "d_team>e_skip", "d_bot>m_bot"] + SKIP_OUT),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_2": dict(cat="Alternative", nn="02",
+  desc="เพจถูกปิดใช้งาน หรือไม่เคยผูกไว้กับระบบ",
+  note="จบตั้งแต่ด่านเพจ ไม่ไปถึงการไล่ดูบอทเลย",
+  steps=["ทีมงานผูกเพจไว้แต่ปิดสถานะใช้งาน",
+         "ลูกค้าคอมเมนต์ใต้โพสต์ของเพจนั้น",
+         "ระบบหาข้อมูลเพจแล้วพบว่าปิดใช้งานอยู่",
+         "ระบบจบการทำงานโดยไม่ตอบและไม่ไล่ดูบอท"],
+  keep=["n_actor", "n_comment", "n_ps", "d_real", "d_page", "s_page",
+        "n_actor>n_comment", "n_comment>n_ps", "n_ps>d_real", "d_real>d_page",
+        "d_page>s_page", "e_stop", "d_page>e_stop"]),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_3": dict(cat="Alternative", nn="03",
+  desc="บอทตั้งให้ตอบครั้งเดียว และลูกค้าคนนี้เคยได้รับคำตอบในโพสต์นี้แล้ว",
+  note="ต้อง seed ประวัติการตอบไว้ก่อน",
+  steps=["ทีมงานตั้งบอทแบบตอบครั้งเดียวต่อคนต่อโพสต์",
+         "ระบบมีประวัติอยู่แล้วว่าเคยตอบลูกค้าคนนี้ในโพสต์นี้",
+         "ลูกค้าคนเดิมคอมเมนต์ซ้ำในโพสต์เดิม",
+         "ระบบเช็กประวัติแล้วข้ามบอทตัวนี้",
+         "ยืนยันว่าไม่มีการยิงคำสั่งไป Facebook"],
+  keep=PRE + ["d_team", "n_bots>d_team", "d_team>d_again", "d_again", "s_log", "d_again>s_log",
+              "d_again>e_skip"] + SKIP_OUT),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_4": dict(cat="Alternative", nn="04",
+  desc="คอมเมนต์ไม่ผ่านเงื่อนไขคำ ทั้งกรณีไม่ตรงคำที่ตั้งไว้ และกรณีมีคำต้องห้าม",
+  note="สอง payload ใช้ setup บอทเดียวกัน จึงควบเป็น scenario เดียว",
+  steps=["ทีมงานตั้งบอทโดยกำหนดทั้งคำที่ต้องตรงและคำต้องห้าม",
+         "ลูกค้าคอมเมนต์ข้อความที่ไม่มีคำที่ตั้งไว้ ระบบต้องไม่ตอบ",
+         "ลูกค้าอีกคนคอมเมนต์ข้อความที่มีคำต้องห้าม ระบบต้องไม่ตอบ",
+         "ยืนยันว่าไม่มีการยิงคำสั่งไป Facebook ทั้งสองครั้ง"],
+  keep=PRE + ["d_team", "d_again", "d_post", "d_spec", "d_text", "d_kw", "d_ban", "s_log",
+              "n_bots>d_team", "d_team>d_again", "d_again>d_post", "d_post>d_spec",
+              "d_spec>d_text", "d_text>d_kw", "d_kw>d_ban", "d_again>s_log",
+              "d_kw>e_skip", "d_ban>e_skip"] + SKIP_OUT),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_5": dict(cat="Alternative", nn="05",
+  desc="บอทแบบทุกโพสต์หลบให้บอทเฉพาะโพสต์ ทำให้ตอบตัวเดียวไม่ซ้อนกัน",
+  note="ต้องมีบอท 2 ตัวบนโพสต์เดียวกัน",
+  steps=["ทีมงานตั้งบอทเฉพาะโพสต์ 1 ตัวบนโพสต์นี้",
+         "ทีมงานตั้งบอททุกโพสต์อีก 1 ตัว โดยเปิดตัวเลือกให้หลบเมื่อมีบอทเฉพาะโพสต์",
+         "ลูกค้าคอมเมนต์ใต้โพสต์นั้น",
+         "ระบบพบว่ามีบอทเฉพาะโพสต์คุมอยู่ จึงข้ามบอททุกโพสต์",
+         "ยืนยันว่าลูกค้าได้รับคำตอบจากบอทเฉพาะโพสต์ตัวเดียว ไม่ได้รับซ้ำสองเด้ง"],
+  keep=PRE + ["d_team", "d_again", "d_post", "d_spec", "s_log",
+              "n_bots>d_team", "d_team>d_again", "d_again>d_post", "d_post>d_spec",
+              "d_again>s_log", "d_spec>e_skip", "d_bot>m_bot"] + SKIP_OUT),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_6": dict(cat="Alternative", nn="06",
+  desc="ไลฟ์ยังไม่จบจึงตอบรูปใต้คอมเมนต์ไม่ได้ ระบบต้องปล่อยผ่านไม่ถือว่าล้มเหลว",
+  note="stub Facebook ให้ตอบ error 1705",
+  steps=["ทีมงานตั้งบอทให้ตอบใต้คอมเมนต์เป็นข้อความพร้อมรูป",
+         "ลูกค้าคอมเมนต์ใต้โพสต์ที่เป็นไลฟ์ซึ่งยังถ่ายอยู่",
+         "Facebook ปฏิเสธคำสั่งส่งรูปเพราะไลฟ์ยังไม่จบ",
+         "ระบบต้องปล่อยผ่านคำสั่งนั้นโดยไม่นับว่าล้มเหลว และไม่ลองส่งซ้ำ",
+         "ระบบยังบันทึกประวัติการตอบตามปกติ"],
+  keep=BASE + CMT_IMG + ["d_ok>d_live", "d_live", "a_pass", "d_live>a_pass", "a_pass>f_res", "d_more>m_in"]),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_7": dict(cat="Alternative", nn="07",
+  desc="รูปที่เคยส่งเข้าแชทหมดอายุ ระบบต้องส่งใหม่ด้วยลิงก์รูปจริงแล้วสำเร็จ",
+  note="stub Facebook ให้ตอบ error 100 subcode 2018074 ในครั้งแรก",
+  steps=["ระบบมีรูปที่เคยส่งเก็บไว้อยู่แล้ว",
+         "ลูกค้าคอมเมนต์ ระบบจึงใช้รูปเดิมที่เก็บไว้ส่งเข้าแชท",
+         "Facebook ตอบว่ารูปนั้นหมดอายุแล้ว",
+         "ระบบส่งใหม่อีกครั้งโดยแนบลิงก์รูปจริงแทน",
+         "ส่งสำเร็จ และระบบเก็บรูปใหม่ไว้ใช้ซ้ำ"],
+  keep=BASE + ["f_split>n_chat", "d_chatimg", "d_chatimg>d_cached", "d_cached", "s_img", "n_chat>s_img",
+               "a_reuse", "d_cached>a_reuse", "m_chat", "a_reuse>m_chat",
+               "d_quick", "m_chat>d_quick", "d_quick>f_join",
+               "d_ok>d_live", "d_live", "d_live>d_img2", "d_img2", "d_img2>d_exp",
+               "d_exp", "d_exp>a_new", "a_new", "a_new>f_res"]),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_8": dict(cat="Alternative", nn="08",
+  desc="บอทเปิดใช้งานอยู่แต่ไม่ได้ตั้งคำตอบไว้เลย",
+  note="ผ่านทุกด่านเงื่อนไข แต่ไม่มีคำสั่งจะส่ง",
+  steps=["ทีมงานเปิดบอทไว้แต่ยังไม่ได้ใส่คำตอบทั้งใต้คอมเมนต์และแชท",
+         "ลูกค้าคอมเมนต์ใต้โพสต์",
+         "ระบบผ่านทุกด่านเงื่อนไขแล้วพบว่าไม่มีคำสั่งจะส่ง",
+         "ระบบข้ามบอทตัวนี้ไปโดยไม่ยิงอะไรไป Facebook",
+         "ยืนยันว่าไม่มีการบันทึกประวัติการตอบ"],
+  keep=PRE + GATES + ["d_has>e_skip"] + SKIP_OUT),
+
+ "COMMENT_BOT_REPLY_ALTERNATIVE_9": dict(cat="Alternative", nn="09",
+  desc="ยิงคำสั่งไป Facebook ไม่ออกเลย เช่น โทเคนหมดอายุหรือปลายทางล่ม",
+  note="stub Facebook ให้ล่ม ลูกค้าจะไม่ได้อะไรเลยและไม่ถูกบันทึกว่าตอบแล้ว",
+  steps=["ทีมงานตั้งบอทให้ตอบใต้คอมเมนต์ตามปกติ",
+         "ลูกค้าคอมเมนต์ใต้โพสต์",
+         "ระบบเตรียมคำสั่งครบแล้วยิงไป Facebook แต่ยิงไม่ออก",
+         "ระบบข้ามบอทตัวนี้ไปดูตัวถัดไป",
+         "ยืนยันว่าไม่มีการบันทึกประวัติ เพื่อให้ลูกค้ายังมีโอกาสได้รับคำตอบในครั้งหน้า"],
+  keep=PRE + GATES + ["f_split", "f_join", "n_send", "d_sent",
+        "f_join>n_send", "n_send>d_sent", "d_sent>m_end", "m_end", "d_bot", "n_seen",
+        "m_end>d_bot", "d_bot>n_seen", "d_bot>m_bot"] + CMT_TEXT),
 }
 
+SEED = """<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>{name}</title></head>
+<body>
+<script id="scenario-meta" type="application/json">
+{meta}
+</script>
+</body>
+</html>
+"""
+
 def carve(name, spec):
+    import os, json
     keep = set(spec["keep"])
     res, skip = [], 0
     for ln in out:
         if ln.startswith('<g data-el="'):
             tag = ln.split('"')[1]
-            if tag not in keep:
-                skip += 1
-            elif skip == 0:
-                continue          # เก็บชิ้นนี้ แต่ไม่ต้องใส่ <g> ในผลลัพธ์
+            if tag not in keep: skip += 1
+            elif skip == 0: continue
         elif ln == "</g>":
             if skip: skip -= 1
             continue
-        elif skip:
-            continue
-        else:
-            res.append(ln)
-    s = "\n".join(res)
-    s = s.replace(">COMMENT_BOT_REPLY<", f">{name}<", 1)
-    s = re.sub(r'(<text x="32" y="74" class="t-sub">)[^<]*',
-               rf'\g<1>Scenario: {spec["desc"]}', s, count=1)
-    s = re.sub(r'(<text x="32" y="96" class="t-sub">)[^<]*',
-               rf'\g<1>{spec["note"]} · ตัดจาก e2e ตัวเต็ม พิกัดและสีเดิมทุกจุด', s, count=1)
-    s = s.replace("<defs>", STYLE + "\n<defs>", 1)
-    # ถ้ามีโฟลเดอร์ scenario อยู่แล้ว วางไว้ในนั้นเลยเป็น flow.svg
-    import glob, os
-    hit = glob.glob(f"*/*/[0-9][0-9]-{name}") + glob.glob(f"*/[0-9][0-9]-{name}")
-    fn = os.path.join(hit[0], "flow.svg") if hit else f"scenario-{name}.svg"
-    with open(fn, "w", encoding="utf-8") as f:
-        f.write('<?xml version="1.0" encoding="UTF-8"?>\n' + s)
-    print(f"{fn} — เหลือ {len(keep)} ชิ้น จากทั้งหมด {sum(1 for l in out if l.startswith('<g data-el='))}")
+        elif skip: continue
+        else: res.append(ln)
+    svg = "\n".join(res)
+    svg = svg.replace(">COMMENT_BOT_REPLY<", f">{name}<", 1)
+    svg = re.sub(r'(<text x="32" y="74" class="t-sub">)[^<]*',
+                 lambda m: m.group(1) + "Scenario: " + spec["desc"], svg, count=1)
+    svg = re.sub(r'(<text x="32" y="96" class="t-sub">)[^<]*',
+                 lambda m: m.group(1) + spec["note"] + " · ตัดจาก e2e ตัวเต็ม พิกัดและสีเดิมทุกจุด", svg, count=1)
+    svg = svg.replace("<defs>", STYLE + "\n<defs>", 1)
+
+    folder = os.path.join(spec["cat"], f'{spec["nn"]}-{name}')
+    os.makedirs(folder, exist_ok=True)
+    with open(os.path.join(folder, "flow.svg"), "w", encoding="utf-8") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n' + svg)
+
+    html = os.path.join(folder, "scenario.html")
+    if not os.path.exists(html):
+        meta = json.dumps({"scenario": name, "category": spec["cat"], "description": spec["desc"],
+                           "steps": spec["steps"], "accepted": False, "acceptanceHistory": []},
+                          ensure_ascii=False, indent=2)
+        with open(html, "w", encoding="utf-8") as f:
+            f.write(SEED.format(name=name, meta=meta))
+    print(f"{folder}/flow.svg — {len(keep)} ชิ้น")
 
 import re
 for _n, _s in SCENARIOS.items():
