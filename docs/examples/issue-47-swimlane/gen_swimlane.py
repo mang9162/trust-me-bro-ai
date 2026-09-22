@@ -8,7 +8,7 @@ import html
 OUT_W, GRP_W, LAB_W = 30, 30, 70          # คอลัมน์ซ้าย: bracket รวม / กลุ่ม / ชื่อ lane
 X0 = OUT_W + GRP_W + LAB_W                  # ซ้ายสุดของพื้นที่ lane
 COLW = 200
-NCOL = 28
+NCOL = 36
 TITLE_H = 118
 PAD_R = 30
 W = X0 + NCOL * COLW + PAD_R
@@ -46,7 +46,7 @@ ROW_DOWN3 = ROW_MAIN + 312
 LOOP_BACK = ROW_MAIN + 392
 SKIP_FWD  = ROW_MAIN + 452
 BOT_BACK  = ROW_MAIN + 512
-ROW_END = SVC_TOP + 300
+ROW_END = ROW_MAIN + 280
 
 FB_TOP = LY["fb"][0]
 FB_MAIN = FB_TOP + 74
@@ -54,6 +54,18 @@ FB_END = FB_TOP + 156
 
 out = []
 A = out.append
+
+def tagged(fn):
+    """ห่อสิ่งที่ฟังก์ชันวาดไว้ใน <g data-el> เพื่อให้ตัดออกตอนทำ scenario ได้"""
+    def wrap(*a, tag=None, **kw):
+        i = len(out)
+        r = fn(*a, **kw)
+        if tag is not None:
+            out.insert(i, f'<g data-el="{tag}">')
+            out.append("</g>")
+        return r
+    wrap.__name__ = fn.__name__
+    return wrap
 
 # ---------- defs ----------
 A(f'<svg class="swim" viewBox="0 0 {W} {H}" width="{W}" height="{H}" '
@@ -119,6 +131,7 @@ def _ink(stop=False, branch=None):
     return ("fl-stop", "arS") if stop else ("fl", "ar")
 
 # ---------- shapes ----------
+@tagged
 def task(col, y, lines, w=142, h=54, row=0, cls="n-task"):
     x = cx(col) - w / 2
     A(f'<rect x="{x}" y="{y - h/2}" width="{w}" height="{h}" rx="3" class="{cls}"/>')
@@ -128,6 +141,7 @@ def task(col, y, lines, w=142, h=54, row=0, cls="n-task"):
         A(f'<text x="{cx(col)}" y="{ty}" class="t-node">{html.escape(ln)}</text>')
     return (cx(col), y, w, h)
 
+@tagged
 def decision(col, y, lines, w=150, h=84):
     X, hw, hh = cx(col), w / 2, h / 2
     A(f'<polygon points="{X},{y-hh} {X+hw},{y} {X},{y+hh} {X-hw},{y}" class="n-dec"/>')
@@ -137,6 +151,7 @@ def decision(col, y, lines, w=150, h=84):
         A(f'<text x="{X}" y="{ty}" class="t-dec">{html.escape(ln)}</text>')
     return (X, y, w, h)
 
+@tagged
 def store(col, y, lines, w=146, h=52):
     X = cx(col)
     A(f'<rect x="{X-w/2}" y="{y-h/2}" width="{w}" height="{h}" rx="14" class="n-store"/>')
@@ -146,6 +161,7 @@ def store(col, y, lines, w=146, h=52):
         A(f'<text x="{X}" y="{ty}" class="t-node">{html.escape(ln)}</text>')
     return (X, y, w, h)
 
+@tagged
 def actor(col, y, label):
     X, r = cx(col), 26
     pts = " ".join(f"{X + r*dx},{y + r*dy}" for dx, dy in
@@ -154,6 +170,7 @@ def actor(col, y, label):
     A(f'<text x="{X}" y="{y + r + 17}" class="t-node">{html.escape(label)}</text>')
     return (X, y, r*1.74, r*2)
 
+@tagged
 def forkbar(col, y_top, y_bot, label=None, dx=0):
     """แถบหนา = แยกไปทำพร้อมกัน (fork) หรือรวมกลับ (join) — ไม่ใช่การเลือกทางใดทางหนึ่ง"""
     X = cx(col) + dx
@@ -162,6 +179,7 @@ def forkbar(col, y_top, y_bot, label=None, dx=0):
         A(f'<text x="{X}" y="{y_bot + 18}" class="t-edge">{html.escape(label)}</text>')
     return (X, (y_top + y_bot)/2, 10, y_bot - y_top)
 
+@tagged
 def note(col, y, lines, w=178, h=46, dx=0):
     X = cx(col) + dx
     A(f'<rect x="{X-w/2}" y="{y-h/2}" width="{w}" height="{h}" rx="3" class="n-note"/>')
@@ -171,12 +189,14 @@ def note(col, y, lines, w=178, h=46, dx=0):
         A(f'<text x="{X}" y="{ty}" class="t-note">{html.escape(ln)}</text>')
     return (X, y, w, h)
 
+@tagged
 def merge(col, y, dx=0):
     """จุดรวมทางเดินก่อนวนกลับ — ไม่ใช่จุดจบ"""
     X, r = cx(col) + dx, 13
     A(f'<circle cx="{X}" cy="{y}" r="{r}" class="n-merge"/>')
     return (X, y, r*2, r*2)
 
+@tagged
 def endpoint(col, y, label, above=False, dx=0):
     X, r = cx(col) + dx, 15
     A(f'<circle cx="{X}" cy="{y}" r="{r}" class="n-end"/>')
@@ -185,6 +205,7 @@ def endpoint(col, y, label, above=False, dx=0):
     return (X, y, r*2, r*2)
 
 # ---------- arrows ----------
+@tagged
 def right(a, b, label=None, stop=False, turn=None, ay=None, by=None, hops=None, branch=None):
     """ลูกศรตรงแนวนอน หรือหักขึ้น/ลงแบบตั้งฉาก
     turn = x ที่จะหักแนวตั้ง (กันหักไปชนกล่องที่ขวางอยู่กลางทาง)"""
@@ -206,6 +227,7 @@ def right(a, b, label=None, stop=False, turn=None, ay=None, by=None, hops=None, 
     if label:
         A(f'<text x="{lx}" y="{ly}" class="t-edge">{html.escape(label)}</text>')
 
+@tagged
 def drop(a, b, label=None, stop=False, corridor=None, lab_x=None, enter=None, branch=None):
     """ออกจากด้านล่างแล้วลงไปหาเป้าด้านบน
     corridor = ระดับ y ที่ให้วิ่งแนวนอน (แยกช่องกันไม่ให้เส้นทับ)
@@ -232,12 +254,13 @@ def drop(a, b, label=None, stop=False, corridor=None, lab_x=None, enter=None, br
     if label:
         A(f'<text x="{lx}" y="{ly}" class="t-edge">{html.escape(label)}</text>')
 
-def rise(a, b, label=None, branch=None):
+@tagged
+def rise(a, b, label=None, branch=None, corridor=None):
     """ออกจากด้านบนแล้วขึ้นไปหาเป้าด้านล่าง"""
     x1, y1 = a[0], a[1] - a[3]/2
     x2, y2 = b[0], b[1] + b[3]/2
     _c, _m = _ink(branch=branch)
-    midy = (y1 + y2) / 2
+    midy = corridor if corridor is not None else (y1 + y2) / 2
     if abs(x1 - x2) < 1:
         A(f'<path d="M{x1},{y1} L{x2},{y2}" class="{_c}" marker-end="url(#{_m})"/>')
         lx, ly = x1 + 6, midy
@@ -248,6 +271,7 @@ def rise(a, b, label=None, branch=None):
     if label:
         A(f'<text x="{lx}" y="{ly}" class="t-edge">{html.escape(label)}</text>')
 
+@tagged
 def data(a, b, label=None):
     """เส้นประสองทาง: ไปถาม/ไปบันทึกข้อมูล"""
     x1, y1 = a[0], a[1] + a[3]/2
@@ -256,6 +280,7 @@ def data(a, b, label=None):
     if label:
         A(f'<text x="{x1 + 7}" y="{(y1 + y2)/2 + 4}" class="t-data">{html.escape(label)}</text>')
 
+@tagged
 def loopback(a, b, label=None, corridor=None, hops=None, branch=None, enter=None):
     """วนกลับไปต้นลูป: ออกใต้ a ลงช่องเดิน ย้อนซ้ายไปเลยเป้า แล้วขึ้นเข้าทางซ้ายของเป้า
     เข้าทางซ้ายเพื่อไม่ให้ไปชนเส้นอื่นที่พุ่งเข้าด้านล่างของเป้าอยู่แล้ว"""
@@ -272,6 +297,17 @@ def loopback(a, b, label=None, corridor=None, hops=None, branch=None, enter=None
     if label:
         A(f'<text x="{(x1 + turn)/2}" y="{corridor - 8}" class="t-edge">{html.escape(label)}</text>')
 
+@tagged
+def up_right(a, b, label=None, by=None, branch=None):
+    """ออกมุมบน ขึ้นไปถึงระดับ by แล้วเลี้ยวขวาเข้าด้านซ้ายของเป้า"""
+    _c, _m = _ink(branch=branch)
+    x1, y1 = a[0], a[1] - a[3]/2
+    x2 = b[0] - b[2]/2
+    A(f'<path d="M{x1},{y1} L{x1},{by} L{x2},{by}" class="{_c}" marker-end="url(#{_m})"/>')
+    if label:
+        A(f'<text x="{(x1 + x2)/2}" y="{by - 8}" class="t-edge">{html.escape(label)}</text>')
+
+@tagged
 def forward_under(a, b, label=None, corridor=None, hops=None, branch=None):
     """ลงใต้ผัง วิ่งไปขวา แล้วขึ้นเข้าทางใต้ของเป้า"""
     _c, _m = _ink(branch=branch)
@@ -286,169 +322,162 @@ def forward_under(a, b, label=None, corridor=None, hops=None, branch=None):
         A(f'<text x="{x1 + 150}" y="{corridor - 8}" class="t-edge">{html.escape(label)}</text>')
 
 # ---------- nodes ----------
-CUST = lane_mid("cust", -8)
-PS = lane_mid("pubsub")
-MG = lane_mid("mongo")
-RD = lane_mid("redis")
+CUST = lane_mid("cust", -8); PS = lane_mid("pubsub"); MG = lane_mid("mongo"); RD = lane_mid("redis")
 
-n_actor = actor(0, CUST, "ลูกค้า")
-n_comment = task(1, CUST, ["คอมเมนต์ใต้โพสต์", "ของร้าน"])
-n_ps = task(2, PS, ["แจ้งระบบว่า", "มีคอมเมนต์ใหม่"])
+n_actor   = actor(0, CUST, "ลูกค้า", tag="n_actor")
+n_comment = task(1, CUST, ["คอมเมนต์ใต้โพสต์", "ของร้าน"], tag="n_comment")
+n_ps      = task(2, PS, ["แจ้งระบบว่า", "มีคอมเมนต์ใหม่"], tag="n_ps")
 
-d_real = decision(3, ROW_MAIN, ["เป็นคอมเมนต์", "จริงไหม"])
-d_page = decision(4, ROW_MAIN, ["เพจเปิดใช้งาน", "อยู่ไหม"])
-d_who = decision(5, ROW_MAIN, ["คนคอมเมนต์เป็น", "ลูกค้าใช่ไหม"])
-n_bots = task(7, ROW_MAIN, ["หยิบบอทของร้าน", "มาทีละตัว"])
-d_again = decision(8, ROW_MAIN, ["ตอบคนเดิม", "ซ้ำได้ไหม"])
-d_post = decision(9, ROW_MAIN, ["ดูแลโพสต์นี้", "ไหม"])
-d_spec = decision(10, ROW_MAIN, ["มีบอทเฉพาะโพสต์", "คุมอยู่ไหม"])
-d_kw = decision(11, ROW_MAIN, ["ตรงคำที่ตั้ง", "ให้ตอบไหม"])
-d_ban = decision(12, ROW_MAIN, ["มีคำต้องห้าม", "ไหม"])
-n_prep = task(13, ROW_MAIN, ["เตรียมคำตอบ", "สุ่มจากชุดที่ตั้งไว้"])
+d_real = decision(3, ROW_MAIN, ["เป็นคอมเมนต์", "จริงไหม"], tag="d_real")
+d_page = decision(4, ROW_MAIN, ["เพจเปิดใช้งาน", "อยู่ไหม"], tag="d_page")
+d_who  = decision(5, ROW_MAIN, ["คนคอมเมนต์เป็น", "ลูกค้าใช่ไหม"], tag="d_who")
+e_stop = endpoint(5, ROW_END, "จบ ไม่ตอบ", dx=40, tag="e_stop")
+m_bot  = merge(6, ROW_MAIN, dx=-82, tag="m_bot")
+n_bots = task(7, ROW_MAIN, ["หยิบบอทของร้าน", "มาทีละตัว"], tag="n_bots")
 
-# บอททำได้หลายอย่างพร้อมกัน ไม่ได้เลือกอย่างใดอย่างหนึ่ง -> แถบ fork ไม่ใช่ข้าวหลามตัด
-# เงื่อนไขว่าร้านตั้งอะไรไว้บ้าง แปะไว้บนลูกศรแต่ละเส้น
-f_split = forkbar(14, ROW_UP - 22, ROW_DOWN + 22, "แยกทำพร้อมกัน", dx=-46)
+d_team  = decision(8, ROW_MAIN, ["บอทเป็นของทีม", "เดียวกับเพจไหม"], tag="d_team")
+d_again = decision(9, ROW_MAIN, ["ตอบคนเดิม", "ซ้ำได้ไหม"], tag="d_again")
+d_post  = decision(10, ROW_MAIN, ["ดูแลโพสต์นี้", "ไหม"], tag="d_post")
+d_spec  = decision(11, ROW_MAIN, ["มีบอทเฉพาะโพสต์", "คุมอยู่ไหม"], tag="d_spec")
+d_text  = decision(12, ROW_MAIN, ["คอมเมนต์เป็น", "ข้อความไหม"], tag="d_text")
+d_kw    = decision(13, ROW_MAIN, ["ตรงคำที่ตั้ง", "ให้ตอบไหม"], tag="d_kw")
+d_type  = decision(13, ROW_DOWN3, ["บอทตั้งรับคอมเมนต์", "แบบนี้ไหม"], w=176, tag="d_type")
+d_ban   = decision(14, ROW_MAIN, ["มีคำต้องห้าม", "ไหม"], tag="d_ban")
+n_prep = task(16, ROW_MAIN, ["เตรียมคำตอบ", "สุ่มจากชุดที่ตั้งไว้"], tag="n_prep")
+d_has = decision(17, ROW_MAIN, ["มีคำสั่งจะส่ง", "ไหม"], tag="d_has")
+e_skip  = merge(15, ROW_END, tag="e_skip")
+e_skip_bar = e_skip
+out.insert(len(out) - 1, f'<text x="{e_skip[0]}" y="{ROW_END + 30}" class="t-edge">ข้ามบอทตัวนี้</text>')
 
-n_like = task(15, ROW_UP, ["กดไลก์คอมเมนต์"], h=40)
-n_reply = task(15, ROW_MAIN, ["ตอบใต้คอมเมนต์", "ข้อความ หรือรูป"], h=48)
-n_chat = task(15, ROW_DOWN, ["ทักแชทส่วนตัว"], h=40)
+f_split = forkbar(18, ROW_UP - 22, ROW_DOWN2 + 22, "แยกทำพร้อมกัน", dx=-46, tag="f_split")
+n_like = task(19, ROW_UP, ["กดไลก์คอมเมนต์"], h=40, tag="n_like")
+d_both = decision(19, ROW_MAIN, ["ตอบใต้คอมเมนต์มี", "ทั้งข้อความและรูปไหม"], w=184, tag="d_both")
+n_chat = task(19, ROW_DOWN2, ["ทักแชทส่วนตัว"], h=40, tag="n_chat")
+a_txt = task(20, ROW_MAIN, ["ส่งข้อความ", "ชิ้นเดียว"], w=150, h=48, tag="a_txt")
+a_both = task(20, ROW_DOWN, ["ผูกให้รูปขึ้นหลังข้อความ", "แล้วส่งทั้งคู่"], w=190, h=48, tag="a_both")
+n_hint = note(17, ROW_DOWN3, ["ตั้งอย่างเดียว หลายอย่าง", "หรือครบทั้งสามก็ได้"], tag="n_hint")
+f_join = forkbar(21, ROW_UP - 22, ROW_DOWN2 + 22, "รวมเป็นชุดเดียว", dx=-52, tag="f_join")
 
-f_join = forkbar(16, ROW_UP - 22, ROW_DOWN + 22, "รวมเป็นชุดเดียว", dx=-52)
-n_hint = note(14, ROW_END - 26, ["ตั้งอย่างเดียว หลายอย่าง", "หรือครบทั้งสามก็ได้"], dx=40)
+s_page = store(4, MG, ["ข้อมูลเพจที่ผูกไว้"], tag="s_page")
+s_bots = store(7, MG, ["รายการบอทที่เปิดใช้"], tag="s_bots")
+s_log  = store(9, MG, ["ประวัติการตอบลูกค้า"], tag="s_log")
+s_img = store(19, RD, ["รูปที่เคยส่งเข้าแชท"], tag="s_img")
 
-e_stop = endpoint(5, ROW_END, "จบ ไม่ตอบ", dx=40)
-m_bot = merge(6, ROW_MAIN, dx=-82)
-e_skip = merge(12, ROW_END)
-A(f'<text x="{e_skip[0]}" y="{ROW_END + 30}" class="t-edge">ข้ามบอทตัวนี้</text>')
+n_send = task(22, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลกลับมาเป็นรายการ"], w=196, tag="n_send")
+d_sent = decision(23, ROW_MAIN, ["ยิงคำสั่งออก", "ไปได้ไหม"], tag="d_sent")
+m_in = merge(24, ROW_MAIN, tag="m_in")
+d_wait = decision(25, ROW_MAIN, ["คำสั่งนี้รอ", "คำสั่งอื่นอยู่ไหม"], w=170, tag="d_wait")
+d_ok = decision(26, ROW_MAIN, ["คำสั่งนี้", "สำเร็จไหม"], tag="d_ok")
+d_img = decision(27, ROW_MAIN, ["เป็นการส่งรูป", "ทางแชทไหม"], tag="d_img")
+a_keep = task(28, ROW_UP, ["เก็บรูปไว้ใช้ซ้ำ", "ครั้งหน้า"], w=158, h=48, tag="a_keep")
+d_live = decision(26, ROW_DOWN, ["ไลฟ์ยังไม่จบ", "อยู่ใช่ไหม"], w=158, tag="d_live")
+a_pass = task(27, ROW_DOWN, ["ตอบรูปใต้ไลฟ์ไม่ได้", "ปล่อยผ่าน ไม่ถือว่าล้มเหลว"], w=178, h=48, tag="a_pass")
+d_img2 = decision(26, ROW_DOWN2, ["เป็นการส่งรูป", "ทางแชทไหม"], tag="d_img2")
+d_exp = decision(27, ROW_DOWN2, ["รูปที่เคยส่ง", "หมดอายุไหม"], tag="d_exp")
+a_fail = task(27, ROW_DOWN3, ["บันทึกว่า", "คำสั่งนี้ล้มเหลว"], w=158, h=48, tag="a_fail")
+a_new = task(28, FB_MAIN, ["ส่งรูปใหม่", "ด้วยลิงก์รูปจริง"], w=158, tag="a_new")
+s_imgw = store(28, RD, ["รูปที่เคยส่งเข้าแชท"], tag="s_imgw")
+n_hint2 = note(30, ROW_DOWN3, ["ถ้าอ่านผลของคำสั่งไม่ออก", "นับเป็นล้มเหลวเหมือนกัน"], w=196, tag="n_hint2")
 
-s_page = store(4, MG, ["ข้อมูลเพจที่ผูกไว้"])
-s_bots = store(7, MG, ["รายการบอทที่เปิดใช้"])
-s_log = store(8, MG, ["ประวัติการตอบลูกค้า"])
-s_logw = store(24, MG, ["ประวัติการตอบลูกค้า"])
-s_img = store(15, RD, ["รูปที่เคยส่งเข้าแชท"])
-s_imgw = store(21, RD, ["รูปที่เคยส่งเข้าแชท"])
-
-n_send = task(17, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลกลับมาเป็นรายการ"], w=196)
-
-# จุดรวมทางเข้าลูป: เส้นแรกจาก Facebook กับเส้นวนกลับมารวมกันที่นี่
-# แล้วค่อยเข้าข้าวหลามตัดเส้นเดียว (ข้าวหลามตัดมี 4 มุม รับได้เข้า 1 ออก 3)
-m_in = merge(18, ROW_MAIN)
-
-# ทุกข้าวหลามตัดถามคำถามใช่/ไม่ใช่ข้อเดียว แตกได้ 2 ทางเท่านั้น
-# เงื่อนไขมาจากโค้ดจริงใน handleBatchResponse
-d_ok   = decision(19, ROW_MAIN,  ["คำสั่งนี้", "สำเร็จไหม"])
-d_img  = decision(20, ROW_MAIN,  ["เป็นการส่งรูป", "ทางแชทไหม"])
-a_keep = task(21, ROW_UP, ["เก็บรูปไว้ใช้ซ้ำ", "ครั้งหน้า"], w=158, h=48)
-
-d_live = decision(19, ROW_DOWN,  ["ไลฟ์ยังไม่จบ", "อยู่ใช่ไหม"], w=158)
-a_pass = task(20, ROW_DOWN, ["ตอบรูปใต้ไลฟ์ไม่ได้", "ปล่อยผ่าน ไม่ถือว่าล้มเหลว"], w=178, h=48)
-
-d_img2 = decision(19, ROW_DOWN2, ["เป็นการส่งรูป", "ทางแชทไหม"])
-d_exp  = decision(20, ROW_DOWN2, ["รูปที่เคยส่ง", "หมดอายุไหม"])
-a_fail = task(20, ROW_DOWN3, ["บันทึกว่า", "คำสั่งนี้ล้มเหลว"], w=158, h=48)
-a_new  = task(21, FB_MAIN, ["ส่งรูปใหม่", "ด้วยลิงก์รูปจริง"], w=158)
-
-n_hint2 = note(23, ROW_DOWN3, ["ถ้าอ่านผลของคำสั่งไม่ออก", "นับเป็นล้มเหลวเหมือนกัน"], w=196)
-
-f_res = forkbar(22, ROW_UP - 22, ROW_DOWN3 + 22, "รวมทาง", dx=-62)
-d_more = decision(23, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"])
-n_note = task(24, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
-m_end = merge(25, ROW_MAIN)
-d_bot = decision(26, ROW_MAIN, ["ดูบอทครบ", "ทุกตัวแล้วไหม"])
-n_seen = task(27, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
+f_res = forkbar(29, ROW_UP - 56, ROW_DOWN3 + 22, "รวมทาง", dx=-62, tag="f_res")
+d_more = decision(30, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"], tag="d_more")
+n_note = task(31, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"], tag="n_note")
+s_logw = store(31, MG, ["ประวัติการตอบลูกค้า"], tag="s_logw")
+m_end = merge(32, ROW_MAIN, tag="m_end")
+d_bot = decision(33, ROW_MAIN, ["ดูบอทครบ", "ทุกตัวแล้วไหม"], tag="d_bot")
+n_seen = task(34, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"], tag="n_seen")
 
 # ---------- edges ----------
-right(n_actor, n_comment)
-drop(n_comment, n_ps)
-drop(n_ps, d_real)
+right(n_actor, n_comment, tag="n_actor>n_comment")
+drop(n_comment, n_ps, tag="n_comment>n_ps")
+drop(n_ps, d_real, tag="n_ps>d_real")
 
-right(d_real, d_page, "ใช่", branch="true")
-right(d_page, d_who, "ใช่ เปิดอยู่", branch="true")
-right(d_who, m_bot, "ใช่", branch="true")
-right(m_bot, n_bots)
-right(n_bots, d_again)
-right(d_again, d_post, "ได้", branch="true")
-right(d_post, d_spec, "ดูแล", branch="true")
-right(d_spec, d_kw, "ไม่มี", branch="false")
-right(d_kw, d_ban, "ตรง", branch="true")
-right(d_ban, n_prep, "ไม่มี", branch="false")
-right(n_prep, f_split)
+right(d_real, d_page, "ใช่", branch="true", tag="d_real>d_page")
+right(d_page, d_who, "ใช่ เปิดอยู่", branch="true", tag="d_page>d_who")
+right(d_who, m_bot, "ใช่", branch="true", tag="d_who>m_bot")
+right(m_bot, n_bots, tag="m_bot>n_bots")
+right(n_bots, d_team, tag="n_bots>d_team")
+right(d_team, d_again, "ใช่", branch="true", tag="d_team>d_again")
+right(d_again, d_post, "ได้", branch="true", tag="d_again>d_post")
+right(d_post, d_spec, "ดูแล", branch="true", tag="d_post>d_spec")
+right(d_spec, d_text, "ไม่มี", branch="false", tag="d_spec>d_text")
+right(d_text, d_kw, "ใช่", branch="true", tag="d_text>d_kw")
+drop(d_text, d_type, "ไม่ใช่ เป็นรูป/สติกเกอร์", branch="false",
+     corridor=ROW_MAIN + 262, lab_x=cx(12) + 96, tag="d_text>d_type")
+right(d_kw, d_ban, "ตรง", branch="true", tag="d_kw>d_ban")
+right(d_ban, n_prep, "ไม่มี", branch="false", tag="d_ban>n_prep")
+rise(d_type, n_prep, "ใช่ รับแบบนี้", branch="true", corridor=ROW_MAIN + 262, tag="d_type>n_prep")
+right(n_prep, d_has, tag="n_prep>d_has")
+right(d_has, f_split, "ใช่", branch="true", tag="d_has>f_split")
 
-# ออกจากแถบ fork ไปพร้อมกันทุกเส้นที่ร้านตั้งไว้ เงื่อนไขอยู่บนลูกศร
-right(f_split, n_like, "ถ้าตั้งให้กดไลก์", ay=ROW_UP)
-right(f_split, n_reply, "ถ้าตั้งค่าตอบใต้คอมเมนต์", ay=ROW_MAIN)
-right(f_split, n_chat, "ถ้าตั้งค่าทักแชท", ay=ROW_DOWN)
-
-right(n_like, f_join, by=ROW_UP)
-right(n_reply, f_join, by=ROW_MAIN)
-right(n_chat, f_join, by=ROW_DOWN)
-
-# แต่ละเส้นได้ช่องเดินของตัวเอง ป้ายวางเหนือช่องนั้น ไม่ทับกัน
 LANE_STOP = [ROW_MAIN + 62, ROW_MAIN + 88, ROW_MAIN + 114]
-LANE_SKIP = [ROW_MAIN + 62, ROW_MAIN + 88, ROW_MAIN + 114, ROW_MAIN + 140, ROW_MAIN + 166]
 drop(d_real, e_stop, "แค่กดอีโมจิ / แก้คอมเมนต์เดิม", branch="false",
-     corridor=LANE_STOP[0], lab_x=cx(3) + 96)
+     corridor=LANE_STOP[0], lab_x=cx(3) + 96, tag="d_real>e_stop")
 drop(d_page, e_stop, "ปิดอยู่ / ไม่เคยผูก", branch="false",
-     corridor=LANE_STOP[1], lab_x=cx(4) + 66)
-drop(d_who, e_stop, "ร้านเอง", branch="false",
-     corridor=LANE_STOP[2], lab_x=cx(5) + 40)
+     corridor=LANE_STOP[1], lab_x=cx(4) + 66, tag="d_page>e_stop")
+drop(d_who, e_stop, "ไม่ใช่ ร้านเอง", branch="false",
+     corridor=LANE_STOP[2], lab_x=cx(5) + 52, tag="d_who>e_stop")
 
-drop(d_again, e_skip, "เคยตอบแล้ว", branch="false",
-     corridor=LANE_SKIP[0], lab_x=cx(7) + 58)
-drop(d_post, e_skip, "ไม่ใช่โพสต์นี้", branch="false",
-     corridor=LANE_SKIP[1], lab_x=cx(8) + 62)
-drop(d_spec, e_skip, "มี และตั้งให้หลบ", branch="true",
-     corridor=LANE_SKIP[2], lab_x=cx(9) + 70)
-drop(d_kw, e_skip, "ไม่ตรง", branch="false",
-     corridor=LANE_SKIP[3], lab_x=cx(10) + 38)
-drop(d_ban, e_skip, "มี", branch="true",
-     corridor=LANE_SKIP[4], lab_x=cx(11) + 26)
+SK = [ROW_MAIN + 62 + 26 * k for k in range(8)]
+drop(d_team, e_skip, "ไม่ใช่ คนละทีม", branch="false", corridor=SK[0], lab_x=cx(8) + 70, tag="d_team>e_skip")
+drop(d_again, e_skip, "ไม่ได้ เคยตอบแล้ว", branch="false", corridor=SK[1], lab_x=cx(9) + 74, tag="d_again>e_skip")
+drop(d_post, e_skip, "ไม่ใช่โพสต์นี้", branch="false", corridor=SK[2], lab_x=cx(10) + 62, tag="d_post>e_skip")
+drop(d_spec, e_skip, "มี และตั้งให้หลบ", branch="true", corridor=SK[3], lab_x=cx(11) + 70, tag="d_spec>e_skip")
+up_right(d_type, e_skip_bar, "ไม่ใช่ ไม่ได้ตั้งรับ", by=ROW_END, branch="false", tag="d_type>e_skip")
+drop(d_kw, e_skip, "ไม่ตรง", branch="false", corridor=SK[5], lab_x=cx(13) + 40, tag="d_kw>e_skip")
+drop(d_ban, e_skip, "มี", branch="true", corridor=SK[6], lab_x=cx(14) + 30, tag="d_ban>e_skip")
+drop(d_has, e_skip, "ไม่มีคำสั่งจะส่ง", branch="false", corridor=SK[7], lab_x=cx(16) + 66, tag="d_has>e_skip")
 
-data(d_page, s_page, "ถาม")
-data(n_bots, s_bots, "ขอรายการ")
-data(d_again, s_log, "เช็ก")
-data(n_chat, s_img, "หารูปเดิม")
+data(d_page, s_page, "ถาม", tag="d_page>s_page")
+data(n_bots, s_bots, "ขอรายการ", tag="n_bots>s_bots")
+data(d_again, s_log, "เช็ก", tag="d_again>s_log")
 
-drop(f_join, n_send, enter="left")
+right(f_split, n_like, "ถ้าตั้งให้กดไลก์", ay=ROW_UP, tag="f_split>n_like")
+right(f_split, d_both, "ถ้าตั้งค่าตอบใต้คอมเมนต์", ay=ROW_MAIN, tag="f_split>d_both")
+right(f_split, n_chat, "ถ้าตั้งค่าทักแชท", ay=ROW_DOWN2, tag="f_split>n_chat")
+right(d_both, a_txt, "ไม่ใช่", branch="false", tag="d_both>a_txt")
+drop(d_both, a_both, "ใช่", branch="true", enter="left", tag="d_both>a_both")
+data(n_chat, s_img, "หารูปเดิม", tag="n_chat>s_img")
+right(n_like, f_join, by=ROW_UP, tag="n_like>f_join")
+right(a_txt, f_join, by=ROW_MAIN, tag="a_txt>f_join")
+right(a_both, f_join, by=ROW_DOWN, tag="a_both>f_join")
+right(n_chat, f_join, by=ROW_DOWN2, tag="n_chat>f_join")
 
-# --- ลูปไล่ตรวจผลทีละคำสั่ง ---
-rise(n_send, m_in)
-right(m_in, d_ok)
+drop(f_join, n_send, enter="left", tag="f_join>n_send")
+rise(n_send, d_sent, tag="n_send>d_sent")
+right(d_sent, m_in, "ได้", branch="true", tag="d_sent>m_in")
+right(m_in, d_wait, tag="m_in>d_wait")
+right(d_wait, d_ok, "ไม่ใช่", branch="false", tag="d_wait>d_ok")
+up_right(d_wait, f_res, "ใช่ ข้ามไปตรวจใบถัดไป", by=ROW_UP - 40, branch="true", tag="d_wait>f_res")
+right(d_ok, d_img, "ใช่ สำเร็จ", branch="true", tag="d_ok>d_img")
+drop(d_ok, d_live, "ไม่สำเร็จ", branch="false", tag="d_ok>d_live")
+rise(d_img, a_keep, "ใช่", branch="true", tag="d_img>a_keep")
+right(d_img, f_res, "ไม่ใช่ ไม่ต้องทำอะไรต่อ", by=ROW_MAIN, branch="false", tag="d_img>f_res")
+data(a_keep, s_imgw, "เก็บรูป", tag="a_keep>s_imgw")
+right(a_keep, f_res, by=ROW_UP, tag="a_keep>f_res")
+right(d_live, a_pass, "ใช่", branch="true", tag="d_live>a_pass")
+drop(d_live, d_img2, "ไม่ใช่", branch="false", tag="d_live>d_img2")
+right(a_pass, f_res, by=ROW_DOWN, tag="a_pass>f_res")
+right(d_img2, d_exp, "ใช่", branch="true", tag="d_img2>d_exp")
+drop(d_img2, a_fail, "ไม่ใช่", enter="left", branch="false", tag="d_img2>a_fail")
+right(d_exp, a_new, "ใช่ ส่งใหม่", branch="true", tag="d_exp>a_new")
+drop(d_exp, a_fail, "ไม่ใช่", branch="false", tag="d_exp>a_fail")
+rise(a_new, f_res, tag="a_new>f_res")
+right(a_fail, f_res, by=ROW_DOWN3, hops=[(cx(27) + cx(28))/2 - 2], tag="a_fail>f_res")
 
-right(d_ok, d_img, "ใช่ สำเร็จ", branch="true")
-drop(d_ok, d_live, "ไม่สำเร็จ", branch="false")
-
-rise(d_img, a_keep, "ใช่", branch="true")
-right(d_img, f_res, "ไม่ใช่ ไม่ต้องทำอะไรต่อ", by=ROW_MAIN, branch="false")
-data(a_keep, s_imgw, "เก็บรูป")
-right(a_keep, f_res, by=ROW_UP)
-
-right(d_live, a_pass, "ใช่", branch="true")
-drop(d_live, d_img2, "ไม่ใช่", branch="false")
-right(a_pass, f_res, by=ROW_DOWN)
-
-right(d_img2, d_exp, "ใช่", branch="true")
-drop(d_img2, a_fail, "ไม่ใช่", enter="left", branch="false")
-right(d_exp, a_new, "ใช่ ส่งใหม่", branch="true")
-drop(d_exp, a_fail, "ไม่ใช่", branch="false")
-rise(a_new, f_res)
-right(a_fail, f_res, by=ROW_DOWN3, hops=[(cx(20) + cx(21))/2 - 2])
-
-right(f_res, d_more)
-loopback(d_more, m_in, "ไม่ ยังไม่ครบ ตรวจคำสั่งถัดไป", branch="false", corridor=LOOP_BACK,
-         hops=[cx(19), cx(20), cx(21)])
-right(d_more, n_note, "ใช่ ครบแล้ว", branch="true")
-data(n_note, s_logw, "บันทึก")
-
-# --- ลูปนอก: ร้านตั้งบอทได้หลายตัว ต้องวนดูให้ครบทุกตัว ---
-CROSS = [f_join[0], m_in[0], f_res[0], (cx(20) + cx(21))/2 - 2, a_new[0]]
-right(n_note, m_end)
-forward_under(e_skip, m_end, "ข้ามมารอที่จุดตรวจบอท", corridor=SKIP_FWD, hops=CROSS)
-right(m_end, d_bot)
+right(f_res, d_more, tag="f_res>d_more")
+CROSS = [f_join[0], d_sent[0], m_in[0], f_res[0], (cx(27) + cx(28))/2 - 2, a_new[0]]
+loopback(d_more, m_in, "ไม่ ยังไม่ครบ ตรวจคำสั่งถัดไป", branch="false",
+         corridor=LOOP_BACK, hops=[cx(26), cx(27), cx(28)], tag="d_more>m_in")
+right(d_more, n_note, "ใช่ ครบแล้ว", branch="true", tag="d_more>n_note")
+data(n_note, s_logw, "บันทึก", tag="n_note>s_logw")
+right(n_note, m_end, tag="n_note>m_end")
+forward_under(e_skip, m_end, "ข้ามมารอที่จุดตรวจบอท", corridor=SKIP_FWD, hops=CROSS, tag="e_skip>m_end")
+forward_under(d_sent, m_end, "ไม่ได้ ยิงไม่ออก", branch="false", corridor=SKIP_FWD, hops=CROSS, tag="d_sent>m_end")
+right(m_end, d_bot, tag="m_end>d_bot")
 loopback(d_bot, m_bot, "ไม่ ยังดูไม่ครบ หยิบบอทตัวถัดไป", branch="false",
-         corridor=BOT_BACK, enter="bottom", hops=CROSS)
-rise(d_bot, n_seen, "ใช่ ครบแล้ว", branch="true")
+         corridor=BOT_BACK, enter="bottom", hops=CROSS, tag="d_bot>m_bot")
+rise(d_bot, n_seen, "ใช่ ครบแล้ว", branch="true", tag="d_bot>n_seen")
 
 A("</svg>")
 svg = "\n".join(out)
@@ -487,3 +516,85 @@ standalone = svg.replace("<defs>", STYLE + "\n<defs>", 1)
 with open("swimlane.svg", "w", encoding="utf-8") as f:
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n' + standalone)
 print("swimlane.svg standalone ok")
+
+# ======================================================================
+# ตัด e2e ให้เหลือเส้นทางเดียวต่อ scenario
+# ใช้ layout เดิมทุกพิกัด/สี/เส้น แค่ไม่วาดชิ้นที่ไม่อยู่บนเส้นทางนั้น
+# ======================================================================
+
+BASE = ["n_actor", "n_comment", "n_ps", "d_real", "d_page", "d_who", "m_bot", "n_bots",
+        "d_team", "d_again", "d_post", "d_spec", "d_text", "d_kw", "d_ban", "n_prep", "d_has",
+        "s_page", "s_bots", "s_log", "s_logw",
+        "f_split", "f_join", "n_send", "d_sent", "m_in", "d_wait", "d_ok",
+        "f_res", "d_more", "n_note", "m_end", "d_bot", "n_seen",
+        "n_actor>n_comment", "n_comment>n_ps", "n_ps>d_real",
+        "d_real>d_page", "d_page>d_who", "d_who>m_bot", "m_bot>n_bots", "n_bots>d_team",
+        "d_team>d_again", "d_again>d_post", "d_post>d_spec", "d_spec>d_text", "d_text>d_kw",
+        "d_kw>d_ban", "d_ban>n_prep", "n_prep>d_has", "d_has>f_split",
+        "d_page>s_page", "n_bots>s_bots", "d_again>s_log",
+        "f_join>n_send", "n_send>d_sent", "d_sent>m_in", "m_in>d_wait", "d_wait>d_ok",
+        "f_res>d_more", "d_more>n_note", "n_note>s_logw", "n_note>m_end",
+        "m_end>d_bot", "d_bot>n_seen"]
+
+# ผลของคำสั่งที่สำเร็จและไม่ใช่รูปทางแชท = จบแค่นั้น
+OK_PLAIN = ["d_img", "d_ok>d_img", "d_img>f_res"]
+
+SCENARIOS = {
+    "COMMENT_BOT_REPLY_SUCCESS_1": {
+        "desc": "บอทกดไลก์และตอบใต้คอมเมนต์เป็นข้อความชิ้นเดียว ทั้งสองคำสั่งสำเร็จ",
+        "note": "ร้านมีบอท 1 ตัว · ชุดคำสั่ง 2 ใบ จึงวนตรวจผล 2 รอบ",
+        "keep": BASE + OK_PLAIN + ["d_more>m_in",
+                 "n_like", "f_split>n_like", "n_like>f_join",
+                 "d_both", "f_split>d_both", "a_txt", "d_both>a_txt", "a_txt>f_join"],
+    },
+    "COMMENT_BOT_REPLY_SUCCESS_2": {
+        "desc": "บอทตอบใต้คอมเมนต์เป็นข้อความพร้อมรูป โดยรูปต้องขึ้นหลังข้อความ",
+        "note": "ชุดคำสั่ง 2 ใบที่ผูกกัน · ใบข้อความจึงได้ผลกลับมาเป็นค่าว่าง ซึ่งเป็นเรื่องปกติ",
+        "keep": BASE + OK_PLAIN + ["d_more>m_in",
+                 "d_both", "f_split>d_both", "a_both", "d_both>a_both", "a_both>f_join",
+                 "d_wait>f_res"],
+    },
+    "COMMENT_BOT_REPLY_SUCCESS_3": {
+        "desc": "บอททักแชทส่วนตัวเป็นรูปที่ไม่เคยส่ง ส่งสำเร็จแล้วเก็บรูปไว้ใช้ซ้ำ",
+        "note": "ร้านมีบอท 1 ตัว · ชุดคำสั่ง 1 ใบ จึงวนตรวจผลรอบเดียว",
+        "keep": BASE + ["n_chat", "f_split>n_chat", "n_chat>f_join", "s_img", "n_chat>s_img",
+                 "d_img", "d_ok>d_img", "a_keep", "d_img>a_keep",
+                 "s_imgw", "a_keep>s_imgw", "a_keep>f_res"],
+    },
+}
+
+def carve(name, spec):
+    keep = set(spec["keep"])
+    res, skip = [], 0
+    for ln in out:
+        if ln.startswith('<g data-el="'):
+            tag = ln.split('"')[1]
+            if tag not in keep:
+                skip += 1
+            elif skip == 0:
+                continue          # เก็บชิ้นนี้ แต่ไม่ต้องใส่ <g> ในผลลัพธ์
+        elif ln == "</g>":
+            if skip: skip -= 1
+            continue
+        elif skip:
+            continue
+        else:
+            res.append(ln)
+    s = "\n".join(res)
+    s = s.replace(">COMMENT_BOT_REPLY<", f">{name}<", 1)
+    s = re.sub(r'(<text x="32" y="74" class="t-sub">)[^<]*',
+               rf'\g<1>Scenario: {spec["desc"]}', s, count=1)
+    s = re.sub(r'(<text x="32" y="96" class="t-sub">)[^<]*',
+               rf'\g<1>{spec["note"]} · ตัดจาก e2e ตัวเต็ม พิกัดและสีเดิมทุกจุด', s, count=1)
+    s = s.replace("<defs>", STYLE + "\n<defs>", 1)
+    # ถ้ามีโฟลเดอร์ scenario อยู่แล้ว วางไว้ในนั้นเลยเป็น flow.svg
+    import glob, os
+    hit = glob.glob(f"*/*/[0-9][0-9]-{name}") + glob.glob(f"*/[0-9][0-9]-{name}")
+    fn = os.path.join(hit[0], "flow.svg") if hit else f"scenario-{name}.svg"
+    with open(fn, "w", encoding="utf-8") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n' + s)
+    print(f"{fn} — เหลือ {len(keep)} ชิ้น จากทั้งหมด {sum(1 for l in out if l.startswith('<g data-el='))}")
+
+import re
+for _n, _s in SCENARIOS.items():
+    carve(_n, _s)
