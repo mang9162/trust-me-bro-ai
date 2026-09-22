@@ -195,6 +195,23 @@ def acceptance_html(meta):
     return "".join(rows)
 
 
+def flow_diagram_html(base):
+    """Render the scenario's own flow diagram when flow.svg exists in the folder.
+    Silently skipped when the file is absent, so scenarios without a diagram
+    still render exactly as before."""
+    import os
+    if not os.path.exists(os.path.join(base, "flow.svg")):
+        return ""
+    return (
+        '<div class="card">'
+        '<div class="section-title" style="margin-bottom:4px">Flow</div>'
+        '<p class="flow-hint">เส้นทางของ scenario นี้ ตัดจาก e2e ตัวเต็ม พิกัดและสีเดิมทุกจุด '
+        '— <a href="flow.svg" target="_blank">เปิดเต็มจอ</a></p>'
+        '<div style="overflow-x:auto;border:1px solid #d3dee1;border-radius:8px;background:#fff">'
+        '<img src="flow.svg" alt="flow" style="display:block;min-width:1400px;width:100%">'
+        '</div></div>'
+    )
+
 def render(base):
     hp = base / "scenario.html"
     if not hp.exists():
@@ -241,6 +258,8 @@ def render(base):
       </div>
     </div>
   </div>
+
+  {flow_diagram_html(base)}
 
   <div class="card">
     <div class="section-title">Functional Design</div>
