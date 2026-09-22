@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg class="swim" viewBox="0 0 3390 1198" width="3390" height="1198" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Swimlane เส้นทางบอทตอบคอมเมนต์">
+<svg class="swim" viewBox="0 0 3730 1198" width="3730" height="1198" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Swimlane เส้นทางบอทตอบคอมเมนต์">
 <style>
   .t-title{font-family:Kanit,'IBM Plex Sans Thai',sans-serif;font-size:31px;font-weight:600;fill:#16242A}
   .t-sub{font-family:'IBM Plex Sans Thai',sans-serif;font-size:14px;fill:#54666E}
@@ -15,6 +15,9 @@
   .n-store{fill:#FFFFFF;stroke:#96803A;stroke-width:1.6}
   .n-actor{fill:#D9B8D4;stroke:#7A5675;stroke-width:1.6}
   .n-end{fill:#D9705A;stroke:#8F3A28;stroke-width:1.8}
+  .n-fork{fill:#44525C;stroke:#2B363D;stroke-width:1}
+  .n-note{fill:#FBF1C2;stroke:#96803A;stroke-width:1.2}
+  .t-note{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;fill:#5B4E1E;text-anchor:middle}
   .fl{fill:none;stroke:#44525C;stroke-width:1.7}
   .fl-stop{fill:none;stroke:#B0402C;stroke-width:1.6}
   .fl-data{fill:none;stroke:#7C8C95;stroke-width:1.4;stroke-dasharray:5 4}
@@ -30,33 +33,33 @@
   <path d="M0,0 L10,5 L0,10 z" fill="#7C8C95"/>
 </marker>
 </defs>
-<rect x="0" y="0" width="3390" height="1198" fill="#FFFFFF"/>
+<rect x="0" y="0" width="3730" height="1198" fill="#FFFFFF"/>
 <text x="30" y="46" class="t-title">COMMENT_BOT_REPLY</text>
 <text x="32" y="74" class="t-sub">Scenario: ลูกค้าคอมเมนต์ใต้โพสต์ของร้าน แล้วบอทกดไลก์ ตอบใต้คอมเมนต์ และทักแชทกลับ</text>
 <text x="32" y="96" class="t-sub">flow วิ่งซ้ายไปขวา · ข้ามแถบขึ้นลงตามระบบที่รับผิดชอบ · เส้นประคือไปถามหรือไปบันทึกข้อมูล</text>
-<rect x="130" y="118" width="3230" height="150" fill="#CFE9D4"/>
-<rect x="130" y="118" width="3230" height="150" fill="none" stroke="#7FA8C4" stroke-width="2"/>
+<rect x="130" y="118" width="3570" height="150" fill="#CFE9D4"/>
+<rect x="130" y="118" width="3570" height="150" fill="none" stroke="#7FA8C4" stroke-width="2"/>
 <rect x="60" y="118" width="70" height="150" fill="#FFFFFF" stroke="#7FA8C4" stroke-width="2"/>
 <text x="95.0" y="193.0" class="t-lane" transform="rotate(-90 95.0 193.0)">ลูกค้า</text>
-<rect x="130" y="268" width="3230" height="100" fill="#C5DCF2"/>
-<rect x="130" y="268" width="3230" height="100" fill="none" stroke="#7FA8C4" stroke-width="2"/>
+<rect x="130" y="268" width="3570" height="100" fill="#C5DCF2"/>
+<rect x="130" y="268" width="3570" height="100" fill="none" stroke="#7FA8C4" stroke-width="2"/>
 <rect x="60" y="268" width="70" height="100" fill="#FFFFFF" stroke="#7FA8C4" stroke-width="2"/>
 <text x="95.0" y="318.0" class="t-lane" transform="rotate(-90 95.0 318.0)">Pub/Sub</text>
-<rect x="130" y="368" width="3230" height="370" fill="#F7DCBE"/>
-<rect x="130" y="368" width="3230" height="370" fill="none" stroke="#7FA8C4" stroke-width="2"/>
+<rect x="130" y="368" width="3570" height="370" fill="#F7DCBE"/>
+<rect x="130" y="368" width="3570" height="370" fill="none" stroke="#7FA8C4" stroke-width="2"/>
 <rect x="60" y="368" width="70" height="370" fill="#FFFFFF" stroke="#7FA8C4" stroke-width="2"/>
 <text x="87.5" y="553.0" class="t-lane" transform="rotate(-90 87.5 553.0)">live-stream</text>
 <text x="102.5" y="553.0" class="t-lane" transform="rotate(-90 102.5 553.0)">consumer</text>
-<rect x="130" y="738" width="3230" height="120" fill="#FBF1C2"/>
-<rect x="130" y="738" width="3230" height="120" fill="none" stroke="#7FA8C4" stroke-width="2"/>
+<rect x="130" y="738" width="3570" height="120" fill="#FBF1C2"/>
+<rect x="130" y="738" width="3570" height="120" fill="none" stroke="#7FA8C4" stroke-width="2"/>
 <rect x="60" y="738" width="70" height="120" fill="#FFFFFF" stroke="#7FA8C4" stroke-width="2"/>
 <text x="95.0" y="798.0" class="t-lane" transform="rotate(-90 95.0 798.0)">MongoDB</text>
-<rect x="130" y="858" width="3230" height="104" fill="#CFE6E8"/>
-<rect x="130" y="858" width="3230" height="104" fill="none" stroke="#7FA8C4" stroke-width="2"/>
+<rect x="130" y="858" width="3570" height="104" fill="#CFE6E8"/>
+<rect x="130" y="858" width="3570" height="104" fill="none" stroke="#7FA8C4" stroke-width="2"/>
 <rect x="60" y="858" width="70" height="104" fill="#FFFFFF" stroke="#7FA8C4" stroke-width="2"/>
 <text x="95.0" y="910.0" class="t-lane" transform="rotate(-90 95.0 910.0)">Redis</text>
-<rect x="130" y="962" width="3230" height="210" fill="#D6CFEA"/>
-<rect x="130" y="962" width="3230" height="210" fill="none" stroke="#7FA8C4" stroke-width="2"/>
+<rect x="130" y="962" width="3570" height="210" fill="#D6CFEA"/>
+<rect x="130" y="962" width="3570" height="210" fill="none" stroke="#7FA8C4" stroke-width="2"/>
 <rect x="60" y="962" width="70" height="210" fill="#FFFFFF" stroke="#7FA8C4" stroke-width="2"/>
 <text x="87.5" y="1067.0" class="t-lane" transform="rotate(-90 87.5 1067.0)">3rd</text>
 <text x="102.5" y="1067.0" class="t-lane" transform="rotate(-90 102.5 1067.0)">Facebook</text>
@@ -104,15 +107,20 @@
 <rect x="2184.0" y="445.0" width="142" height="54" rx="3" class="n-task"/>
 <text x="2255.0" y="469.0" class="t-node">เตรียมคำตอบ</text>
 <text x="2255.0" y="484.0" class="t-node">สุ่มจากชุดที่ตั้งไว้</text>
-<polygon points="2425.0,430.0 2500.0,472 2425.0,514.0 2350.0,472" class="n-dec"/>
-<text x="2425.0" y="469.5" class="t-dec">ตั้งให้ตอบ</text>
-<text x="2425.0" y="482.5" class="t-dec">แบบไหน</text>
+<rect x="2374.0" y="376" width="10" height="192" rx="2" class="n-fork"/>
+<text x="2379.0" y="586" class="t-edge">แยกทำพร้อมกัน</text>
 <rect x="2524.0" y="378.0" width="142" height="40" rx="3" class="n-task"/>
 <text x="2595.0" y="402.5" class="t-node">กดไลก์คอมเมนต์</text>
-<rect x="2524.0" y="452.0" width="142" height="40" rx="3" class="n-task"/>
-<text x="2595.0" y="476.5" class="t-node">ตอบใต้คอมเมนต์</text>
+<rect x="2524.0" y="448.0" width="142" height="48" rx="3" class="n-task"/>
+<text x="2595.0" y="469.0" class="t-node">ตอบใต้คอมเมนต์</text>
+<text x="2595.0" y="484.0" class="t-node">ข้อความ หรือรูป</text>
 <rect x="2524.0" y="526.0" width="142" height="40" rx="3" class="n-task"/>
 <text x="2595.0" y="550.5" class="t-node">ทักแชทส่วนตัว</text>
+<rect x="2708.0" y="376" width="10" height="192" rx="2" class="n-fork"/>
+<text x="2713.0" y="586" class="t-edge">รวมเป็นชุดเดียว</text>
+<rect x="2376.0" y="619.0" width="178" height="46" rx="3" class="n-note"/>
+<text x="2465.0" y="639.5" class="t-note">ตั้งอย่างเดียว หลายอย่าง</text>
+<text x="2465.0" y="653.5" class="t-note">หรือครบทั้งสามก็ได้</text>
 <circle cx="1235.0" cy="668" r="15" class="n-end"/>
 <text x="1235.0" y="700" class="t-end">จบ ไม่ตอบ</text>
 <circle cx="2255.0" cy="668" r="15" class="n-end"/>
@@ -123,26 +131,26 @@
 <text x="1235.0" y="802.5" class="t-node">รายการบอทที่เปิดใช้</text>
 <rect x="1332.0" y="772.0" width="146" height="52" rx="14" class="n-store"/>
 <text x="1405.0" y="802.5" class="t-node">ประวัติการตอบลูกค้า</text>
-<rect x="3032.0" y="772.0" width="146" height="52" rx="14" class="n-store"/>
-<text x="3105.0" y="802.5" class="t-node">ประวัติการตอบลูกค้า</text>
+<rect x="3372.0" y="772.0" width="146" height="52" rx="14" class="n-store"/>
+<text x="3445.0" y="802.5" class="t-node">ประวัติการตอบลูกค้า</text>
 <rect x="2522.0" y="884.0" width="146" height="52" rx="14" class="n-store"/>
 <text x="2595.0" y="914.5" class="t-node">รูปที่เคยส่งเข้าแชท</text>
-<rect x="2694.0" y="1009.0" width="142" height="54" rx="3" class="n-task"/>
-<text x="2765.0" y="1033.0" class="t-node">รับคำสั่งทั้งหมด</text>
-<text x="2765.0" y="1048.0" class="t-node">ในครั้งเดียว</text>
-<polygon points="2935.0,994.0 3010.0,1036 2935.0,1078.0 2860.0,1036" class="n-dec"/>
-<text x="2935.0" y="1040.0" class="t-dec">ทำให้ครบไหม</text>
-<rect x="3034.0" y="1009.0" width="142" height="54" rx="3" class="n-task"/>
-<text x="3105.0" y="1033.0" class="t-node">ส่งรูปใหม่แทน</text>
-<text x="3105.0" y="1048.0" class="t-node">รูปที่หมดอายุ</text>
-<circle cx="2935.0" cy="1118" r="15" class="n-end"/>
-<text x="2935.0" y="1150" class="t-end">ข้ามเงียบ ไม่นับว่าพัง</text>
-<rect x="3034.0" y="445.0" width="142" height="54" rx="3" class="n-task"/>
-<text x="3105.0" y="469.0" class="t-node">จดว่าตอบลูกค้า</text>
-<text x="3105.0" y="484.0" class="t-node">คนนี้แล้ว</text>
-<rect x="3204.0" y="158.0" width="142" height="54" rx="3" class="n-task"/>
-<text x="3275.0" y="182.0" class="t-node">เห็นไลก์ คำตอบ</text>
-<text x="3275.0" y="197.0" class="t-node">และข้อความในแชท</text>
+<rect x="2864.0" y="1009.0" width="142" height="54" rx="3" class="n-task"/>
+<text x="2935.0" y="1033.0" class="t-node">รับคำสั่งทั้งหมด</text>
+<text x="2935.0" y="1048.0" class="t-node">ในครั้งเดียว</text>
+<polygon points="3105.0,994.0 3180.0,1036 3105.0,1078.0 3030.0,1036" class="n-dec"/>
+<text x="3105.0" y="1040.0" class="t-dec">ทำให้ครบไหม</text>
+<rect x="3204.0" y="1009.0" width="142" height="54" rx="3" class="n-task"/>
+<text x="3275.0" y="1033.0" class="t-node">ส่งรูปใหม่แทน</text>
+<text x="3275.0" y="1048.0" class="t-node">รูปที่หมดอายุ</text>
+<circle cx="3105.0" cy="1118" r="15" class="n-end"/>
+<text x="3105.0" y="1150" class="t-end">ข้ามเงียบ ไม่นับว่าพัง</text>
+<rect x="3374.0" y="445.0" width="142" height="54" rx="3" class="n-task"/>
+<text x="3445.0" y="469.0" class="t-node">จดว่าตอบลูกค้า</text>
+<text x="3445.0" y="484.0" class="t-node">คนนี้แล้ว</text>
+<rect x="3544.0" y="158.0" width="142" height="54" rx="3" class="n-task"/>
+<text x="3615.0" y="182.0" class="t-node">เห็นไลก์ คำตอบ</text>
+<text x="3615.0" y="197.0" class="t-node">และข้อความในแชท</text>
 <path d="M237.62,185.0 L314.0,185.0" class="fl" marker-end="url(#ar)"/>
 <path d="M385.0,212.0 L385.0,251.5 L555.0,251.5 L555.0,291.0" class="fl" marker-end="url(#ar)"/>
 <path d="M555.0,345.0 L555.0,387.5 L725.0,387.5 L725.0,430.0" class="fl" marker-end="url(#ar)"/>
@@ -163,13 +171,16 @@
 <text x="2000.0" y="464" class="t-edge">ตรง</text>
 <path d="M2160.0,472 L2184.0,472" class="fl" marker-end="url(#ar)"/>
 <text x="2172.0" y="464" class="t-edge">ไม่มี</text>
-<path d="M2326.0,472 L2350.0,472" class="fl" marker-end="url(#ar)"/>
-<path d="M2500.0,472 L2512.0,472 L2512.0,398 L2524.0,398" class="fl" marker-end="url(#ar)"/>
-<text x="2518.0" y="435.0" class="t-edge">ไลก์</text>
-<path d="M2500.0,472 L2524.0,472" class="fl" marker-end="url(#ar)"/>
-<text x="2512.0" y="464" class="t-edge">ใต้คอมเมนต์</text>
-<path d="M2500.0,472 L2512.0,472 L2512.0,546 L2524.0,546" class="fl" marker-end="url(#ar)"/>
-<text x="2518.0" y="509.0" class="t-edge">แชท</text>
+<path d="M2326.0,472 L2374.0,472.0" class="fl" marker-end="url(#ar)"/>
+<path d="M2384.0,472.0 L2454.0,472.0 L2454.0,398 L2524.0,398" class="fl" marker-end="url(#ar)"/>
+<text x="2460.0" y="435.0" class="t-edge">ถ้าตั้งให้กดไลก์</text>
+<path d="M2384.0,472.0 L2524.0,472" class="fl" marker-end="url(#ar)"/>
+<text x="2454.0" y="464.0" class="t-edge">ถ้าตั้งค่าตอบใต้คอมเมนต์</text>
+<path d="M2384.0,472.0 L2454.0,472.0 L2454.0,546 L2524.0,546" class="fl" marker-end="url(#ar)"/>
+<text x="2460.0" y="509.0" class="t-edge">ถ้าตั้งค่าทักแชท</text>
+<path d="M2666.0,398 L2687.0,398 L2687.0,472.0 L2708.0,472.0" class="fl" marker-end="url(#ar)"/>
+<path d="M2666.0,472 L2708.0,472.0" class="fl" marker-end="url(#ar)"/>
+<path d="M2666.0,546 L2687.0,546 L2687.0,472.0 L2708.0,472.0" class="fl" marker-end="url(#ar)"/>
 <path d="M725.0,514.0 L725.0,534 L1235.0,534 L1235.0,653.0" class="fl-stop" marker-end="url(#arS)"/>
 <text x="821.0" y="527" class="t-edge">แค่กดอีโมจิ / แก้คอมเมนต์เดิม</text>
 <path d="M895.0,514.0 L895.0,560 L1235.0,560 L1235.0,653.0" class="fl-stop" marker-end="url(#arS)"/>
@@ -194,18 +205,16 @@
 <text x="1412.0" y="647.0" class="t-data">เช็ก</text>
 <path d="M2595.0,566.0 L2595.0,884.0" class="fl-data" marker-end="url(#arD)"/>
 <text x="2602.0" y="729.0" class="t-data">หารูปเดิม</text>
-<path d="M2595.0,418.0 L2595.0,713.5 L2765.0,713.5 L2765.0,1009.0" class="fl" marker-end="url(#ar)"/>
-<path d="M2595.0,492.0 L2595.0,750.5 L2765.0,750.5 L2765.0,1009.0" class="fl" marker-end="url(#ar)"/>
-<path d="M2595.0,566.0 L2595.0,787.5 L2765.0,787.5 L2765.0,1009.0" class="fl" marker-end="url(#ar)"/>
-<path d="M2836.0,1036 L2860.0,1036" class="fl" marker-end="url(#ar)"/>
-<path d="M2935.0,1078.0 L2935.0,1103.0" class="fl-stop" marker-end="url(#arS)"/>
-<text x="2941.0" y="1090.5" class="t-edge">ตอบรูปใต้ไลฟ์ไม่ได้</text>
-<path d="M3010.0,1036 L3034.0,1036" class="fl" marker-end="url(#ar)"/>
-<text x="3022.0" y="1028" class="t-edge">รูปหมดอายุ</text>
-<path d="M2935.0,994.0 L2935.0,746.5 L3105.0,746.5 L3105.0,499.0" class="fl" marker-end="url(#ar)"/>
-<text x="3020.0" y="739.5" class="t-edge">สำเร็จ</text>
-<path d="M3105.0,1009.0 L3105.0,499.0" class="fl" marker-end="url(#ar)"/>
-<path d="M3105.0,499.0 L3105.0,772.0" class="fl-data" marker-end="url(#arD)"/>
-<text x="3112.0" y="639.5" class="t-data">บันทึก</text>
-<path d="M3105.0,445.0 L3105.0,328.5 L3275.0,328.5 L3275.0,212.0" class="fl" marker-end="url(#ar)"/>
+<path d="M2713.0,568.0 L2713.0,788.5 L2935.0,788.5 L2935.0,1009.0" class="fl" marker-end="url(#ar)"/>
+<path d="M3006.0,1036 L3030.0,1036" class="fl" marker-end="url(#ar)"/>
+<path d="M3105.0,1078.0 L3105.0,1103.0" class="fl-stop" marker-end="url(#arS)"/>
+<text x="3111.0" y="1090.5" class="t-edge">ตอบรูปใต้ไลฟ์ไม่ได้</text>
+<path d="M3180.0,1036 L3204.0,1036" class="fl" marker-end="url(#ar)"/>
+<text x="3192.0" y="1028" class="t-edge">รูปหมดอายุ</text>
+<path d="M3105.0,994.0 L3105.0,746.5 L3445.0,746.5 L3445.0,499.0" class="fl" marker-end="url(#ar)"/>
+<text x="3275.0" y="739.5" class="t-edge">สำเร็จ</text>
+<path d="M3275.0,1009.0 L3275.0,754.0 L3445.0,754.0 L3445.0,499.0" class="fl" marker-end="url(#ar)"/>
+<path d="M3445.0,499.0 L3445.0,772.0" class="fl-data" marker-end="url(#arD)"/>
+<text x="3452.0" y="639.5" class="t-data">บันทึก</text>
+<path d="M3445.0,445.0 L3445.0,328.5 L3615.0,328.5 L3615.0,212.0" class="fl" marker-end="url(#ar)"/>
 </svg>

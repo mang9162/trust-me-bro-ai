@@ -8,7 +8,7 @@ import html
 OUT_W, GRP_W, LAB_W = 30, 30, 70          # คอลัมน์ซ้าย: bracket รวม / กลุ่ม / ชื่อ lane
 X0 = OUT_W + GRP_W + LAB_W                  # ซ้ายสุดของพื้นที่ lane
 COLW = 170
-NCOL = 19
+NCOL = 21
 TITLE_H = 118
 PAD_R = 30
 W = X0 + NCOL * COLW + PAD_R
@@ -137,6 +137,23 @@ def actor(col, y, label):
     A(f'<text x="{X}" y="{y + r + 17}" class="t-node">{html.escape(label)}</text>')
     return (X, y, r*1.74, r*2)
 
+def forkbar(col, y_top, y_bot, label=None, dx=0):
+    """แถบหนา = แยกไปทำพร้อมกัน (fork) หรือรวมกลับ (join) — ไม่ใช่การเลือกทางใดทางหนึ่ง"""
+    X = cx(col) + dx
+    A(f'<rect x="{X-5}" y="{y_top}" width="10" height="{y_bot-y_top}" rx="2" class="n-fork"/>')
+    if label:
+        A(f'<text x="{X}" y="{y_bot + 18}" class="t-edge">{html.escape(label)}</text>')
+    return (X, (y_top + y_bot)/2, 10, y_bot - y_top)
+
+def note(col, y, lines, w=178, h=46, dx=0):
+    X = cx(col) + dx
+    A(f'<rect x="{X-w/2}" y="{y-h/2}" width="{w}" height="{h}" rx="3" class="n-note"/>')
+    n = len(lines)
+    for i, ln in enumerate(lines):
+        ty = y - (n - 1) * 7 + i * 14 + 4.5
+        A(f'<text x="{X}" y="{ty}" class="t-note">{html.escape(ln)}</text>')
+    return (X, y, w, h)
+
 def endpoint(col, y, label, above=False):
     X, r = cx(col), 15
     A(f'<circle cx="{X}" cy="{y}" r="{r}" class="n-end"/>')
@@ -224,11 +241,17 @@ d_spec = decision(9, ROW_MAIN, ["มีบอทเฉพาะโพสต์",
 d_kw = decision(10, ROW_MAIN, ["ตรงคำที่ตั้ง", "ให้ตอบไหม"])
 d_ban = decision(11, ROW_MAIN, ["มีคำต้องห้าม", "ไหม"])
 n_prep = task(12, ROW_MAIN, ["เตรียมคำตอบ", "สุ่มจากชุดที่ตั้งไว้"])
-d_how = decision(13, ROW_MAIN, ["ตั้งให้ตอบ", "แบบไหน"])
+
+# บอททำได้หลายอย่างพร้อมกัน ไม่ได้เลือกอย่างใดอย่างหนึ่ง -> แถบ fork ไม่ใช่ข้าวหลามตัด
+# เงื่อนไขว่าร้านตั้งอะไรไว้บ้าง แปะไว้บนลูกศรแต่ละเส้น
+f_split = forkbar(13, ROW_UP - 22, ROW_DOWN + 22, "แยกทำพร้อมกัน", dx=-46)
 
 n_like = task(14, ROW_UP, ["กดไลก์คอมเมนต์"], h=40)
-n_reply = task(14, ROW_MAIN, ["ตอบใต้คอมเมนต์"], h=40)
+n_reply = task(14, ROW_MAIN, ["ตอบใต้คอมเมนต์", "ข้อความ หรือรูป"], h=48)
 n_chat = task(14, ROW_DOWN, ["ทักแชทส่วนตัว"], h=40)
+
+f_join = forkbar(15, ROW_UP - 22, ROW_DOWN + 22, "รวมเป็นชุดเดียว", dx=-52)
+n_hint = note(13, ROW_END - 26, ["ตั้งอย่างเดียว หลายอย่าง", "หรือครบทั้งสามก็ได้"], dx=40)
 
 e_stop = endpoint(6, ROW_END, "จบ ไม่ตอบ")
 e_skip = endpoint(12, ROW_END, "ข้ามบอทตัวนี้ ไปดูตัวถัดไป")
@@ -236,16 +259,16 @@ e_skip = endpoint(12, ROW_END, "ข้ามบอทตัวนี้ ไป�
 s_page = store(4, MG, ["ข้อมูลเพจที่ผูกไว้"])
 s_bots = store(6, MG, ["รายการบอทที่เปิดใช้"])
 s_log = store(7, MG, ["ประวัติการตอบลูกค้า"])
-s_logw = store(17, MG, ["ประวัติการตอบลูกค้า"])
+s_logw = store(19, MG, ["ประวัติการตอบลูกค้า"])
 s_img = store(14, RD, ["รูปที่เคยส่งเข้าแชท"])
 
-n_send = task(15, FB_MAIN, ["รับคำสั่งทั้งหมด", "ในครั้งเดียว"])
-d_ok = decision(16, FB_MAIN, ["ทำให้ครบไหม"])
-n_resend = task(17, FB_MAIN, ["ส่งรูปใหม่แทน", "รูปที่หมดอายุ"])
-e_quiet = endpoint(16, FB_END, "ข้ามเงียบ ไม่นับว่าพัง")
+n_send = task(16, FB_MAIN, ["รับคำสั่งทั้งหมด", "ในครั้งเดียว"])
+d_ok = decision(17, FB_MAIN, ["ทำให้ครบไหม"])
+n_resend = task(18, FB_MAIN, ["ส่งรูปใหม่แทน", "รูปที่หมดอายุ"])
+e_quiet = endpoint(17, FB_END, "ข้ามเงียบ ไม่นับว่าพัง")
 
-n_note = task(17, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
-n_seen = task(18, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
+n_note = task(19, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
+n_seen = task(20, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
 
 # ---------- edges ----------
 right(n_actor, n_comment)
@@ -261,14 +284,20 @@ right(d_post, d_spec, "ดูแล")
 right(d_spec, d_kw, "ไม่มี")
 right(d_kw, d_ban, "ตรง")
 right(d_ban, n_prep, "ไม่มี")
-right(n_prep, d_how)
+right(n_prep, f_split)
 
-right(d_how, n_like, "ไลก์")
-right(d_how, n_reply, "ใต้คอมเมนต์")
-right(d_how, n_chat, "แชท")
+# ออกจากแถบ fork ไปพร้อมกันทุกเส้นที่ร้านตั้งไว้ เงื่อนไขอยู่บนลูกศร
+right(f_split, n_like, "ถ้าตั้งให้กดไลก์")
+right(f_split, n_reply, "ถ้าตั้งค่าตอบใต้คอมเมนต์")
+right(f_split, n_chat, "ถ้าตั้งค่าทักแชท")
+
+right(n_like, f_join)
+right(n_reply, f_join)
+right(n_chat, f_join)
 
 # แต่ละเส้นได้ช่องเดินของตัวเอง ป้ายวางเหนือช่องนั้น ไม่ทับกัน
 LANE_STOP = [ROW_MAIN + 62, ROW_MAIN + 88, ROW_MAIN + 114]
+LANE_SKIP = [ROW_MAIN + 62, ROW_MAIN + 88, ROW_MAIN + 114, ROW_MAIN + 140, ROW_MAIN + 166]
 drop(d_real, e_stop, "แค่กดอีโมจิ / แก้คอมเมนต์เดิม", stop=True,
      corridor=LANE_STOP[0], lab_x=cx(3) + 96)
 drop(d_page, e_stop, "ปิดอยู่ / ไม่เคยผูก", stop=True,
@@ -293,9 +322,7 @@ data(n_bots, s_bots, "ขอรายการ")
 data(d_again, s_log, "เช็ก")
 data(n_chat, s_img, "หารูปเดิม")
 
-drop(n_like, n_send)
-drop(n_reply, n_send)
-drop(n_chat, n_send)
+drop(f_join, n_send)
 right(n_send, d_ok)
 drop(d_ok, e_quiet, "ตอบรูปใต้ไลฟ์ไม่ได้", stop=True)
 right(d_ok, n_resend, "รูปหมดอายุ")
@@ -327,6 +354,9 @@ STYLE = """<style>
   .n-store{fill:#FFFFFF;stroke:#96803A;stroke-width:1.6}
   .n-actor{fill:#D9B8D4;stroke:#7A5675;stroke-width:1.6}
   .n-end{fill:#D9705A;stroke:#8F3A28;stroke-width:1.8}
+  .n-fork{fill:#44525C;stroke:#2B363D;stroke-width:1}
+  .n-note{fill:#FBF1C2;stroke:#96803A;stroke-width:1.2}
+  .t-note{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;fill:#5B4E1E;text-anchor:middle}
   .fl{fill:none;stroke:#44525C;stroke-width:1.7}
   .fl-stop{fill:none;stroke:#B0402C;stroke-width:1.6}
   .fl-data{fill:none;stroke:#7C8C95;stroke-width:1.4;stroke-dasharray:5 4}
