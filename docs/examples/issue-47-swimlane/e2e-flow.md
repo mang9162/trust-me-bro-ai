@@ -87,6 +87,23 @@ Success/01-COMMENT_BOT_REPLY_SUCCESS_1/
 เพิ่ม scenario ใหม่ = เติมใน `SCENARIOS` ของ `gen_swimlane.py` แล้วรันใหม่
 โฟลเดอร์ scenario.html และผังจะถูกสร้างให้เอง
 
+### ทำไมเก็บเป็น SVG ไม่ใช่ PNG
+
+| | SVG 16 ไฟล์ | PNG 16 ไฟล์ |
+|---|---|---|
+| ขนาดรวม | 320 KB | 3.1 MB |
+| diff ใน PR | เห็นว่าแก้อะไร | เห็นแค่ binary changed |
+| สร้างใหม่ | `python3 gen_swimlane.py` จบ | ต้องมี Node + puppeteer |
+
+`<img src="flow.svg">` เบราว์เซอร์แสดงได้ปกติอยู่แล้ว
+
+**ถ้าต้องใช้ PNG** เช่นเอาไปแปะ GitHub issue (ซึ่งไม่แสดง SVG) ค่อยแปลงตอนนั้น
+
+```bash
+npm i --no-save puppeteer
+node -e "const p=require('puppeteer'),path=require('path');(async()=>{const b=await p.launch();const g=await b.newPage();await g.setViewport({width:8160,height:1628,deviceScaleFactor:1.2});await g.goto('file://'+path.resolve(process.argv[1]),{waitUntil:'networkidle0'});await new Promise(r=>setTimeout(r,800));await g.screenshot({path:process.argv[1].replace(/\.svg$/,'.png')});await b.close()})()" swimlane.svg
+```
+
 ---
 
 ## Lane → ต้อง mock / seed อะไรในเทส
