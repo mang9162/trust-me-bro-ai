@@ -8,7 +8,7 @@ import html
 OUT_W, GRP_W, LAB_W = 30, 30, 70          # คอลัมน์ซ้าย: bracket รวม / กลุ่ม / ชื่อ lane
 X0 = OUT_W + GRP_W + LAB_W                  # ซ้ายสุดของพื้นที่ lane
 COLW = 170
-NCOL = 21
+NCOL = 23
 TITLE_H = 118
 PAD_R = 30
 W = X0 + NCOL * COLW + PAD_R
@@ -154,6 +154,12 @@ def note(col, y, lines, w=178, h=46, dx=0):
         A(f'<text x="{X}" y="{ty}" class="t-note">{html.escape(ln)}</text>')
     return (X, y, w, h)
 
+def merge(col, y, dx=0):
+    """จุดรวมทางเดินก่อนวนกลับ — ไม่ใช่จุดจบ"""
+    X, r = cx(col) + dx, 13
+    A(f'<circle cx="{X}" cy="{y}" r="{r}" class="n-merge"/>')
+    return (X, y, r*2, r*2)
+
 def endpoint(col, y, label, above=False):
     X, r = cx(col), 15
     A(f'<circle cx="{X}" cy="{y}" r="{r}" class="n-end"/>')
@@ -221,6 +227,15 @@ def data(a, b, label=None):
     if label:
         A(f'<text x="{x1 + 7}" y="{(y1 + y2)/2 + 4}" class="t-data">{html.escape(label)}</text>')
 
+def loopback(a, b, label=None, corridor=None):
+    """วนกลับไปต้นลูป: ออกใต้ a ลงช่องเดิน ย้อนซ้าย แล้วขึ้นเข้าใต้ b"""
+    x1, y1 = a[0], a[1] + a[3]/2
+    x2, y2 = b[0], b[1] + b[3]/2
+    A(f'<path d="M{x1},{y1} L{x1},{corridor} L{x2},{corridor} L{x2},{y2}" '
+      f'class="fl" marker-end="url(#ar)"/>')
+    if label:
+        A(f'<text x="{(x1+x2)/2}" y="{corridor - 7}" class="t-edge">{html.escape(label)}</text>')
+
 # ---------- nodes ----------
 CUST = lane_mid("cust", -8)
 PS = lane_mid("pubsub")
@@ -259,16 +274,23 @@ e_skip = endpoint(12, ROW_END, "ข้ามบอทตัวนี้ ไป�
 s_page = store(4, MG, ["ข้อมูลเพจที่ผูกไว้"])
 s_bots = store(6, MG, ["รายการบอทที่เปิดใช้"])
 s_log = store(7, MG, ["ประวัติการตอบลูกค้า"])
-s_logw = store(19, MG, ["ประวัติการตอบลูกค้า"])
+s_logw = store(20, MG, ["ประวัติการตอบลูกค้า"])
 s_img = store(14, RD, ["รูปที่เคยส่งเข้าแชท"])
+s_imgw = store(18, RD, ["รูปที่เคยส่งเข้าแชท"])
 
-n_send = task(16, FB_MAIN, ["รับคำสั่งทั้งหมด", "ในครั้งเดียว"])
-d_ok = decision(17, FB_MAIN, ["ทำให้ครบไหม"])
+n_send = task(16, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลของแต่ละคำสั่งกลับมา"], w=192)
+
+# ระบบเราไล่ตรวจผลทีละคำสั่ง ไม่ใช่เช็คทีเดียวจบ -> เป็นลูป เช็คว่าหมดยังก่อนออก
+d_res = decision(17, ROW_MAIN, ["ผลของคำสั่งนี้", "เป็นยังไง"], w=158)
+
+n_ok = task(18, ROW_MAIN, ["สำเร็จ", "ถ้าเป็นรูปในแชท เก็บไว้ใช้ซ้ำ"], w=182, h=48)
+n_quiet = task(18, ROW_DOWN, ["ข้ามเงียบ", "ไม่นับว่าพัง"], h=44)
 n_resend = task(18, FB_MAIN, ["ส่งรูปใหม่แทน", "รูปที่หมดอายุ"])
-e_quiet = endpoint(17, FB_END, "ข้ามเงียบ ไม่นับว่าพัง")
 
-n_note = task(19, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
-n_seen = task(20, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
+m_loop = merge(19, ROW_MAIN)
+d_more = decision(20, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"])
+n_note = task(21, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"])
+n_seen = task(22, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"])
 
 # ---------- edges ----------
 right(n_actor, n_comment)
@@ -305,7 +327,6 @@ drop(d_page, e_stop, "ปิดอยู่ / ไม่เคยผูก", stop
 drop(d_who, e_stop, "ร้านเอง", stop=True,
      corridor=LANE_STOP[2], lab_x=cx(5) + 40)
 
-LANE_SKIP = [ROW_MAIN + 62, ROW_MAIN + 88, ROW_MAIN + 114, ROW_MAIN + 140, ROW_MAIN + 166]
 drop(d_again, e_skip, "เคยตอบแล้ว", stop=True,
      corridor=LANE_SKIP[0], lab_x=cx(7) + 58)
 drop(d_post, e_skip, "ไม่ใช่โพสต์นี้", stop=True,
@@ -323,11 +344,22 @@ data(d_again, s_log, "เช็ก")
 data(n_chat, s_img, "หารูปเดิม")
 
 drop(f_join, n_send)
-right(n_send, d_ok)
-drop(d_ok, e_quiet, "ตอบรูปใต้ไลฟ์ไม่ได้", stop=True)
-right(d_ok, n_resend, "รูปหมดอายุ")
-rise(d_ok, n_note, "สำเร็จ")
-rise(n_resend, n_note)
+
+# --- ลูปไล่ตรวจผลทีละคำสั่งในชุด ---
+rise(n_send, d_res)
+
+right(d_res, n_ok, "สำเร็จ")
+drop(d_res, n_quiet, "ไลฟ์ยังไม่จบ ตอบรูปไม่ได้", corridor=ROW_MAIN + 48)
+drop(d_res, n_resend, "รูปหมดอายุ")
+data(n_ok, s_imgw, "เก็บรูปไว้ใช้ซ้ำ")
+
+right(n_ok, m_loop)
+right(n_quiet, m_loop)
+rise(n_resend, m_loop)
+
+right(m_loop, d_more)
+loopback(d_more, d_res, "ยังไม่ครบ ตรวจคำสั่งถัดไป", corridor=ROW_DOWN + 86)
+right(d_more, n_note, "ครบแล้ว")
 data(n_note, s_logw, "บันทึก")
 rise(n_note, n_seen)
 
@@ -355,7 +387,7 @@ STYLE = """<style>
   .n-actor{fill:#D9B8D4;stroke:#7A5675;stroke-width:1.6}
   .n-end{fill:#D9705A;stroke:#8F3A28;stroke-width:1.8}
   .n-fork{fill:#44525C;stroke:#2B363D;stroke-width:1}
-  .n-note{fill:#FBF1C2;stroke:#96803A;stroke-width:1.2}
+  .n-note{fill:#FBF1C2;stroke:#96803A;stroke-width:1.2}\n  .n-merge{fill:#FFFFFF;stroke:#44525C;stroke-width:2}
   .t-note{font-family:'IBM Plex Sans Thai',sans-serif;font-size:11px;fill:#5B4E1E;text-anchor:middle}
   .fl{fill:none;stroke:#44525C;stroke-width:1.7}
   .fl-stop{fill:none;stroke:#B0402C;stroke-width:1.6}
