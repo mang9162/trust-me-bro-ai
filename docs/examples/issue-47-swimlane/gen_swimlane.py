@@ -8,7 +8,7 @@ import html
 OUT_W, GRP_W, LAB_W = 30, 30, 70          # คอลัมน์ซ้าย: bracket รวม / กลุ่ม / ชื่อ lane
 X0 = OUT_W + GRP_W + LAB_W                  # ซ้ายสุดของพื้นที่ lane
 COLW = 200
-NCOL = 36
+NCOL = 40
 TITLE_H = 118
 PAD_R = 30
 W = X0 + NCOL * COLW + PAD_R
@@ -17,7 +17,7 @@ LANES = [
     # key,      ชื่อ,                        สูง,  สีพื้น,     กลุ่ม
     ("cust",   ["ลูกค้า"],                   150, "#CFE9D4", "front"),
     ("pubsub", ["Pub/Sub"],                  100, "#C5DCF2", "back"),
-    ("svc",    ["live-stream", "consumer"],  700, "#F7DCBE", "back"),
+    ("svc",    ["live-stream", "consumer"],  800, "#F7DCBE", "back"),
     ("mongo",  ["MongoDB"],                  120, "#FBF1C2", "back"),
     ("redis",  ["Redis"],                    104, "#CFE6E8", "back"),
     ("fb",     ["3rd", "Facebook"],          210, "#D6CFEA", "back"),
@@ -43,9 +43,10 @@ ROW_UP = ROW_MAIN - 80
 ROW_DOWN = ROW_MAIN + 104
 ROW_DOWN2 = ROW_MAIN + 208
 ROW_DOWN3 = ROW_MAIN + 312
-LOOP_BACK = ROW_MAIN + 392
-SKIP_FWD  = ROW_MAIN + 452
-BOT_BACK  = ROW_MAIN + 512
+ROW_DOWN4 = ROW_MAIN + 416
+LOOP_BACK = ROW_MAIN + 496
+SKIP_FWD  = ROW_MAIN + 556
+BOT_BACK  = ROW_MAIN + 616
 ROW_END = ROW_MAIN + 280
 
 FB_TOP = LY["fb"][0]
@@ -352,40 +353,47 @@ out.insert(len(out) - 1, f'<text x="{e_skip[0]}" y="{ROW_END + 30}" class="t-edg
 f_split = forkbar(18, ROW_UP - 22, ROW_DOWN2 + 22, "แยกทำพร้อมกัน", dx=-46, tag="f_split")
 n_like = task(19, ROW_UP, ["กดไลก์คอมเมนต์"], h=40, tag="n_like")
 d_both = decision(19, ROW_MAIN, ["ตอบใต้คอมเมนต์มี", "ทั้งข้อความและรูปไหม"], w=184, tag="d_both")
-n_chat = task(19, ROW_DOWN2, ["ทักแชทส่วนตัว"], h=40, tag="n_chat")
+d_chatimg = decision(19, ROW_DOWN2, ["แชทเป็นรูปไหม"], tag="d_chatimg")
+a_chattext = task(20, ROW_DOWN2, ["ส่งข้อความ", "ตามที่ตั้งไว้"], w=150, h=48, tag="a_chattext")
+d_cached  = decision(20, ROW_DOWN3, ["เคยส่งรูปนี้", "แล้วไหม"], tag="d_cached")
+a_reuse   = task(21, ROW_DOWN3, ["ใช้รูปเดิม", "ที่เก็บไว้"], w=150, h=48, tag="a_reuse")
+a_upload  = task(21, ROW_DOWN4, ["แนบลิงก์รูป", "ให้อัปใหม่"], w=150, h=48, tag="a_upload")
+m_chat    = forkbar(22, ROW_DOWN2 - 22, ROW_DOWN4 + 22, "รวมข้อความแชท", dx=-40, tag="m_chat")
+d_quick   = decision(23, ROW_DOWN3, ["ต้องแนบปุ่ม", "ดูรูปเพิ่มไหม"], tag="d_quick")
+a_quick   = task(24, ROW_DOWN4, ["แนบปุ่ม", "ดูรูปเพิ่ม"], w=150, h=48, tag="a_quick")
 a_txt = task(20, ROW_MAIN, ["ส่งข้อความ", "ชิ้นเดียว"], w=150, h=48, tag="a_txt")
 a_both = task(20, ROW_DOWN, ["ผูกให้รูปขึ้นหลังข้อความ", "แล้วส่งทั้งคู่"], w=190, h=48, tag="a_both")
 n_hint = note(17, ROW_DOWN3, ["ตั้งอย่างเดียว หลายอย่าง", "หรือครบทั้งสามก็ได้"], tag="n_hint")
-f_join = forkbar(21, ROW_UP - 22, ROW_DOWN2 + 22, "รวมเป็นชุดเดียว", dx=-52, tag="f_join")
+f_join = forkbar(29, ROW_UP - 22, ROW_DOWN4 + 22, "รวมเป็นชุดเดียว", dx=-52, tag="f_join")
 
 s_page = store(4, MG, ["ข้อมูลเพจที่ผูกไว้"], tag="s_page")
 s_bots = store(7, MG, ["รายการบอทที่เปิดใช้"], tag="s_bots")
 s_log  = store(9, MG, ["ประวัติการตอบลูกค้า"], tag="s_log")
-s_img = store(19, RD, ["รูปที่เคยส่งเข้าแชท"], tag="s_img")
+s_img = store(20, RD, ["รูปที่เคยส่งเข้าแชท"], tag="s_img")
 
-n_send = task(22, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลกลับมาเป็นรายการ"], w=196, tag="n_send")
-d_sent = decision(23, ROW_MAIN, ["ยิงคำสั่งออก", "ไปได้ไหม"], tag="d_sent")
-m_in = merge(24, ROW_MAIN, tag="m_in")
-d_wait = decision(25, ROW_MAIN, ["คำสั่งนี้รอ", "คำสั่งอื่นอยู่ไหม"], w=170, tag="d_wait")
-d_ok = decision(26, ROW_MAIN, ["คำสั่งนี้", "สำเร็จไหม"], tag="d_ok")
-d_img = decision(27, ROW_MAIN, ["เป็นการส่งรูป", "ทางแชทไหม"], tag="d_img")
-a_keep = task(28, ROW_UP, ["เก็บรูปไว้ใช้ซ้ำ", "ครั้งหน้า"], w=158, h=48, tag="a_keep")
-d_live = decision(26, ROW_DOWN, ["ไลฟ์ยังไม่จบ", "อยู่ใช่ไหม"], w=158, tag="d_live")
-a_pass = task(27, ROW_DOWN, ["ตอบรูปใต้ไลฟ์ไม่ได้", "ปล่อยผ่าน ไม่ถือว่าล้มเหลว"], w=178, h=48, tag="a_pass")
-d_img2 = decision(26, ROW_DOWN2, ["เป็นการส่งรูป", "ทางแชทไหม"], tag="d_img2")
-d_exp = decision(27, ROW_DOWN2, ["รูปที่เคยส่ง", "หมดอายุไหม"], tag="d_exp")
-a_fail = task(27, ROW_DOWN3, ["บันทึกว่า", "คำสั่งนี้ล้มเหลว"], w=158, h=48, tag="a_fail")
-a_new = task(28, FB_MAIN, ["ส่งรูปใหม่", "ด้วยลิงก์รูปจริง"], w=158, tag="a_new")
-s_imgw = store(28, RD, ["รูปที่เคยส่งเข้าแชท"], tag="s_imgw")
-n_hint2 = note(30, ROW_DOWN3, ["ถ้าอ่านผลของคำสั่งไม่ออก", "นับเป็นล้มเหลวเหมือนกัน"], w=196, tag="n_hint2")
+n_send = task(26, FB_MAIN, ["รับคำสั่งทั้งหมดในครั้งเดียว", "แล้วส่งผลกลับมาเป็นรายการ"], w=196, tag="n_send")
+d_sent = decision(27, ROW_MAIN, ["ยิงคำสั่งออก", "ไปได้ไหม"], tag="d_sent")
+m_in = merge(28, ROW_MAIN, tag="m_in")
+d_wait = decision(29, ROW_MAIN, ["คำสั่งนี้รอ", "คำสั่งอื่นอยู่ไหม"], w=170, tag="d_wait")
+d_ok = decision(30, ROW_MAIN, ["คำสั่งนี้", "สำเร็จไหม"], tag="d_ok")
+d_img = decision(31, ROW_MAIN, ["เป็นการส่งรูป", "ทางแชทไหม"], tag="d_img")
+a_keep = task(32, ROW_UP, ["เก็บรูปไว้ใช้ซ้ำ", "ครั้งหน้า"], w=158, h=48, tag="a_keep")
+d_live = decision(30, ROW_DOWN, ["ไลฟ์ยังไม่จบ", "อยู่ใช่ไหม"], w=158, tag="d_live")
+a_pass = task(31, ROW_DOWN, ["ตอบรูปใต้ไลฟ์ไม่ได้", "ปล่อยผ่าน ไม่ถือว่าล้มเหลว"], w=178, h=48, tag="a_pass")
+d_img2 = decision(30, ROW_DOWN2, ["เป็นการส่งรูป", "ทางแชทไหม"], tag="d_img2")
+d_exp = decision(31, ROW_DOWN2, ["รูปที่เคยส่ง", "หมดอายุไหม"], tag="d_exp")
+a_fail = task(31, ROW_DOWN3, ["บันทึกว่า", "คำสั่งนี้ล้มเหลว"], w=158, h=48, tag="a_fail")
+a_new = task(32, FB_MAIN, ["ส่งรูปใหม่", "ด้วยลิงก์รูปจริง"], w=158, tag="a_new")
+s_imgw = store(32, RD, ["รูปที่เคยส่งเข้าแชท"], tag="s_imgw")
+n_hint2 = note(34, ROW_DOWN3, ["ถ้าอ่านผลของคำสั่งไม่ออก", "นับเป็นล้มเหลวเหมือนกัน"], w=196, tag="n_hint2")
 
-f_res = forkbar(29, ROW_UP - 56, ROW_DOWN3 + 22, "รวมทาง", dx=-62, tag="f_res")
-d_more = decision(30, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"], tag="d_more")
-n_note = task(31, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"], tag="n_note")
-s_logw = store(31, MG, ["ประวัติการตอบลูกค้า"], tag="s_logw")
-m_end = merge(32, ROW_MAIN, tag="m_end")
-d_bot = decision(33, ROW_MAIN, ["ดูบอทครบ", "ทุกตัวแล้วไหม"], tag="d_bot")
-n_seen = task(34, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"], tag="n_seen")
+f_res = forkbar(37, ROW_UP - 56, ROW_DOWN3 + 22, "รวมทาง", dx=-62, tag="f_res")
+d_more = decision(34, ROW_MAIN, ["ตรวจครบทุก", "คำสั่งแล้วไหม"], tag="d_more")
+n_note = task(35, ROW_MAIN, ["จดว่าตอบลูกค้า", "คนนี้แล้ว"], tag="n_note")
+s_logw = store(35, MG, ["ประวัติการตอบลูกค้า"], tag="s_logw")
+m_end = merge(36, ROW_MAIN, tag="m_end")
+d_bot = decision(37, ROW_MAIN, ["ดูบอทครบ", "ทุกตัวแล้วไหม"], tag="d_bot")
+n_seen = task(38, CUST, ["เห็นไลก์ คำตอบ", "และข้อความในแชท"], tag="n_seen")
 
 # ---------- edges ----------
 right(n_actor, n_comment, tag="n_actor>n_comment")
@@ -434,14 +442,24 @@ data(d_again, s_log, "เช็ก", tag="d_again>s_log")
 
 right(f_split, n_like, "ถ้าตั้งให้กดไลก์", ay=ROW_UP, tag="f_split>n_like")
 right(f_split, d_both, "ถ้าตั้งค่าตอบใต้คอมเมนต์", ay=ROW_MAIN, tag="f_split>d_both")
-right(f_split, n_chat, "ถ้าตั้งค่าทักแชท", ay=ROW_DOWN2, tag="f_split>n_chat")
+right(f_split, d_chatimg, "ถ้าตั้งค่าทักแชท", ay=ROW_DOWN2, tag="f_split>n_chat")
 right(d_both, a_txt, "ไม่ใช่", branch="false", tag="d_both>a_txt")
 drop(d_both, a_both, "ใช่", branch="true", enter="left", tag="d_both>a_both")
-data(n_chat, s_img, "หารูปเดิม", tag="n_chat>s_img")
+right(d_chatimg, a_chattext, "ไม่ใช่", branch="false", tag="d_chatimg>a_chattext")
+drop(d_chatimg, d_cached, "ใช่", branch="true", enter="left", tag="d_chatimg>d_cached")
+data(d_cached, s_img, "หารูปเดิม", tag="n_chat>s_img")
+right(d_cached, a_reuse, "ใช่ ใช้ของเดิม", branch="true", tag="d_cached>a_reuse")
+drop(d_cached, a_upload, "ไม่ใช่ ยังไม่เคยส่ง", branch="false", enter="left", tag="d_cached>a_upload")
+right(a_chattext, m_chat, by=ROW_DOWN2, tag="a_chattext>m_chat")
+right(a_reuse, m_chat, by=ROW_DOWN3, tag="a_reuse>m_chat")
+right(a_upload, m_chat, by=ROW_DOWN4, tag="a_upload>m_chat")
+right(m_chat, d_quick, tag="m_chat>d_quick")
+drop(d_quick, a_quick, "ใช่", branch="true", enter="left", tag="d_quick>a_quick")
 right(n_like, f_join, by=ROW_UP, tag="n_like>f_join")
 right(a_txt, f_join, by=ROW_MAIN, tag="a_txt>f_join")
 right(a_both, f_join, by=ROW_DOWN, tag="a_both>f_join")
-right(n_chat, f_join, by=ROW_DOWN2, tag="n_chat>f_join")
+right(d_quick, f_join, "ไม่ใช่", by=ROW_DOWN2, branch="false", tag="d_quick>f_join")
+right(a_quick, f_join, by=ROW_DOWN4, tag="a_quick>f_join")
 
 drop(f_join, n_send, enter="left", tag="f_join>n_send")
 rise(n_send, d_sent, tag="n_send>d_sent")
@@ -463,12 +481,12 @@ drop(d_img2, a_fail, "ไม่ใช่", enter="left", branch="false", tag="d_
 right(d_exp, a_new, "ใช่ ส่งใหม่", branch="true", tag="d_exp>a_new")
 drop(d_exp, a_fail, "ไม่ใช่", branch="false", tag="d_exp>a_fail")
 rise(a_new, f_res, tag="a_new>f_res")
-right(a_fail, f_res, by=ROW_DOWN3, hops=[(cx(27) + cx(28))/2 - 2], tag="a_fail>f_res")
+right(a_fail, f_res, by=ROW_DOWN3, hops=[(cx(31) + cx(32))/2 - 2], tag="a_fail>f_res")
 
 right(f_res, d_more, tag="f_res>d_more")
-CROSS = [f_join[0], d_sent[0], m_in[0], f_res[0], (cx(27) + cx(28))/2 - 2, a_new[0]]
+CROSS = [f_join[0], d_sent[0], m_in[0], f_res[0], (cx(31) + cx(32))/2 - 2, a_new[0]]
 loopback(d_more, m_in, "ไม่ ยังไม่ครบ ตรวจคำสั่งถัดไป", branch="false",
-         corridor=LOOP_BACK, hops=[cx(26), cx(27), cx(28)], tag="d_more>m_in")
+         corridor=LOOP_BACK, hops=[cx(30), cx(31), cx(32)], tag="d_more>m_in")
 right(d_more, n_note, "ใช่ ครบแล้ว", branch="true", tag="d_more>n_note")
 data(n_note, s_logw, "บันทึก", tag="n_note>s_logw")
 right(n_note, m_end, tag="n_note>m_end")
@@ -555,11 +573,23 @@ SCENARIOS = {
                  "d_wait>f_res"],
     },
     "COMMENT_BOT_REPLY_SUCCESS_3": {
-        "desc": "บอททักแชทส่วนตัวเป็นรูปที่ไม่เคยส่ง ส่งสำเร็จแล้วเก็บรูปไว้ใช้ซ้ำ",
-        "note": "ร้านมีบอท 1 ตัว · ชุดคำสั่ง 1 ใบ จึงวนตรวจผลรอบเดียว",
-        "keep": BASE + ["n_chat", "f_split>n_chat", "n_chat>f_join", "s_img", "n_chat>s_img",
+        "desc": "ทักแชทเป็นรูป ยิงสองรอบด้วย setup เดียว รอบแรกอัปรูปใหม่ รอบสองต้องใช้รูปที่เก็บไว้",
+        "note": "สองรอบต่างกันที่ เคยส่งรูปนี้แล้วไหม จึงเก็บทั้งสองทางไว้ในผังเดียว",
+        "keep": BASE + ["f_split>n_chat", "d_chatimg", "d_chatimg>d_cached",
+                 "d_cached", "s_img", "n_chat>s_img",
+                 "a_reuse", "d_cached>a_reuse", "a_upload", "d_cached>a_upload",
+                 "m_chat", "a_reuse>m_chat", "a_upload>m_chat",
+                 "d_quick", "m_chat>d_quick", "d_quick>f_join",
                  "d_img", "d_ok>d_img", "a_keep", "d_img>a_keep",
                  "s_imgw", "a_keep>s_imgw", "a_keep>f_res"],
+    },
+    "COMMENT_BOT_REPLY_SUCCESS_4": {
+        "desc": "ทักแชทเป็นข้อความพร้อมแนบปุ่มดูรูปเพิ่ม",
+        "note": "คำตอบแชทมีมากกว่าหนึ่งชิ้นและผูก itemId ไว้ จึงต้องแนบปุ่มไปด้วย",
+        "keep": BASE + OK_PLAIN + ["f_split>n_chat", "d_chatimg",
+                 "a_chattext", "d_chatimg>a_chattext",
+                 "m_chat", "a_chattext>m_chat", "d_quick", "m_chat>d_quick",
+                 "a_quick", "d_quick>a_quick", "a_quick>f_join"],
     },
 }
 
