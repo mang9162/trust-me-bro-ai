@@ -43,6 +43,7 @@ Read the scenario folder per the workflow `## Layout` — it owns the folder str
 | `scenario.html` → `<script id="scenario-meta">` block | `scenario`, `category`, `description`, `steps[]`, `accepted`, `acceptanceHistory[]`, `sync` (written by sync-task: `{ id, ref, url, itemId, board? }`), `syncTarget` (which `sync-task-*` board, written by get-requirement). **Preserve the tool-written `sync` / `syncTarget` verbatim when re-emitting the block** — never drop them. |
 | `scenario.html` → functional-design section (if present) | preserve as-is; do NOT regenerate — it is authored by `create-task` |
 | Test-data table file (`Datatest.md`) | all markdown tables → variable name + value + notes |
+| `flow.svg` in the scenario folder (optional) | the scenario's own flow diagram — rendered into a `Flow` card right after the E2E Flow card. Absent → the card is skipped entirely, nothing else changes. |
 | Task files (Setup / Backlog / Api-test groups) | each task **by its own `type` field** — render its tag/group from the task data, whatever the type (incl. project-custom ones) |
 
 If a source file does not exist yet, skip that section and add a grey "not yet created" placeholder.
@@ -184,6 +185,7 @@ The full template, stylesheet, and client-side JS are implemented by the generat
     <div class="card header">   <!-- ① scenario name + category + description (from scenario-meta) -->
     <div class="card">          <!-- ⑥ 6-stage progress track -->
     <div class="card">          <!-- E2E flow boxes, click → activateStep highlights matching task cards -->
+    <div class="card">          <!-- Flow: <img src="flow.svg"> — only when the scenario folder has flow.svg -->
     <div class="card">          <!-- Functional Design fn-tree (preserved verbatim from prior render) -->
     <div class="card">          <!-- Test Data tables parsed from Datatest.md -->
     <div class="card">          <!-- Tasks: Setup / Backlog / Api-test collapsible cards -->
@@ -212,6 +214,7 @@ Before saving `scenario.html`, verify:
 - [ ] All connectors have `conn-done / conn-todo` class
 - [ ] Acceptance History: one `.ah-row` per `acceptanceHistory[]` entry (badge `cat-success` if accepted / `cat-reject` if rejected), or `empty-note` if none
 - [ ] One `.flow-box` per step with correct `data-step` and text
+- [ ] Flow card present only when `flow.svg` exists in the scenario folder
 - [ ] No `flow-arrow` after the last step
 - [ ] Functional Design section: `.fn-item` blocks copied verbatim from previous HTML (JS adds `draggable`, `×` delete, and drop-zone listeners at runtime); placeholder `<p class="empty-note">` if Stage < 3; each `.fn-node` has `onclick="activateFn(this,[...])"`, a `⠿` handle span, fn-name span, optional test-level tag; root nodes have class `fn-root`; every `.fn-item` has a sibling `.fn-children` div (even when empty)
 - [ ] All Datatest.md sections appear as `section-row` + data rows
