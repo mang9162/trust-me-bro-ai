@@ -13,6 +13,8 @@ Usage:
   python3 generate-report.py --all <work-root>     # every scenario folder under <work-root>
   python3 generate-report.py --check <folder>      # render + verify, exit 1 on structural error
 
+Every run also warns about classes the markup or JS uses that no CSS rule styles.
+
 Stdlib only. Idempotent — safe to re-run after any stage.
 """
 
@@ -23,6 +25,18 @@ import sys
 from pathlib import Path
 
 esc = html_mod.escape
+
+def as_text(v):
+    """Task fields arrive in whatever shape the author wrote: `pseudocode` as a list of
+    steps (SKILL.md: newline-joined array), `contract` as an object, others as plain text."""
+    if isinstance(v, str):
+        return v
+    if isinstance(v, list):
+        return "\n".join(as_text(x) for x in v)
+    if isinstance(v, dict):
+        return json.dumps(v, ensure_ascii=False, indent=2)
+    return str(v)
+
 VOID_TAGS = {"meta", "br", "img", "link", "input", "hr"}
 
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
@@ -118,11 +132,11 @@ def task_card_html(t, step):
     eff = t.get("effort", "low")
     detail = []
     if t.get("contract"):
-        detail.append(f'<div class="detail-section"><div class="detail-label">Contract</div><pre class="detail-pre">{esc(t["contract"])}</pre></div>')
+        detail.append(f'<div class="detail-section"><div class="detail-label">Contract</div><pre class="detail-pre">{esc(as_text(t["contract"]))}</pre></div>')
     if t.get("pseudocode"):
-        detail.append(f'<div class="detail-section"><div class="detail-label">Pseudocode</div><pre class="detail-pre">{esc(t["pseudocode"])}</pre></div>')
+        detail.append(f'<div class="detail-section"><div class="detail-label">Pseudocode</div><pre class="detail-pre">{esc(as_text(t["pseudocode"]))}</pre></div>')
     if t.get("cases"):
-        items = "".join(f'<li>{esc(c.get("given", ""))} → {esc("; ".join(c.get("assert", [])))}</li>' for c in t["cases"])
+        items = "".join(f'<li>{esc(as_text(c.get("given", "")))} → {esc("; ".join(as_text(a) for a in c.get("assert", [])))}</li>' for c in t["cases"])
         detail.append(f'<div class="detail-section"><div class="detail-label">Cases</div><ul class="assert-list">{items}</ul></div>')
     if t.get("uses"):
         detail.append(f'<div class="detail-section"><div class="detail-label">Test data</div><div class="detail-text">{esc(json.dumps(t["uses"], ensure_ascii=False))}</div></div>')
@@ -133,15 +147,15 @@ def task_card_html(t, step):
         detail.append('<div class="detail-section"><div class="detail-label">Targets</div>' +
                       "".join(f'<div class="target-path">{esc(x["path"])} ({esc(x["mode"])})</div>' for x in t["targets"]) + '</div>')
     if t.get("command"):
-        detail.append(f'<div class="detail-section"><div class="detail-label">Command</div><div class="detail-text">{esc(t["command"])}</div></div>')
+        detail.append(f'<div class="detail-section"><div class="detail-label">Command</div><div class="detail-text">{esc(as_text(t["command"]))}</div></div>')
     if t.get("acceptance"):
-        detail.append(f'<div class="detail-section"><div class="detail-label">Acceptance</div><div class="detail-text">{esc(t["acceptance"])}</div></div>')
+        detail.append(f'<div class="detail-section"><div class="detail-label">Acceptance</div><div class="detail-text">{esc(as_text(t["acceptance"]))}</div></div>')
     if t.get("notes"):
-        detail.append(f'<div class="detail-section"><div class="detail-label">Notes</div><div class="detail-text">{esc(t["notes"])}</div></div>')
+        detail.append(f'<div class="detail-section"><div class="detail-label">Notes</div><div class="detail-text">{esc(as_text(t["notes"]))}</div></div>')
     detail_html = "".join(detail) if detail else '<div class="detail-text">(no extra detail)</div>'
     sync_tag = ""
     if t.get("sync"):
-        sync_tag = f'<a class="tag sync-tag" href="{esc(t["sync"].get("url", "#"))}" target="_blank">↗ #{esc(t["sync"].get("id", ""))}</a>'
+        sync_tag = f'<a class="tag sync-tag" href="{esc(t["sync"].get("url", "#"))}" target="_blank">↗ #{esc(as_text(t["sync"].get("id", "")))}</a>'
     return (f'<details class="task-card" data-step="{step}">\n  <summary>\n'
             f'    <div class="dot {dot}"></div>\n    <div class="task-body">\n'
             f'      <div class="task-id">{esc(t["id"])}</div>\n      <div class="task-title">{esc(t["title"])}</div>\n      <div class="tags">\n'
@@ -318,6 +332,28 @@ def verify(base):
     return not p.errors and not unclosed, p.errors, unclosed
 
 
+def unstyled_classes(base):
+    """Classes the report uses but no CSS rule styles — the asset and the markup/JS drifting apart.
+    A name built at runtime (`classList.add('drop-' + pos)`) counts as styled when some rule carries
+    that prefix. Warn only: an unstyled class renders bare, it does not break the page."""
+    html = (base / "scenario.html").read_text()
+    css = "\n".join(re.findall(r"<style>(.*?)</style>", html, re.S))
+    js = "\n".join(re.findall(r'<script(?![^>]*application/json)[^>]*>(.*?)</script>', html, re.S))
+    styled = set()
+    for sel in re.findall(r"([^{}]+)\{", re.sub(r"/\*.*?\*/", "", css, flags=re.S)):
+        styled.update(re.findall(r"\.([A-Za-z0-9_-]+)", sel))
+    used = set()
+    body = re.sub(r"<script.*?</script>", "", re.sub(r"<style>.*?</style>", "", html, flags=re.S), flags=re.S)
+    for attr in re.findall(r'class="([^"]*)"', body):
+        used.update(attr.split())
+    for call in re.findall(r"classList\.(?:add|remove|toggle|contains)\(([^)]*)\)", js):
+        used.update(re.findall(r"['\"]([A-Za-z0-9_-]+)['\"]", call))
+    for sel in re.findall(r"(?:querySelectorAll|querySelector|closest)\(\s*['\"]([^'\"]+)['\"]", js):
+        used.update(re.findall(r"\.([A-Za-z0-9_-]+)", sel))
+    return sorted(c for c in used - styled
+                  if not (c.endswith("-") and any(x.startswith(c) for x in styled)))
+
+
 def find_scenarios(work_root):
     out = []
     for html_path in Path(work_root).rglob("scenario.html"):
@@ -400,6 +436,9 @@ if __name__ == "__main__":
             out = render(t)
             ok, errs, unclosed = verify(t)
             state = "ok" if ok else f"STRUCTURE FAIL {errs} {unclosed}"
+            bare = unstyled_classes(t)
+            if bare:
+                state += " · unstyled: " + ", ".join(bare)
             print(f"{t} → {out.name} [{state}]")
             if not ok:
                 fail += 1

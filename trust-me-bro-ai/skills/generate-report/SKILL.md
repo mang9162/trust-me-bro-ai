@@ -14,7 +14,7 @@ Triggered to (re)render `scenario.html` for a scenario folder — it acts on wha
 `scenario.html` inside the scenario folder (path owned by the workflow `## Layout` — see `## References`) — self-contained, no external dependencies, opens directly in a browser.
 
 ## Script
-`scripts/generate-report.py` renders single-scenario `scenario.html` files, and `scripts/generate-feature-dashboard.py` aggregates cross-service feature scenarios into a unified multi-tab dashboard (stdlib only, idempotent, structural self-check):
+`scripts/generate-report.py` renders single-scenario `scenario.html` files, and `scripts/generate-feature-dashboard.py` aggregates cross-service feature scenarios into a unified multi-tab dashboard (stdlib only, idempotent, self-checks its own structure and warns about classes no CSS rule styles):
 
 ```bash
 # Single scenario or all scenarios in repo
