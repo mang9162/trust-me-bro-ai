@@ -122,7 +122,8 @@ def datatest_html(sections):
                     tds.append(f"<td>{esc(c)}</td>")
             parts.append("<tr>" + "".join(tds) + "</tr>")
     header = "".join(f"<th>{esc(h)}</th>" for h in sections[0]["header"])
-    return f'<table class="data-table"><thead><tr>{header}</tr></thead><tbody>' + "".join(parts) + "</tbody></table>"
+    table = f'<table class="data-table"><thead><tr>{header}</tr></thead><tbody>' + "".join(parts) + "</tbody></table>"
+    return f'<div class="table-scroll">{table}</div>'
 
 
 def task_card_html(t, step):
