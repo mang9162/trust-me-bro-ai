@@ -22,6 +22,7 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
    - `tech-stack/gateway-contract.md` — how to shape each stub (predicate key params / response path).
    - `tech-stack/database-schema.md` — the valid tables/columns to seed + each datastore's `seeding` line (how to seed it).
    Also read the scenario's own `scenario.html` steps — they are the source of the `value` / `expect` data.
+   When the feature has `work/Scenario/<FEATURE>/e2e-flow.md`, read its lane → mock table too: each lane on this scenario's route (its `flow.svg`) says what to seed or stub at each test level.
 
 2. **Write `Datatest.md`** — one `## Section` per context group, each a table with columns `| name | value | expect | status | notes |`:
    - `value` — the input value set up for this scenario (*given*).
@@ -59,6 +60,7 @@ This skill only STAGES data inside the scenario folder. It reads the shared refe
 - cross-ref: `trust-me-bro-ai/context/gateway-directory.md` — which downstream gateways the flow calls (purpose / condition).
 - cross-ref: `trust-me-bro-ai/tech-stack/gateway-contract.md` — stub predicate key params + response path shape.
 - cross-ref: `trust-me-bro-ai/tech-stack/database-schema.md` — valid columns/types for seed rows + each datastore's `seeding` (how to seed).
+- cross-ref: `work/Scenario/<FEATURE>/e2e-flow.md` (when present) — lane → mock table: which services on the scenario's route need a seed or stub.
 - bridge: `trust-me-bro-ai/skills/workflow/SKILL.md` (`## Layout`) — owns every `01-Testdata/` path and the stub `<SCENARIO>-<purpose>.json` naming; this skill names files only and defers the paths there.
 
 ## Trigger Skill

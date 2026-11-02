@@ -1,0 +1,279 @@
+title COMMENT_BOT_REPLY
+subtitle Scenario: ลูกค้าคอมเมนต์ใต้โพสต์ของร้าน แล้วบอทกดไลก์ ตอบใต้คอมเมนต์ และทักแชทกลับ
+
+lane cust   client "ลูกค้า"
+lane pubsub        "Pub/Sub"
+lane svc           "live-stream|consumer"
+lane mongo         "MongoDB"
+lane redis         "Redis"
+lane fb     3rd    "3rd|Facebook"
+
+group หน้าบ้าน cust
+group หลังบ้าน pubsub svc mongo redis fb
+
+# ---- ก่อนเข้าบอท
+actor n_actor   cust   "ลูกค้า"
+task  n_comment cust   "คอมเมนต์ใต้โพสต์|ของร้าน"
+task  n_ps      pubsub "แจ้งระบบว่า|มีคอมเมนต์ใหม่"
+cond  d_real    svc    "เป็นคอมเมนต์|จริงไหม"
+cond  d_page    svc    "เพจเปิดใช้งาน|อยู่ไหม"
+cond  d_who     svc    "คนคอมเมนต์เป็น|ลูกค้าใช่ไหม"
+end   e_stop    svc    "จบ ไม่ตอบ"
+store s_page    mongo  "ข้อมูลเพจที่ผูกไว้"
+
+# ---- ลูปนอก: บอททีละตัว
+merge m_bot     svc
+task  n_bots    svc    "หยิบบอทของร้าน|มาทีละตัว"
+store s_bots    mongo  "รายการบอทที่เปิดใช้"
+cond  d_team    svc    "บอทเป็นของทีม|เดียวกับเพจไหม"
+cond  d_again   svc    "ตอบคนเดิม|ซ้ำได้ไหม"
+store s_log     mongo  "ประวัติการตอบลูกค้า"
+cond  d_post    svc    "ดูแลโพสต์นี้|ไหม"
+cond  d_spec    svc    "มีบอทเฉพาะโพสต์|คุมอยู่ไหม"
+cond  d_text    svc    "คอมเมนต์เป็น|ข้อความไหม"
+cond  d_kw      svc    "ตรงคำที่ตั้ง|ให้ตอบไหม"
+cond  d_type    svc    "บอทตั้งรับคอมเมนต์|แบบนี้ไหม"
+cond  d_ban     svc    "มีคำต้องห้าม|ไหม"
+task  n_prep    svc    "เตรียมคำตอบ|สุ่มจากชุดที่ตั้งไว้"
+cond  d_has     svc    "มีคำสั่งจะส่ง|ไหม"
+join  j_skip    svc    "ข้ามบอทตัวนี้"
+
+# ---- ประกอบคำตอบ
+fork  f_split   svc    "แยกทำพร้อมกัน"
+task  n_like    svc    "กดไลก์คอมเมนต์"
+cond  d_both    svc    "ตอบใต้คอมเมนต์มี|ทั้งข้อความและรูปไหม"
+task  a_txt     svc    "ส่งข้อความ|ชิ้นเดียว"
+task  a_both    svc    "ผูกให้รูปขึ้นหลังข้อความ|แล้วส่งทั้งคู่"
+cond  d_chatimg svc    "แชทเป็นรูปไหม"
+task  a_chattext svc   "ส่งข้อความ|ตามที่ตั้งไว้"
+cond  d_cached  svc    "เคยส่งรูปนี้|แล้วไหม"
+store s_img     redis  "รูปที่เคยส่งเข้าแชท"
+task  a_reuse   svc    "ใช้รูปเดิม|ที่เก็บไว้"
+task  a_upload  svc    "แนบลิงก์รูป|ให้อัปใหม่"
+join  m_chat    svc    "รวมข้อความแชท"
+cond  d_quick   svc    "ต้องแนบปุ่ม|ดูรูปเพิ่มไหม"
+task  a_quick   svc    "แนบปุ่ม|ดูรูปเพิ่ม"
+note  n_hint    svc    "ตั้งอย่างเดียว หลายอย่าง|หรือครบทั้งสามก็ได้" near f_split
+join  f_join    svc    "รวมเป็นชุดเดียว"
+
+# ---- ยิง Facebook แล้วลูปใน: ตรวจผลทีละคำสั่ง
+task  n_send    fb     "รับคำสั่งทั้งหมดในครั้งเดียว|แล้วส่งผลกลับมาเป็นรายการ"
+cond  d_sent    svc    "ยิงคำสั่งออก|ไปได้ไหม"
+merge m_in      svc
+cond  d_wait    svc    "คำสั่งนี้รอ|คำสั่งอื่นอยู่ไหม"
+cond  d_ok      svc    "คำสั่งนี้|สำเร็จไหม"
+cond  d_img     svc    "เป็นการส่งรูป|ทางแชทไหม"
+task  a_keep    svc    "เก็บรูปไว้ใช้ซ้ำ|ครั้งหน้า"
+store s_imgw    redis  "รูปที่เคยส่งเข้าแชท"
+cond  d_live    svc    "ไลฟ์ยังไม่จบ|อยู่ใช่ไหม"
+task  a_pass    svc    "ตอบรูปใต้ไลฟ์ไม่ได้|ปล่อยผ่าน ไม่ถือว่าล้มเหลว"
+cond  d_img2    svc    "เป็นการส่งรูป|ทางแชทไหม"
+cond  d_exp     svc    "รูปที่เคยส่ง|หมดอายุไหม"
+task  a_fail    svc    "บันทึกว่า|คำสั่งนี้ล้มเหลว"
+task  a_new     fb     "ส่งรูปใหม่|ด้วยลิงก์รูปจริง"
+join  f_res     svc    "รวมทาง"
+cond  d_more    svc    "ตรวจครบทุก|คำสั่งแล้วไหม"
+task  n_note    svc    "จดว่าตอบลูกค้า|คนนี้แล้ว"
+store s_logw    mongo  "ประวัติการตอบลูกค้า"
+merge m_end     svc
+cond  d_bot     svc    "ดูบอทครบ|ทุกตัวแล้วไหม"
+task  n_seen    cust   "เห็นไลก์ คำตอบ|และข้อความในแชท"
+done  e_done    cust   "จบ ทำครบทุกบอท"
+
+# ---- lines
+n_actor -> n_comment
+n_comment -> n_ps
+n_ps -> d_real
+d_real -> d_page yes "ใช่"
+d_real -> e_stop no "แค่กดอีโมจิ / แก้คอมเมนต์เดิม"
+d_page -> d_who yes "ใช่ เปิดอยู่"
+d_page -> e_stop no "ปิดอยู่ / ไม่เคยผูก"
+d_who -> m_bot yes "ใช่"
+d_who -> e_stop no "ไม่ใช่ ร้านเอง"
+d_page .. s_page "ถาม"
+
+m_bot -> n_bots
+n_bots .. s_bots "ขอรายการ"
+n_bots -> d_team
+d_team -> d_again yes "ใช่"
+d_team -> j_skip no "ไม่ใช่ คนละทีม"
+d_again -> d_post yes "ได้"
+d_again -> j_skip no "ไม่ได้ เคยตอบแล้ว"
+d_again .. s_log "เช็ก"
+d_post -> d_spec yes "ดูแล"
+d_post -> j_skip no "ไม่ใช่โพสต์นี้"
+d_spec -> d_text no "ไม่มี"
+d_spec -> j_skip yes "มี และตั้งให้หลบ"
+d_text -> d_kw yes "ใช่"
+d_text -> d_type no "ไม่ใช่ เป็นรูป/สติกเกอร์"
+d_kw -> d_ban yes "ตรง"
+d_kw -> j_skip no "ไม่ตรง"
+d_type -> n_prep yes "ใช่ รับแบบนี้"
+d_type -> j_skip no "ไม่ใช่ ไม่ได้ตั้งรับ"
+d_ban -> n_prep no "ไม่มี"
+d_ban -> j_skip yes "มี"
+n_prep -> d_has
+d_has -> f_split yes "ใช่"
+d_has -> j_skip no "ไม่มีคำสั่งจะส่ง"
+
+f_split -> n_like "ถ้าตั้งให้กดไลก์"
+f_split -> d_both "ถ้าตั้งตอบใต้คอมเมนต์"
+f_split -> d_chatimg "ถ้าตั้งทักแชท"
+n_like -> f_join
+d_both -> a_txt no "ไม่ใช่"
+d_both -> a_both yes "ใช่"
+a_txt -> f_join
+a_both -> f_join
+d_chatimg -> a_chattext no "ไม่ใช่"
+d_chatimg -> d_cached yes "ใช่"
+d_cached .. s_img "หารูปเดิม"
+d_cached -> a_reuse yes "ใช่ ใช้ของเดิม"
+d_cached -> a_upload no "ไม่ใช่ ยังไม่เคยส่ง"
+a_chattext -> m_chat
+a_reuse -> m_chat
+a_upload -> m_chat
+m_chat -> d_quick
+d_quick -> f_join no "ไม่ใช่"
+d_quick -> a_quick yes "ใช่"
+a_quick -> f_join
+
+f_join -> n_send
+n_send -> d_sent
+d_sent -> m_in yes "ได้"
+d_sent -> m_end no "ไม่ได้ ยิงไม่ออก"
+m_in -> d_wait
+d_wait -> d_ok no "ไม่ใช่"
+d_wait -> f_res yes "ใช่ ข้ามไปตรวจใบถัดไป"
+d_ok -> d_img yes "ใช่ สำเร็จ"
+d_ok -> d_live no "ไม่สำเร็จ"
+d_img -> f_res no "ไม่ใช่ ไม่ต้องทำอะไรต่อ"
+d_img -> a_keep yes "ใช่"
+a_keep .. s_imgw "เก็บรูป"
+a_keep -> f_res
+d_live -> a_pass yes "ใช่"
+d_live -> d_img2 no "ไม่ใช่"
+a_pass -> f_res
+d_img2 -> d_exp yes "ใช่"
+d_img2 -> a_fail no "ไม่ใช่"
+d_exp -> a_new yes "ใช่ ส่งใหม่"
+d_exp -> a_fail no "ไม่ใช่"
+a_new -> f_res
+a_fail -> f_res
+f_res -> d_more
+d_more -> n_note yes "ใช่ ครบแล้ว"
+d_more -> m_in no "ไม่ ยังไม่ครบ ตรวจคำสั่งถัดไป"
+n_note .. s_logw "บันทึก"
+n_note -> m_end
+j_skip -> m_end
+m_end -> d_bot
+d_bot -> n_seen yes "ใช่ ครบแล้ว"
+n_seen -> e_done
+d_bot -> m_bot no "ไม่ ยังดูไม่ครบ หยิบบอทตัวถัดไป"
+
+# ---- scenarios — each one walks its route; a segment is a reusable piece of route
+segment PRE   n_actor > n_comment > n_ps > d_real > d_page > d_who > m_bot > n_bots
+segment GATES n_bots > d_team > d_again > d_post > d_spec > d_text > d_kw > d_ban > n_prep > d_has
+segment SEND  f_join > n_send > d_sent > m_in > d_wait > d_ok
+segment DONE  f_res > d_more > n_note > m_end > d_bot > n_seen > e_done
+segment SKIP  j_skip > m_end > d_bot > n_seen > e_done
+
+scenario Success 01 COMMENT_BOT_REPLY_SUCCESS_1 "บอทกดไลก์และตอบใต้คอมเมนต์เป็นข้อความชิ้นเดียว ทั้งสองคำสั่งสำเร็จ"
+  note ร้านมีบอท 1 ตัว · ชุดคำสั่ง 2 ใบ จึงวนตรวจผล 2 รอบ
+  use PRE GATES SEND DONE
+  path d_has > f_split > n_like > f_join
+  path f_split > d_both > a_txt > f_join
+  path d_ok > d_img > f_res
+  path d_more > m_in
+
+scenario Success 02 COMMENT_BOT_REPLY_SUCCESS_2 "บอทตอบใต้คอมเมนต์เป็นข้อความพร้อมรูป โดยรูปต้องขึ้นหลังข้อความ"
+  note ชุดคำสั่ง 2 ใบที่ผูกกัน · ใบข้อความจึงได้ผลกลับมาเป็นค่าว่าง ซึ่งเป็นเรื่องปกติ
+  use PRE GATES SEND DONE
+  path d_has > f_split > d_both > a_both > f_join
+  path d_ok > d_img > f_res
+  path d_wait > f_res
+  path d_more > m_in
+
+scenario Success 03 COMMENT_BOT_REPLY_SUCCESS_3 "ทักแชทเป็นรูป ยิงสองรอบด้วย setup เดียว รอบแรกอัปรูปใหม่ รอบสองต้องใช้รูปที่เก็บไว้"
+  note สองรอบต่างกันที่ เคยส่งรูปนี้แล้วไหม จึงเก็บทั้งสองทางไว้ในผังเดียว
+  use PRE GATES SEND DONE
+  path d_has > f_split > d_chatimg > d_cached > a_reuse > m_chat > d_quick > f_join
+  path d_cached > a_upload > m_chat
+  path d_ok > d_img > a_keep > f_res
+
+scenario Success 04 COMMENT_BOT_REPLY_SUCCESS_4 "ทักแชทเป็นข้อความพร้อมแนบปุ่มดูรูปเพิ่ม"
+  note คำตอบแชทมีมากกว่าหนึ่งชิ้นและผูกสินค้าไว้ จึงต้องแนบปุ่มไปด้วย
+  use PRE GATES SEND DONE
+  path d_has > f_split > d_chatimg > a_chattext > m_chat > d_quick > a_quick > f_join
+  path d_ok > d_img > f_res
+
+scenario Success 05 COMMENT_BOT_REPLY_SUCCESS_5 "ลูกค้าคอมเมนต์เป็นรูปหรือสติกเกอร์ แล้วบอทตั้งรับคอมเมนต์ประเภทนั้นไว้"
+  note คอมเมนต์ที่ไม่ใช่ข้อความจะไม่ถูกเช็คคำที่ตั้งไว้เลย แต่ไปดูว่าบอทติ๊กรับประเภทนั้นไหม
+  use PRE SEND DONE
+  path n_bots > d_team > d_again > d_post > d_spec > d_text > d_type > n_prep > d_has > f_split
+  path f_split > d_both > a_txt > f_join
+  path d_ok > d_img > f_res
+  path d_more > m_in
+
+scenario Success 06 COMMENT_BOT_REPLY_SUCCESS_6 "ร้านมีบอทหลายตัวเข้าเงื่อนไขพร้อมกัน ต้องตอบครบทุกตัว"
+  note ตรวจลูปนอกที่วนบอททีละตัว · คอมเมนต์เดียวทำให้ยิง Facebook หลายรอบ
+  use PRE GATES SEND DONE
+  path d_has > f_split > n_like > f_join
+  path f_split > d_both > a_txt > f_join
+  path f_split > d_chatimg > a_chattext > m_chat > d_quick > f_join
+  path d_ok > d_img > f_res
+  path d_more > m_in
+  path d_bot > m_bot
+
+scenario Alternative 01 COMMENT_BOT_REPLY_ALTERNATIVE_1 "ของที่ไม่ควรตอบ กดอีโมจิ แก้คอมเมนต์เดิม ร้านคอมเมนต์เอง และบอทคนละทีมกับเพจ"
+  note setup เดียว seed บอทปกติและบอทคนละทีมไว้ด้วยกัน แล้วยิงหลาย payload
+  use PRE SKIP
+  path d_real > e_stop
+  path d_page > e_stop
+  path d_who > e_stop
+  path n_bots > d_team > j_skip
+  path d_bot > m_bot
+
+scenario Alternative 02 COMMENT_BOT_REPLY_ALTERNATIVE_2 "เพจถูกปิดใช้งาน หรือไม่เคยผูกไว้กับระบบ"
+  note จบตั้งแต่ด่านเพจ ไม่ไปถึงการไล่ดูบอทเลย
+  path n_actor > n_comment > n_ps > d_real > d_page > e_stop
+
+scenario Alternative 03 COMMENT_BOT_REPLY_ALTERNATIVE_3 "บอทตั้งให้ตอบครั้งเดียว และลูกค้าคนนี้เคยได้รับคำตอบในโพสต์นี้แล้ว"
+  note ต้อง seed ประวัติการตอบไว้ก่อน
+  use PRE SKIP
+  path n_bots > d_team > d_again > j_skip
+
+scenario Alternative 04 COMMENT_BOT_REPLY_ALTERNATIVE_4 "คอมเมนต์ไม่ผ่านเงื่อนไขคำ ทั้งกรณีไม่ตรงคำที่ตั้งไว้ และกรณีมีคำต้องห้าม"
+  note สอง payload ใช้ setup บอทเดียวกัน จึงควบเป็น scenario เดียว
+  use PRE SKIP
+  path n_bots > d_team > d_again > d_post > d_spec > d_text > d_kw > j_skip
+  path d_kw > d_ban > j_skip
+
+scenario Alternative 05 COMMENT_BOT_REPLY_ALTERNATIVE_5 "บอทแบบทุกโพสต์หลบให้บอทเฉพาะโพสต์ ทำให้ตอบตัวเดียวไม่ซ้อนกัน"
+  note ต้องมีบอท 2 ตัวบนโพสต์เดียวกัน
+  use PRE SKIP
+  path n_bots > d_team > d_again > d_post > d_spec > j_skip
+  path d_bot > m_bot
+
+scenario Alternative 06 COMMENT_BOT_REPLY_ALTERNATIVE_6 "ไลฟ์ยังไม่จบจึงตอบรูปใต้คอมเมนต์ไม่ได้ ระบบต้องปล่อยผ่านไม่ถือว่าล้มเหลว"
+  note stub Facebook ให้ตอบ error 1705
+  use PRE GATES SEND DONE
+  path d_has > f_split > d_both > a_both > f_join
+  path d_ok > d_live > a_pass > f_res
+  path d_more > m_in
+
+scenario Alternative 07 COMMENT_BOT_REPLY_ALTERNATIVE_7 "รูปที่เคยส่งเข้าแชทหมดอายุ ระบบต้องส่งใหม่ด้วยลิงก์รูปจริงแล้วสำเร็จ"
+  note stub Facebook ให้ตอบ error 100 subcode 2018074 ในครั้งแรก
+  use PRE GATES SEND DONE
+  path d_has > f_split > d_chatimg > d_cached > a_reuse > m_chat > d_quick > f_join
+  path d_ok > d_live > d_img2 > d_exp > a_new > f_res
+
+scenario Alternative 08 COMMENT_BOT_REPLY_ALTERNATIVE_8 "บอทเปิดใช้งานอยู่แต่ไม่ได้ตั้งคำตอบไว้เลย"
+  note ผ่านทุกด่านเงื่อนไข แต่ไม่มีคำสั่งจะส่ง
+  use PRE GATES SKIP
+  path d_has > j_skip
+
+scenario Alternative 09 COMMENT_BOT_REPLY_ALTERNATIVE_9 "ยิงคำสั่งไป Facebook ไม่ออกเลย เช่น โทเคนหมดอายุหรือปลายทางล่ม"
+  note stub Facebook ให้ล่ม ลูกค้าจะไม่ได้อะไรเลยและไม่ถูกบันทึกว่าตอบแล้ว
+  use PRE GATES
+  path d_has > f_split > d_both > a_txt > f_join > n_send > d_sent > m_end > d_bot > n_seen > e_done
+  path d_bot > m_bot

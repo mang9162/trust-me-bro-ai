@@ -124,6 +124,16 @@
         "skill does not add loyaltyPoint to data.md itself",
         "skill continues without stopping because enough information was received"
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "start stage 2 for COMMENT_REPLY_SUCCESS_3 — the feature has work/Scenario/COMMENT_REPLY/e2e-flow.md and the scenario folder has its flow.svg",
+      "expected_output": "the skill reads the lane → mock table and uses the lanes on this scenario's route to decide which seeds and stubs to stage",
+      "expectations": [
+        "the skill reads e2e-flow.md's lane → mock table before writing stubs or seeds",
+        "seeds/stubs are staged only for lanes the scenario's route passes through",
+        "the skill still reads data.md, gateway-directory.md, gateway-contract.md and database-schema.md before writing"
+      ]
     }
   ]
 }
