@@ -127,7 +127,7 @@ Grouped the same as `create-skill/file-map.html` — the single source of truth 
 | Group | What it does |
 |---|---|
 | **Control skill** (C0) | `create-skill` — the rules + format for writing/editing any skill, plus `file-map.html`. Read before editing a skill. |
-| **Workflow control** (C1) | the `workflow` lead (state / routing / gating) + the six stage skills. The spine that turns a requirement into tested code. |
+| **Workflow control** (C1) | the `workflow` lead (state / routing / gating) + the six stage skills. The spine that turns a requirement into tested code. Opt-in plug-in `e2e-swimlane` draws the feature's swimlane first and cuts it into the scenario list Stage 1 picks from. |
 | **Context** (C2) | repo knowledge other skills read: data dictionary, domain reference, gateway directory, error codes. |
 | **Tech stack** (C3) | the technical manual: tech stack, code standards, testing guide, database schema, gateway contracts. |
 | **generate-report** (C4) | renders `scenario.html` into an interactive view; re-runnable after any stage. |

@@ -33,23 +33,26 @@ If a sentence describes HOW something is done, it does not belong here - move it
 ## Layout (under `work/`, committed — push to share with teammates)
 
 ```
-work/Scenario/<FEATURE>/{Success|Alternative}/<NN>-<FULL_SCENARIO_NAME>/
-├── scenario.html                                             ← scenario identity + user-story steps + report
-├── 01-Testdata/
-│   ├── Datatest.md                                           ← per-scenario concrete values
-│   ├── db/{postgres.json,mongo.json}                         ← only when DB seeding is needed
-│   └── stubs/<downstream-service>/<SCENARIO>-<purpose>.json
-└── 02-Task/
-    ├── 01-Setup/                                             ← env-prep tasks
-    │   └── 00-env-setup.json
-    ├── 02-Backlog/                                           ← code + test tasks (one per function)
-    │   ├── 01-<functionName>-unit-test.json
-    │   ├── 02-<functionName>-integration-test.json
-    │   ├── 03-<functionName>-component-test.json
-    │   └── 04-<functionName>-code-task.json
-    └── 03-Api-test/                                          ← api-test scenario, one task per request
-        ├── 01-<actionName>-api-test.json
-        └── ...
+work/Scenario/<FEATURE>/
+├── swimlane.flow · swimlane.svg · e2e-flow.md                    ← feature picture (only when e2e-swimlane ran)
+└── {Success|Alternative}/<NN>-<FULL_SCENARIO_NAME>/
+    ├── scenario.html                                             ← scenario identity + user-story steps + report
+    ├── flow.svg                                                  ← this scenario's route (only when e2e-swimlane ran)
+    ├── 01-Testdata/
+    │   ├── Datatest.md                                           ← per-scenario concrete values
+    │   ├── db/{postgres.json,mongo.json}                         ← only when DB seeding is needed
+    │   └── stubs/<downstream-service>/<SCENARIO>-<purpose>.json
+    └── 02-Task/
+        ├── 01-Setup/                                             ← env-prep tasks
+        │   └── 00-env-setup.json
+        ├── 02-Backlog/                                           ← code + test tasks (one per function)
+        │   ├── 01-<functionName>-unit-test.json
+        │   ├── 02-<functionName>-integration-test.json
+        │   ├── 03-<functionName>-component-test.json
+        │   └── 04-<functionName>-code-task.json
+        └── 03-Api-test/                                          ← api-test scenario, one task per request
+            ├── 01-<actionName>-api-test.json
+            └── ...
 ```
 
 Each sibling folder restarts its own `NN` counter.
@@ -59,6 +62,7 @@ Each sibling folder restarts its own `NN` counter.
 | # | Skill | Responsibility | Pauses after? |
 |---|---|---|---|
 | (pre) | initialize | Bootstrap trust-me-bro-ai/context/ + trust-me-bro-ai/tech-stack/ if missing | — |
+| (plug-in) | e2e-swimlane | Opt-in, once per feature: feature swimlane + scenario list + lane → mock table | yes |
 | 1 | get-requirement | Clarify requirement, write scenario.html steps | yes |
 | 2 | create-test-data | Datatest.md, DB seeds, stubs | yes |
 | 3 | create-task | Functional design + task breakdown + test-level classification | yes |
@@ -71,6 +75,8 @@ Every skill above ends with its own self-learn step + update-report step. workfl
 ## Preconditions
 
 Before Stage 1: if trust-me-bro-ai/context/ or trust-me-bro-ai/tech-stack/ is missing/empty -> invoke initialize first.
+
+Before the first Stage 1 of a feature: if `work/Scenario/<FEATURE>/e2e-flow.md` does not exist, ask the user once whether to draw the feature swimlane first. Yes -> invoke `plugins/e2e-swimlane`, pause for review. No -> go straight to Stage 1.
 
 ## Stages
 

@@ -1,0 +1,95 @@
+{
+  "skill_name": "e2e-swimlane",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Draw the big picture for COUPON_APPLY in our delivery app before we start scenarios. The handler is in src/coupon/apply.ts: it returns early when the cart is empty, skips coupons whose restaurant differs from the cart's restaurant inside a for loop over the customer's coupons, checks expiry, then calls promotion-service to reserve the discount and writes the result to Postgres.",
+      "expected_output": "a condition checklist taken line by line from the code, lanes per real service, a .flow file and a generated SVG — not a hand-drawn picture",
+      "expectations": [
+        "the skill lists every early return / skip / check / loop in the handler as a checklist row before or while writing the .flow, including the for loop over coupons",
+        "the loop over coupons is drawn as a loop: a merge before it and a cond that goes back to that merge",
+        "lanes are real services (customer, the service under test, promotion-service, Postgres) — not code layers",
+        "the SVG is produced by running swimlane.py on the .flow file, and its errors are fixed by re-running",
+        "box text is business language (e.g. 'Coupon belongs to this restaurant?'), not field or function names"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "In the swimlane for CHECKOUT in our delivery app, an empty cart, a quantity of zero, and an item that isn't on the menu all end at the same 'order rejected' end; all three use the same restaurant and menu seeded and differ only in the request sent. Separately, a card payment goes through payment-service, while a cash order never calls payment-service. How many scenarios do you cut from these?",
+      "expected_output": "one scenario for the three rejected requests (same setup), and separate scenarios for the card and the cash order",
+      "expectations": [
+        "the three rejected requests become one scenario whose description lists the three requests, because they share one setup",
+        "the card route and the cash route are separate scenarios, because the card route goes through a different service (payment-service)",
+        "the answer does not cut one scenario per condition"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The swimlane and scenario list for ORDER_CANCEL look good. Since you have all the routes already, also write each scenario's scenario.html steps now so we can skip Stage 1.",
+      "expected_output": "the skill declines writing scenario.html / steps and points to get-requirement, which picks one scenario from the list",
+      "expectations": [
+        "the skill does not write scenario.html or steps",
+        "the skill points to get-requirement (Stage-1) as the owner of steps, picking one scenario from the list"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "swimlane.py fails here because the machine has no python3. Just write the swimlane.svg by hand this time, same look.",
+      "expected_output": "the skill stops and tells the user it cannot generate the diagram, without hand-writing the SVG",
+      "expectations": [
+        "the skill does not hand-write swimlane.svg",
+        "the skill tells the user Python 3 is needed to run swimlane.py"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "I ran swimlane.py and it printed: warn: no scenario walks these ways out of a cond: paid>refund. The refund route needs a real card at the payment gateway sandbox, which we cannot get. Is the swimlane done?",
+      "expected_output": "the uncovered way is recorded in e2e-flow.md's Not tested table with the reason, then the swimlane can be presented for review",
+      "expectations": [
+        "the skill writes paid>refund with its reason (no sandbox card) under Not tested in e2e-flow.md",
+        "the skill does not invent a scenario it cannot set up just to silence the warning"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "In ORDER_CONFIRM in our delivery app the restaurant can turn on any mix of: print a kitchen ticket, send the customer an SMS, push the order to the restaurant's tablet. All the ones turned on happen for each order. Add this part to the swimlane.",
+      "expected_output": "a fork with one line per action, each line saying when it applies, and a join after — not a diamond asking which action",
+      "expectations": [
+        "the three actions start from a fork (thick bar), not from a cond",
+        "each line out of the fork is labelled with when it applies (e.g. if SMS is turned on)",
+        "the three branches gather again in a join before the flow continues"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "In RIDER_PAYOUT in our delivery app the code does: for (const p of payouts) { if (p.amount <= 0) continue; await bank.transfer(p) }. Draw this part. Nothing else happens after the loop except marking the batch done.",
+      "expected_output": "a merge before the loop, a cond 'all payouts checked?' looping back to it, and the skip for a zero amount going on to the next payout, not to an end",
+      "expectations": [
+        "a merge sits right before the loop body and the 'all done?' cond's back line goes into it",
+        "the amount check is a yes/no cond worded in business terms (e.g. payout amount above zero?), not 'p.amount <= 0'",
+        "the 'not above zero' way goes on to the next payout (back toward the loop check), not to a red end",
+        "the bank transfer step is in the bank's lane (3rd), not in the service lane"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Draw the feature swimlane for ORDER_PLACE in our delivery app: the customer places an order, order-service checks the restaurant is open and saves the order in Postgres, then asks rider-service for a rider; when no rider is found the order is cancelled.",
+      "expected_output": "the skill opens the reviewed example in the skill folder before writing the new .flow, follows its shape, and the diagram shows where every route ends",
+      "expectations": [
+        "the skill reads examples/comment-bot-reply/ (its swimlane.flow and/or e2e-flow.md) before writing swimlane.flow for ORDER_PLACE",
+        "the new .flow follows the same structure as the example: lanes first, then boxes, then lines, then scenario blocks",
+        "every route ends at a circle: the order placed with a rider ends at a green done, the closed restaurant and the cancelled order end at a red end; no route stops at a box"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "The ORDER_CANCEL swimlane is approved. Write its e2e-flow.md. The refund check in code is `if (order.paidAt && !order.refundedAt)`; the payment gateway is mocked with a client mock in unit tests and with WireMock in api-test.",
+      "expected_output": "an e2e-flow.md whose code words appear only in the 'from' column, and whose lane table and setup column say concrete things",
+      "expectations": [
+        "the code condition `order.paidAt && !order.refundedAt` appears only in the 'from' column; the 'question in the diagram' column holds the business question",
+        "the payment gateway lane row says mock client for unit and WireMock for api-test",
+        "each scenario's 'setup to prepare' names the data or stub responses that must exist before it runs"
+      ]
+    }
+  ]
+}

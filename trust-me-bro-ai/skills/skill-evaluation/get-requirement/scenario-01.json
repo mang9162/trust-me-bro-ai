@@ -76,6 +76,17 @@
         "The skill consults domain-reference.md Core Terms (the project's vocabulary) to word the steps, rather than inventing its own terminology",
         "A PAUSE or request for user review appears before proceeding"
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "Stage 1 for COMMENT_REPLY. work/Scenario/COMMENT_REPLY/e2e-flow.md lists Success 02 COMMENT_REPLY_SUCCESS_2 'reply under the comment with text then image', and swimlane.flow has its route. Take that one.",
+      "expected_output": "scenario-meta built from the listed scenario and its route, without re-asking the requirement",
+      "expectations": [
+        "scenario name, category and NN are taken from the e2e-flow.md list (COMMENT_REPLY_SUCCESS_2, Success, 02)",
+        "the steps follow the scenario's route in swimlane.flow, one step traceable to boxes on it",
+        "the skill does not ask the user to restate the feature requirement; it asks only about details the route does not give (if any)",
+        "A PAUSE or request for user review appears before proceeding"
+      ]
     }
   ]
 }

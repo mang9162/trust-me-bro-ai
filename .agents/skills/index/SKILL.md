@@ -13,7 +13,7 @@ description: Master index of all shared team skills. Use when starting any task 
   path: `trust-me-bro-ai/skills/create-pr/SKILL.md`
 - **create-skill**: The rules and format for creating or editing any skill in this kit — how to write the body (lean, ordered, condition-driven) and declare cross-file connections (## References / ## Trigger Skill / ## Writes To / ## Role & Boundary). Read before creating or editing a skill. Pairs with file-map.html (in this folder).
   path: `trust-me-bro-ai/skills/create-skill/SKILL.md`
-- **generate-report**: Regenerate scenario.html inside the scenario folder (under work/). Reads the scenario-meta JSON block from the existing scenario.html, Datatest.md, and all task JSON files. Produces an interactive HTML with a 6-stage progress indicator, a scrollable E2E flow, a Functional Design tree, collapsible Test Data and Tasks sections, expandable task cards, and an Acceptance History log. Re-run after any stage to refresh.
+- **generate-report**: Regenerate scenario.html inside the scenario folder (under work/) or aggregate cross-service feature scenarios into a unified feature dashboard HTML. Reads the scenario-meta JSON block, Datatest.md, and all task JSON files. Produces an interactive HTML with a 6-stage progress indicator, a scrollable E2E flow, a Functional Design tree, collapsible Test Data and Tasks sections, expandable task cards, and an Acceptance History log. Re-run after any stage to refresh.
   path: `trust-me-bro-ai/skills/generate-report/SKILL.md`
 - **graphify-map**: Map the project — or several repos/folders at once — into one queryable knowledge graph with Graphify — check whether Graphify is installed, ask the user if they prefer it (default: prefer), and when opted in map the project root (optionally plus extra GitHub URLs / sibling folders, merged via merge-graphs) to produce graphify-out/ that later questions can query first.
   path: `trust-me-bro-ai/skills/graphify-map/SKILL.md`
@@ -35,6 +35,8 @@ description: Master index of all shared team skills. Use when starting any task 
   path: `trust-me-bro-ai/skills/skill-sync/SKILL.md`
 - **update-kit**: Update this installed kit from its upstream repo one version at a time — show what each version fixed and added, let the user pick how far to go, and ask before overwriting anything edited locally.
   path: `trust-me-bro-ai/skills/update-kit/SKILL.md`
+- **upgrade-lib**: Plans an upgrade for one explicitly named library. It researches the repository and current official release evidence, asks the human to approve a direct or staged path, then hands the approved detail to define-task. It does not change dependencies or application code.
+  path: `trust-me-bro-ai/skills/upgrade-lib/SKILL.md`
 - **workflow**: The root orchestrator that drives a feature from requirements through TDD, implementation, and E2E verification. Manages the state transitions across 6 sequential stages.
   path: `trust-me-bro-ai/skills/workflow/SKILL.md`
 - **get-requirement**: Stage-1 of workflow. Read the requirement, resolve ambiguities with the user, identify scenarios, and define scenario.html content for each with user-story steps (generate-report writes the file). Pause for user review before any test data or tasks are created.
@@ -49,6 +51,8 @@ description: Master index of all shared team skills. Use when starting any task 
   path: `trust-me-bro-ai/skills/workflow/Stage-5/api-test/SKILL.md`
 - **acceptance-review**: Stage-6 of workflow. The acceptance gate — summarize the finished scenario, pause, and let the user accept or reject it (the user decides, never the agent). Surfaces anomalies (agent-detected and user-raised), runs a retrospective, and collects closing feedback, then resolve the decision — accept (the scenario is done) or reject (record the round and hand feedback back to Stage 1 for an additive loop-back). Replaces the old agile loop-back-on-failure — the agent never decides a fix on its own.
   path: `trust-me-bro-ai/skills/workflow/Stage-6/acceptance-review/SKILL.md`
+- **e2e-swimlane**: Optional workflow plug-in, run once per feature before Stage-1 get-requirement. Draws the feature's business swimlane (SVG, generated from a text .flow file), lists every scenario the flow can be cut into, and maps each lane to what tests must mock or seed. Stage-1 then picks one scenario from that list.
+  path: `trust-me-bro-ai/skills/workflow/plugins/e2e-swimlane/SKILL.md`
 ## How to use
 When a task matches a skill above, read the file at its path and follow the instructions there.
 Run $skill-sync after adding or removing skills in trust-me-bro-ai/skills/.

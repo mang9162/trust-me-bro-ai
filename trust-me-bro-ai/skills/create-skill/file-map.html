@@ -79,6 +79,8 @@ flowchart LR
     s5Script["Stage-5/api-test/scripts/<br/>export-requests.py"]
     s6["Stage-6<br/>acceptance-review"]
     skillFiles["skills/**/SKILL.md<br/>(self — reviewed out-of-band)"]
+    swim["plugins/e2e-swimlane<br/>(opt-in, once per feature,<br/>before Stage-1)"]
+    swimScript["plugins/e2e-swimlane/scripts/<br/>swimlane.py"]
 
     %% ===== 0: SOLID + numbered = actual dispatch flow (Stages routing) =====
     wf -->|"1 invoke"| s1
@@ -141,6 +143,7 @@ flowchart LR
     setupBacklog["02-Task/<br/>01-Setup/ + 02-Backlog/<br/>(execute-tdd queue)"]
     apiTestT["02-Task/03-Api-test/"]
     workIssue["work/Issue/&lt;NN&gt;-&lt;slug&gt;/<br/>issue.md · Backlog/ tasks<br/>(one instance per issue)"]
+    featureFlow["work/Scenario/&lt;FEATURE&gt;/<br/>swimlane.flow · swimlane.svg · e2e-flow.md<br/>+ each scenario's flow.svg"]
   end
 
   subgraph C8["8 · maintenance (issue-fix pipeline)"]
@@ -328,13 +331,24 @@ flowchart LR
   %% ===== graphify-map component (112): initialize Phase 0 optional whole-project map =====
   init -.->|"112 · trigger: Phase 0 'map with Graphify?' (opt-in)"| graphifyMap
 
-  class wf,s1,s2,s3,s4,s5,s6,skillFiles,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd,defineTask,taskSchema,executeIssue,initSyncRouter,ghInstaller,syncDefault,syncGen,graphifyMap hardf
-  class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson,techDebtJson,scenarioHtml,testdata,setupBacklog,apiTestT,workIssue softf
+  %% ===== e2e-swimlane plug-in (113-121): opt-in feature picture before Stage-1 =====
+  wf -->|"113 · invoke (opt-in, once per feature)"| swim
+  swim -.->|"114 · ref: downstream services = lanes"| gwdir
+  swim -.->|"115 · ref: business vocabulary"| domain
+  swim -.->|"116 · ref: test levels (lane &rarr; mock columns)"| testguide
+  swim -.->|"117 · feature + scenario folder paths (## Layout)"| wf
+  swim -->|"118 · write: swimlane.flow/.svg, e2e-flow.md, flow.svg"| featureFlow
+  swim -.->|"119 · report issue (Issue #16)"| selfReport
+  s1 -.->|"120 · scenario name/category/NN<br/>must match the scenario list"| featureFlow
+  s2 -.->|"121 · ref: lane &rarr; mock table"| featureFlow
 
-  linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66,69,70,71,72,79,80,81,82,83,84,90,92,93,97 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
-  linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64,67,73,98 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
-  linkStyle 26,27,28,29,30,31,32,33,34,35,36,37,47,52,63,88,91,95,96,99,100,101,103,104,105,106,107,108,109,112 stroke:#dc2626,stroke-width:2px,color:#dc2626
-  linkStyle 38,39,50,51,65,68,74,75,76,77,78,85,86,87,89,94,102,110,111 stroke:#16a34a,stroke-width:2px,color:#16a34a
+  class wf,s1,s2,s3,s4,s5,s6,skillFiles,swim,swimScript,gr,selfReport,selfImprove,feedback,fmg,fileMap,init,initFmt,defaultTdd,defineTask,taskSchema,executeIssue,initSyncRouter,ghInstaller,syncDefault,syncGen,graphifyMap hardf
+  class data,domain,gwdir,techstack,codestd,testguide,dbschema,gwcontract,errcodes,agents,tierJson,logJson,techDebtJson,scenarioHtml,testdata,setupBacklog,apiTestT,workIssue,featureFlow softf
+
+  linkStyle 13,14,18,19,20,22,23,24,25,40,41,42,44,46,49,58,59,60,61,66,69,70,71,72,79,80,81,82,83,84,90,92,93,97,114,115,116,121 stroke:#0ea5e9,stroke-width:1.5px,color:#0ea5e9
+  linkStyle 15,16,17,21,43,45,48,53,54,55,56,57,62,64,67,73,98,117,120 stroke:#1e293b,stroke-width:1.5px,color:#1e293b
+  linkStyle 26,27,28,29,30,31,32,33,34,35,36,37,47,52,63,88,91,95,96,99,100,101,103,104,105,106,107,108,109,112,119 stroke:#dc2626,stroke-width:2px,color:#dc2626
+  linkStyle 38,39,50,51,65,68,74,75,76,77,78,85,86,87,89,94,102,110,111,118 stroke:#16a34a,stroke-width:2px,color:#16a34a
   </div>
 
   <h2>Node Colors</h2>
